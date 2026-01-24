@@ -1,173 +1,229 @@
-# Mnemosyne
+<p align="center">
+  <h1 align="center">🧠 Mnemosyne</h1>
+  <p align="center"><strong>Your Private AI Brain</strong></p>
+  <p align="center">
+    <em>Remember Everything. Privately.</em>
+  </p>
+</p>
 
-**AI-Powered Note-Taking with Image Recognition**
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-features">Features</a> •
+  <a href="#-roadmap">Roadmap</a> •
+  <a href="#-contributing">Contributing</a> •
+  <a href="#-support">Support</a>
+</p>
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black)](https://reactjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
-[![Ollama](https://img.shields.io/badge/Ollama-000000?style=flat&logo=ollama&logoColor=white)](https://ollama.ai/)
+<p align="center">
+  <img src="https://img.shields.io/badge/version-0.1.0--beta-blue" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
+  <img src="https://img.shields.io/badge/AI-local%20only-purple" alt="Local AI">
+</p>
 
 ---
 
-Mnemosyne is a personal knowledge management system that combines traditional note-taking with cutting-edge AI capabilities. Named after the Greek goddess of memory, it helps you capture, organize, and retrieve your thoughts and images using artificial intelligence.
+> **🧪 Beta Release** — This is an early version for adventurous users who want to explore AI-powered knowledge management. Perfect for early adopters ready to start building their private AI brain. [See Roadmap →](#-roadmap)
 
-## Features
+---
 
-### Smart Note-Taking
-- Rich text editor with Tiptap
-- **Wikilinks** - Connect notes with `[[Note Title]]` syntax
-- **Hashtags** - Organize with `#tags` that are automatically indexed
-- **Backlinks** - See all notes referencing the current note
+## 🌟 Why Mnemosyne?
 
-### AI Image Analysis
-- Upload images and get automatic descriptions, titles, and tags
-- Powered by local vision models (llama3.2-vision, qwen2.5vl)
-- Each image creates a linked note for organization
+**Your thoughts deserve better than scattered notes and forgotten bookmarks.**
 
-### Knowledge Graph
-- Interactive force-directed graph visualization
-- Navigate connections between notes
-- Discover orphaned and isolated content
+Mnemosyne is an AI-powered personal knowledge management system that runs **100% locally** on your machine. No cloud. No subscriptions. No data harvesting. Just you and your AI-enhanced second brain.
 
-### RAG-Powered Chat
-- Ask questions about your knowledge base
-- Citation-backed answers with source references
-- Streaming responses with conversation history
+| What Makes It Different | |
+|------------------------|---|
+| 🔒 **Truly Private** | Your data never leaves your machine. Period. |
+| 🤖 **AI That Understands** | Local AI analyzes your notes and images, finding connections you missed |
+| 🕸️ **Living Knowledge Graph** | Watch your ideas connect and evolve visually |
+| 📸 **Visual Intelligence** | Upload images and let AI extract text, describe content, and auto-tag |
+| 💬 **Ask Your Brain** | Chat with your knowledge base and get citation-backed answers |
 
-### Smart Buckets
-- **AI Clusters** - K-means clustering groups similar notes
-- **Inbox** - Recent notes from the last 7 days
-- **Orphans** - Notes without connections
-- **Daily Notes** - Automatic journal entries
+---
 
-### Semantic Search
-- Full-text search with PostgreSQL tsvector
-- Vector similarity search with pgvector
-- Find notes by meaning, not just keywords
+## 📸 Screenshots
 
-## Quick Start
+<p align="center">
+  <em>Screenshots coming soon — the app is more beautiful than we can describe!</em>
+</p>
+
+<!--
+TODO: Add screenshots
+![Workspace](docs/screenshots/workspace.png)
+![Knowledge Graph](docs/screenshots/graph.png)
+![AI Chat](docs/screenshots/chat.png)
+-->
+
+---
+
+## 🚀 Quick Start
+
+Get your private AI brain running in 3 steps:
 
 ### Prerequisites
-
-- Docker and Docker Compose
-- 8GB+ RAM (16GB recommended for AI features)
-- NVIDIA GPU with CUDA support (optional, for faster AI)
+- [Docker](https://www.docker.com/get-started) and Docker Compose
+- 8GB RAM minimum (16GB recommended for AI features)
+- NVIDIA GPU optional (for faster AI processing)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/mnemosyne.git
-   cd mnemosyne
-   ```
+```bash
+# 1. Clone the repository
+git clone https://github.com/Simmak7/project-Mnemosyne.git
+cd project-Mnemosyne
 
-2. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your settings (defaults work for most users)
 
-3. **Start the application**
-   ```bash
-   docker-compose up -d --build
-   ```
+# 3. Launch Mnemosyne
+docker-compose up -d --build
+```
 
-4. **Pull AI models** (first time only)
-   ```bash
-   docker exec -it ollama ollama pull llama3.2-vision:11b
-   docker exec -it ollama ollama pull nomic-embed-text
-   ```
+### First-Time Setup
 
-5. **Access the application**
-   - Frontend: http://localhost:3000
-   - API Docs: http://localhost:8000/docs
+```bash
+# Pull AI models (one-time, ~5GB download)
+docker exec -it ollama ollama pull llama3.2-vision:11b
+docker exec -it ollama ollama pull nomic-embed-text
+```
 
-## Tech Stack
+### Access Your Brain
+
+| Service | URL |
+|---------|-----|
+| 🖥️ **App** | http://localhost:3000 |
+| 📚 **API Docs** | http://localhost:8000/docs |
+
+---
+
+## ✨ Features
+
+### 📝 Smart Note-Taking
+- **Rich Text Editor** — Full-featured editor with markdown support
+- **[[Wikilinks]]** — Connect ideas with bidirectional links
+- **#Hashtags** — Organize with auto-extracted tags
+- **Backlinks** — See every note that references the current one
+
+### 📸 Visual Intelligence
+- **AI Image Analysis** — Upload photos, get automatic descriptions and tags
+- **Text Recognition** — Extract text from images, screenshots, documents
+- **Smart Gallery** — Browse, search, and organize your visual knowledge
+- **Auto-Generated Notes** — Every image becomes a searchable, linked note
+
+### 🕸️ Knowledge Graph
+- **Visual Connections** — See how your ideas link together
+- **Interactive Exploration** — Click, zoom, and navigate your knowledge
+- **Orphan Detection** — Find isolated notes waiting to be connected
+- **Cluster Discovery** — AI groups similar content automatically
+
+### 💬 RAG-Powered AI Chat
+- **Ask Anything** — Query your entire knowledge base naturally
+- **Citation-Backed** — Every answer shows its sources
+- **Context-Aware** — AI understands connections between your notes
+- **Streaming Responses** — Real-time answers as AI thinks
+
+### 🪣 Smart Buckets
+- **AI Clusters** — Automatically grouped similar notes
+- **Inbox** — Recent captures in one place
+- **Daily Notes** — Built-in journaling with templates
+- **Orphans** — Notes waiting for connections
+
+### 🔍 Semantic Search
+- **Search by Meaning** — Find notes by concept, not just keywords
+- **Full-Text Search** — Traditional search when you need it
+- **Similar Notes** — Discover related content you forgot about
+- **Unlinked Mentions** — Find connection opportunities
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | React 18, TanStack Query, Tiptap Editor, D3.js |
 | **Backend** | FastAPI, SQLAlchemy, Celery, Pydantic |
-| **Database** | PostgreSQL + pgvector extension |
+| **Database** | PostgreSQL + pgvector |
 | **Cache/Queue** | Redis |
-| **AI/ML** | Ollama (local LLM inference) |
+| **AI/ML** | Ollama (100% local inference) |
 | **Infrastructure** | Docker Compose |
 
-## Architecture
+---
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                        Frontend                             │
-│                    React + TanStack Query                   │
-└─────────────────────────┬───────────────────────────────────┘
-                          │ HTTP/SSE
-┌─────────────────────────▼───────────────────────────────────┐
-│                     FastAPI Backend                         │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       │
-│  │  Auth   │  │  Notes  │  │ Images  │  │   RAG   │       │
-│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘       │
-└───────┼────────────┼────────────┼────────────┼─────────────┘
-        │            │            │            │
-┌───────▼────────────▼────────────▼────────────▼─────────────┐
-│                        Services                             │
-│  PostgreSQL (pgvector)  │  Redis  │  Celery  │  Ollama    │
-└─────────────────────────────────────────────────────────────┘
-```
+## 🗺️ Roadmap
 
-## Documentation
+### Current: v0.1.0-beta (You Are Here)
+- ✅ Core note-taking with wikilinks and tags
+- ✅ AI image analysis and text recognition
+- ✅ Knowledge graph visualization
+- ✅ RAG-powered chat with citations
+- ✅ Smart buckets and clustering
+- ✅ Semantic search
 
-Detailed documentation is available in the [`/docs`](./docs) folder:
+### Next: v0.2.0
+- 🔲 Mobile-responsive design improvements
+- 🔲 Import from Obsidian, Notion, Evernote
+- 🔲 Export your data (Markdown, JSON)
+- 🔲 PDF document support
+- 🔲 Audio note transcription
 
-- [Installation Guide](./docs/guides/installation.md)
-- [Quick Start](./docs/guides/quick-start.md)
-- [Configuration](./docs/guides/configuration.md)
-- [API Reference](./docs/api/README.md)
-- [Architecture](./docs/technical/architecture.md)
+### Future Vision
+- 🔮 **Browser Extension** — Capture anything from the web
+- 🔮 **Mobile App** — Your brain in your pocket
+- 🔮 **Collaborative Spaces** — Shared knowledge bases
+- 🔮 **Custom AI Training** — Personalize AI to your writing style
+- 🔮 **Plugin System** — Extend with community add-ons
 
-## Configuration
+> Have ideas? [Open an issue](https://github.com/Simmak7/project-Mnemosyne/issues) — we're building this together!
 
-Key environment variables:
+---
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://...` |
-| `REDIS_URL` | Redis connection string | `redis://redis:6379` |
-| `OLLAMA_BASE_URL` | Ollama API endpoint | `http://ollama:11434` |
-| `SECRET_KEY` | JWT signing key | (required) |
-| `VISION_MODEL` | Model for image analysis | `llama3.2-vision:11b` |
+## 🤝 Contributing
 
-See [`.env.example`](./.env.example) for all options.
+Mnemosyne is open source and we love contributions! Whether it's:
 
-## System Requirements
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📖 Documentation improvements
+- 🔧 Code contributions
 
-### Minimum
-- 8GB RAM
-- 20GB disk space
-- Docker and Docker Compose
+Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
 
-### Recommended (for AI features)
-- 16GB+ RAM
-- NVIDIA GPU with 8GB+ VRAM
-- 50GB+ disk space for AI models
-- CUDA support enabled
+---
 
-## Contributing
+## 💖 Support the Project
 
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+Mnemosyne is built with love by a solo developer. If it helps you build your second brain, consider supporting continued development:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+<p align="center">
+  <a href="https://ko-fi.com/YOUR_KOFI_USERNAME">
+    <img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi">
+  </a>
+  <a href="https://github.com/sponsors/Simmak7">
+    <img src="https://img.shields.io/badge/GitHub%20Sponsors-Support-EA4AAA?logo=github-sponsors&logoColor=white" alt="GitHub Sponsors">
+  </a>
+</p>
 
-## License
+**Other ways to help:**
+- ⭐ **Star this repo** — It helps others discover Mnemosyne
+- 🐛 **Report bugs** — Help us improve
+- 📢 **Spread the word** — Tell your friends about private AI
 
-This project is proprietary software. All rights reserved.
+---
+
+## 📜 License
+
+Mnemosyne is open source software licensed under the [MIT License](LICENSE).
 
 ---
 
 <p align="center">
-  <strong>Mnemosyne</strong> - Remember Everything
+  <strong>Mnemosyne</strong> — Named after the Greek goddess of memory<br>
+  <em>Your thoughts. Your images. Your knowledge. Your brain.</em>
+</p>
+
+<p align="center">
+  Built with 🧠 by <a href="https://github.com/Simmak7">@Simmak7</a>
 </p>
