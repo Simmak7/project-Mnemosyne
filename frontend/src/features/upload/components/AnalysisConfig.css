@@ -1,0 +1,614 @@
+/* ============================================
+   AnalysisConfig Styles
+   Right panel configuration UI
+   ============================================ */
+
+.analysis-config {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+}
+
+/* ----------------------------------------
+   Header
+   ---------------------------------------- */
+
+.config-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--ng-space-4, 1rem);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.config-header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.config-header-title h2 {
+  margin: 0;
+  font-size: var(--ng-text-lg, 1.125rem);
+  font-weight: 600;
+}
+
+.config-header-title svg {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.config-reset-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-1, 0.25rem) var(--ng-space-2, 0.5rem);
+  background: transparent;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 8px);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.config-reset-btn:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+/* ----------------------------------------
+   Summary Badge
+   ---------------------------------------- */
+
+.config-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+  margin: var(--ng-space-3, 0.75rem) var(--ng-space-4, 1rem);
+  padding: var(--ng-space-2, 0.5rem) var(--ng-space-3, 0.75rem);
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: var(--ng-radius-md, 8px);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.config-summary svg {
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------
+   Content
+   ---------------------------------------- */
+
+.config-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ng-space-4, 1rem);
+}
+
+/* ----------------------------------------
+   Sections
+   ---------------------------------------- */
+
+.config-section {
+  margin-bottom: var(--ng-space-6, 1.5rem);
+}
+
+.config-section:last-child {
+  margin-bottom: 0;
+}
+
+.config-section-title {
+  margin: 0 0 var(--ng-space-2, 0.5rem);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-secondary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.config-optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.config-section-hint {
+  margin: 0 0 var(--ng-space-3, 0.75rem);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+/* ----------------------------------------
+   Presets
+   ---------------------------------------- */
+
+.config-presets {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+  flex-wrap: wrap;
+}
+
+.config-preset {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+  padding: var(--ng-space-2, 0.5rem) var(--ng-space-3, 0.75rem);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-lg, 12px);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.config-preset:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.config-preset.active {
+  background: rgba(129, 140, 248, 0.1);
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.config-preset svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.config-preset.active svg {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+/* ----------------------------------------
+   Models
+   ---------------------------------------- */
+
+.config-models {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.config-model {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 0.75rem);
+  padding: var(--ng-space-3, 0.75rem);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-lg, 12px);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.config-model:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.config-model.active {
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.model-radio {
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: var(--ng-text-lg, 1.125rem);
+}
+
+.model-label {
+  flex: 1;
+}
+
+.model-default {
+  font-size: var(--ng-text-xs, 0.75rem);
+  padding: var(--ng-space-1, 0.25rem) var(--ng-space-2, 0.5rem);
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--ng-accent-link, #34d399);
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+/* ----------------------------------------
+   Prompt Input
+   ---------------------------------------- */
+
+.config-prompt-input {
+  width: 100%;
+  padding: var(--ng-space-3, 0.75rem);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-lg, 12px);
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #f9fafb);
+  resize: vertical;
+  min-height: 100px;
+  transition: all 0.2s ease;
+}
+
+.config-prompt-input::placeholder {
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.config-prompt-input:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.config-prompt-input:focus {
+  outline: none;
+  border-color: var(--ng-accent-ai, #818cf8);
+  box-shadow: 0 0 0 3px var(--ng-accent-ai-glow, rgba(129, 140, 248, 0.2));
+}
+
+/* ----------------------------------------
+   Advanced Options
+   ---------------------------------------- */
+
+.config-advanced {
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  padding-top: var(--ng-space-4, 1rem);
+}
+
+.config-advanced-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+  padding: var(--ng-space-2, 0.5rem) 0;
+  background: none;
+  border: none;
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.config-advanced-toggle:hover {
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.config-advanced-content {
+  margin-top: var(--ng-space-3, 0.75rem);
+  padding: var(--ng-space-3, 0.75rem);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--ng-radius-lg, 12px);
+}
+
+.config-info-box {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.config-info-box svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.config-info-box p {
+  margin: 0;
+}
+
+/* ----------------------------------------
+   Advanced Options - New Sections
+   ---------------------------------------- */
+
+.config-advanced-section {
+  margin-bottom: var(--ng-space-4, 1rem);
+  padding-bottom: var(--ng-space-4, 1rem);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.config-advanced-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.config-advanced-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 0.5rem);
+  margin: 0 0 var(--ng-space-2, 0.5rem);
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 600;
+  color: var(--ng-text-secondary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.config-advanced-label svg {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.config-hint {
+  margin: 0;
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+/* Depth Options */
+.config-depth-options {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.config-depth-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-2, 0.5rem);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 8px);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.config-depth-btn:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.config-depth-btn.active {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.config-depth-btn svg {
+  opacity: 0.7;
+}
+
+.config-depth-btn.active svg {
+  opacity: 1;
+}
+
+/* Toggle Switch */
+.config-toggle-row {
+  margin-bottom: var(--ng-space-2, 0.5rem);
+}
+
+.config-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 0.75rem);
+  cursor: pointer;
+}
+
+.config-toggle input {
+  display: none;
+}
+
+.config-toggle-slider {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.config-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--ng-text-secondary, #9ca3af);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.config-toggle input:checked + .config-toggle-slider {
+  background: rgba(129, 140, 248, 0.3);
+}
+
+.config-toggle input:checked + .config-toggle-slider::after {
+  left: 18px;
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+.config-toggle-label {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+/* Slider */
+.config-slider-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 0.75rem);
+  margin-top: var(--ng-space-2, 0.5rem);
+}
+
+.config-slider-label {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-tertiary, #6b7280);
+  white-space: nowrap;
+}
+
+.config-slider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  outline: none;
+}
+
+.config-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.config-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.config-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+}
+
+.config-slider-value {
+  min-width: 20px;
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--ng-accent-ai, #818cf8);
+  text-align: right;
+}
+
+/* Coming Soon Badge */
+.config-badge-soon {
+  margin-left: auto;
+  padding: 2px 6px;
+  background: rgba(251, 191, 36, 0.15);
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-weight: 500;
+  color: #fbbf24;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.config-coming-soon {
+  opacity: 0.6;
+}
+
+.config-coming-soon .config-advanced-label svg {
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+/* ----------------------------------------
+   Footer
+   ---------------------------------------- */
+
+.config-footer {
+  padding: var(--ng-space-3, 0.75rem) var(--ng-space-4, 1rem);
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.config-footer-info {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.config-footer-info svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ----------------------------------------
+   Scrollbar
+   ---------------------------------------- */
+
+.config-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.config-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.config-content::-webkit-scrollbar-thumb {
+  background: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 3px;
+}
+
+.config-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .analysis-config {
+  background: var(--ng-glass-bg-light, rgba(255, 255, 255, 0.8));
+}
+
+[data-theme="light"] .config-content::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .config-content::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-500);
+}
+
+[data-theme="light"] .config-reset-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .config-preset {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .config-preset:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .config-model {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .config-model:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .config-prompt-input {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .config-advanced-content {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .config-depth-btn {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .config-depth-btn:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .config-toggle-slider {
+  background: var(--ng-slate-300, #cbd5e1);
+}
+
+[data-theme="light"] .config-slider {
+  background: var(--ng-slate-300, #cbd5e1);
+}

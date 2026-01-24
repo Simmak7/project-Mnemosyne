@@ -1,0 +1,253 @@
+/**
+ * Inspector.css - Neural Glass right panel styling
+ */
+
+/* Content entrance animation */
+@keyframes inspector-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.inspector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-4, 16px);
+  animation: inspector-content-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Empty State */
+.inspector__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  text-align: center;
+}
+
+.inspector__empty-text {
+  font-size: 13px;
+  color: var(--ng-text-muted, #6b7280);
+  max-width: 180px;
+}
+
+/* Header */
+.inspector__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ng-space-2, 8px);
+}
+
+.inspector__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  flex: 1;
+  min-width: 0;
+}
+
+.inspector__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inspector__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-muted, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.inspector__close:hover {
+  background: var(--ng-charcoal-600, #2e2e2e);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+/* Type Badge */
+.inspector__type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-full, 9999px);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  align-self: flex-start;
+}
+
+/* Section */
+.inspector__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 8px);
+}
+
+.inspector__section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+  margin: 0;
+  padding-bottom: var(--ng-space-1, 4px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+/* Meta Rows */
+.inspector__meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  font-size: 12px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.inspector__meta-row svg {
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+/* Excerpt */
+.inspector__excerpt {
+  font-size: 13px;
+  color: var(--ng-text-secondary, #d1d5db);
+  line-height: 1.5;
+  margin: 0;
+  padding: var(--ng-space-2, 8px);
+  background: var(--ng-charcoal-800, #1f1f1f);
+  border-radius: var(--ng-radius-md, 6px);
+  border-left: 2px solid var(--ng-accent-ai, #818cf8);
+}
+
+/* Connection Rows */
+.inspector__connection-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  font-size: 12px;
+  color: var(--ng-text-secondary, #d1d5db);
+  padding: var(--ng-space-1, 4px) 0;
+}
+
+.inspector__connection-row svg {
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+/* Actions */
+.inspector__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-2, 8px);
+}
+
+.inspector__action {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-charcoal-700, #262626);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-text-secondary, #d1d5db);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inspector__action:hover {
+  background: var(--ng-charcoal-600, #2e2e2e);
+  border-color: var(--ng-glass-border-hover, rgba(255, 255, 255, 0.1));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.inspector__action.is-active {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+/* Evidence Snippets */
+.inspector__snippet {
+  font-size: 12px;
+  color: var(--ng-text-tertiary, #9ca3af);
+  line-height: 1.5;
+  margin: 0;
+  padding: var(--ng-space-2, 8px);
+  background: var(--ng-charcoal-900, #171717);
+  border-radius: var(--ng-radius-sm, 4px);
+  font-style: italic;
+}
+
+/* Image Preview */
+.inspector__image-preview {
+  width: 100%;
+  border-radius: var(--ng-radius-md, 6px);
+  overflow: hidden;
+  background: var(--ng-charcoal-800, #1f1f1f);
+}
+
+.inspector__image-thumbnail {
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Empty connections message */
+.inspector__empty-connections {
+  font-size: 12px;
+  color: var(--ng-text-muted, #6b7280);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .inspector__close:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .inspector__excerpt {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .inspector__action {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .inspector__action:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .inspector__snippet {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .inspector__image-preview {
+  background: var(--ng-slate-100, #f1f5f9);
+}

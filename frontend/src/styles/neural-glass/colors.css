@@ -1,0 +1,297 @@
+/* ============================================
+   Neural Glass Design System - Colors
+   Deep void backgrounds, semantic accents,
+   and glass surface colors
+   ============================================ */
+
+:root {
+  /* ----------------------------------------
+     Base Colors - Deep Void
+     The foundation of Neural Glass
+     ---------------------------------------- */
+  --ng-void-deepest: #000000;
+  --ng-void-deep: #050505;
+  --ng-void: #0a0a0a;
+  --ng-void-soft: #0f0f0f;
+  --ng-void-lighter: #141414;
+  --ng-void-light: #1a1a1a;
+
+  /* Charcoal scale (for subtle backgrounds) */
+  --ng-charcoal-900: #171717;
+  --ng-charcoal-800: #1f1f1f;
+  --ng-charcoal-700: #262626;
+  --ng-charcoal-600: #2e2e2e;
+  --ng-charcoal-500: #3d3d3d;
+  --ng-charcoal-400: #525252;
+  --ng-charcoal-300: #6b6b6b;
+
+  /* ----------------------------------------
+     Glass Surface Colors
+     For glassmorphism effects
+     ---------------------------------------- */
+  --ng-glass-bg: rgba(0, 0, 0, 0.4);
+  --ng-glass-bg-light: rgba(0, 0, 0, 0.3);
+  --ng-glass-bg-heavy: rgba(0, 0, 0, 0.6);
+  --ng-glass-bg-solid: rgba(10, 10, 10, 0.85);
+
+  --ng-glass-bg-hover: rgba(255, 255, 255, 0.03);
+  --ng-glass-bg-active: rgba(255, 255, 255, 0.05);
+
+  /* Glass borders */
+  --ng-glass-border: rgba(255, 255, 255, 0.05);
+  --ng-glass-border-hover: rgba(255, 255, 255, 0.1);
+  --ng-glass-border-active: rgba(255, 255, 255, 0.15);
+  --ng-glass-border-subtle: rgba(255, 255, 255, 0.03);
+
+  /* ----------------------------------------
+     Text Colors
+     High contrast for readability
+     ---------------------------------------- */
+  --ng-text-primary: #f9fafb;
+  --ng-text-secondary: #d1d5db;
+  --ng-text-tertiary: #9ca3af;
+  --ng-text-muted: #6b7280;
+  --ng-text-disabled: #4b5563;
+  --ng-text-inverse: #0a0a0a;
+
+  /* ----------------------------------------
+     Semantic Accent Colors
+     Each content type has its signature color
+     ---------------------------------------- */
+
+  /* AI / Magic - Violet/Indigo */
+  --ng-accent-ai: #818cf8;
+  --ng-accent-ai-light: #a5b4fc;
+  --ng-accent-ai-dark: #6366f1;
+  --ng-accent-ai-glow: rgba(129, 140, 248, 0.3);
+  --ng-accent-ai-bg: rgba(129, 140, 248, 0.1);
+  --ng-accent-ai-border: rgba(129, 140, 248, 0.3);
+
+  /* Images / Vision - Cyan */
+  --ng-accent-image: #22d3ee;
+  --ng-accent-image-light: #67e8f9;
+  --ng-accent-image-dark: #06b6d4;
+  --ng-accent-image-glow: rgba(34, 211, 238, 0.3);
+  --ng-accent-image-bg: rgba(34, 211, 238, 0.1);
+  --ng-accent-image-border: rgba(34, 211, 238, 0.3);
+
+  /* Notes / Thought - Amber */
+  --ng-accent-note: #fbbf24;
+  --ng-accent-note-light: #fcd34d;
+  --ng-accent-note-dark: #f59e0b;
+  --ng-accent-note-glow: rgba(251, 191, 36, 0.3);
+  --ng-accent-note-bg: rgba(251, 191, 36, 0.1);
+  --ng-accent-note-border: rgba(251, 191, 36, 0.3);
+
+  /* Links / Connections - Emerald */
+  --ng-accent-link: #34d399;
+  --ng-accent-link-light: #6ee7b7;
+  --ng-accent-link-dark: #10b981;
+  --ng-accent-link-glow: rgba(52, 211, 153, 0.3);
+  --ng-accent-link-bg: rgba(52, 211, 153, 0.1);
+  --ng-accent-link-border: rgba(52, 211, 153, 0.3);
+
+  /* ----------------------------------------
+     Functional Colors
+     For UI states and feedback
+     ---------------------------------------- */
+
+  /* Success */
+  --ng-success: #22c55e;
+  --ng-success-light: #4ade80;
+  --ng-success-dark: #16a34a;
+  --ng-success-bg: rgba(34, 197, 94, 0.1);
+  --ng-success-border: rgba(34, 197, 94, 0.3);
+
+  /* Warning */
+  --ng-warning: #f59e0b;
+  --ng-warning-light: #fbbf24;
+  --ng-warning-dark: #d97706;
+  --ng-warning-bg: rgba(245, 158, 11, 0.1);
+  --ng-warning-border: rgba(245, 158, 11, 0.3);
+
+  /* Error */
+  --ng-error: #ef4444;
+  --ng-error-light: #f87171;
+  --ng-error-dark: #dc2626;
+  --ng-error-bg: rgba(239, 68, 68, 0.1);
+  --ng-error-border: rgba(239, 68, 68, 0.3);
+
+  /* Info */
+  --ng-info: #3b82f6;
+  --ng-info-light: #60a5fa;
+  --ng-info-dark: #2563eb;
+  --ng-info-bg: rgba(59, 130, 246, 0.1);
+  --ng-info-border: rgba(59, 130, 246, 0.3);
+
+  /* ----------------------------------------
+     Interactive State Colors
+     ---------------------------------------- */
+  --ng-focus-ring: var(--ng-accent-ai);
+  --ng-focus-ring-offset: var(--ng-void);
+
+  --ng-selection-bg: rgba(129, 140, 248, 0.3);
+  --ng-selection-text: var(--ng-text-primary);
+
+  /* ----------------------------------------
+     Dividers and Borders
+     ---------------------------------------- */
+  --ng-divider: rgba(255, 255, 255, 0.06);
+  --ng-divider-strong: rgba(255, 255, 255, 0.1);
+  --ng-border-default: rgba(255, 255, 255, 0.08);
+}
+
+/* ----------------------------------------
+   Selection Styling
+   ---------------------------------------- */
+::selection {
+  background-color: var(--ng-selection-bg);
+  color: var(--ng-selection-text);
+}
+
+::-moz-selection {
+  background-color: var(--ng-selection-bg);
+  color: var(--ng-selection-text);
+}
+
+/* ============================================
+   Light Mode - Ethereal Light Theme
+   Inverted from Deep Void to Ethereal White
+   ============================================ */
+
+[data-theme="light"] {
+  /* ----------------------------------------
+     Base Colors - Ethereal White
+     The light mode foundation
+     ---------------------------------------- */
+  --ng-void-deepest: #ffffff;
+  --ng-void-deep: #fafafa;
+  --ng-void: #f5f5f5;
+  --ng-void-soft: #f0f0f0;
+  --ng-void-lighter: #ebebeb;
+  --ng-void-light: #e5e5e5;
+
+  /* Light gray scale (for subtle backgrounds) */
+  --ng-charcoal-900: #e8e8e8;
+  --ng-charcoal-800: #e0e0e0;
+  --ng-charcoal-700: #d9d9d9;
+  --ng-charcoal-600: #d1d1d1;
+  --ng-charcoal-500: #c2c2c2;
+  --ng-charcoal-400: #adadad;
+  --ng-charcoal-300: #949494;
+
+  /* ----------------------------------------
+     Glass Surface Colors
+     White transparency for light mode
+     ---------------------------------------- */
+  --ng-glass-bg: rgba(255, 255, 255, 0.7);
+  --ng-glass-bg-light: rgba(255, 255, 255, 0.5);
+  --ng-glass-bg-heavy: rgba(255, 255, 255, 0.85);
+  --ng-glass-bg-solid: rgba(250, 250, 250, 0.95);
+
+  --ng-glass-bg-hover: rgba(0, 0, 0, 0.02);
+  --ng-glass-bg-active: rgba(0, 0, 0, 0.04);
+
+  /* Glass borders - subtle dark for light mode */
+  --ng-glass-border: rgba(0, 0, 0, 0.08);
+  --ng-glass-border-hover: rgba(0, 0, 0, 0.12);
+  --ng-glass-border-active: rgba(0, 0, 0, 0.18);
+  --ng-glass-border-subtle: rgba(0, 0, 0, 0.05);
+
+  /* ----------------------------------------
+     Text Colors
+     Dark text for light backgrounds
+     ---------------------------------------- */
+  --ng-text-primary: #1a1a1a;
+  --ng-text-secondary: #4b5563;
+  --ng-text-tertiary: #6b7280;
+  --ng-text-muted: #9ca3af;
+  --ng-text-disabled: #d1d5db;
+  --ng-text-inverse: #f9fafb;
+
+  /* ----------------------------------------
+     Semantic Accent Colors
+     Darker variants for contrast on light bg
+     ---------------------------------------- */
+
+  /* AI / Magic - Darker Violet for light mode */
+  --ng-accent-ai: #6366f1;
+  --ng-accent-ai-light: #818cf8;
+  --ng-accent-ai-dark: #4f46e5;
+  --ng-accent-ai-glow: rgba(99, 102, 241, 0.25);
+  --ng-accent-ai-bg: rgba(99, 102, 241, 0.08);
+  --ng-accent-ai-border: rgba(99, 102, 241, 0.25);
+
+  /* Images / Vision - Darker Cyan for light mode */
+  --ng-accent-image: #0891b2;
+  --ng-accent-image-light: #22d3ee;
+  --ng-accent-image-dark: #0e7490;
+  --ng-accent-image-glow: rgba(8, 145, 178, 0.25);
+  --ng-accent-image-bg: rgba(8, 145, 178, 0.08);
+  --ng-accent-image-border: rgba(8, 145, 178, 0.25);
+
+  /* Notes / Thought - Darker Amber for light mode */
+  --ng-accent-note: #d97706;
+  --ng-accent-note-light: #fbbf24;
+  --ng-accent-note-dark: #b45309;
+  --ng-accent-note-glow: rgba(217, 119, 6, 0.25);
+  --ng-accent-note-bg: rgba(217, 119, 6, 0.08);
+  --ng-accent-note-border: rgba(217, 119, 6, 0.25);
+
+  /* Links / Connections - Darker Emerald for light mode */
+  --ng-accent-link: #059669;
+  --ng-accent-link-light: #34d399;
+  --ng-accent-link-dark: #047857;
+  --ng-accent-link-glow: rgba(5, 150, 105, 0.25);
+  --ng-accent-link-bg: rgba(5, 150, 105, 0.08);
+  --ng-accent-link-border: rgba(5, 150, 105, 0.25);
+
+  /* ----------------------------------------
+     Functional Colors
+     Slightly adjusted for light mode
+     ---------------------------------------- */
+
+  /* Success - darker for light bg */
+  --ng-success: #16a34a;
+  --ng-success-light: #22c55e;
+  --ng-success-dark: #15803d;
+  --ng-success-bg: rgba(22, 163, 74, 0.08);
+  --ng-success-border: rgba(22, 163, 74, 0.25);
+
+  /* Warning - darker for light bg */
+  --ng-warning: #d97706;
+  --ng-warning-light: #f59e0b;
+  --ng-warning-dark: #b45309;
+  --ng-warning-bg: rgba(217, 119, 6, 0.08);
+  --ng-warning-border: rgba(217, 119, 6, 0.25);
+
+  /* Error - darker for light bg */
+  --ng-error: #dc2626;
+  --ng-error-light: #ef4444;
+  --ng-error-dark: #b91c1c;
+  --ng-error-bg: rgba(220, 38, 38, 0.08);
+  --ng-error-border: rgba(220, 38, 38, 0.25);
+
+  /* Info - darker for light bg */
+  --ng-info: #2563eb;
+  --ng-info-light: #3b82f6;
+  --ng-info-dark: #1d4ed8;
+  --ng-info-bg: rgba(37, 99, 235, 0.08);
+  --ng-info-border: rgba(37, 99, 235, 0.25);
+
+  /* ----------------------------------------
+     Interactive State Colors
+     ---------------------------------------- */
+  --ng-focus-ring: var(--ng-accent-ai);
+  --ng-focus-ring-offset: var(--ng-void);
+
+  --ng-selection-bg: rgba(99, 102, 241, 0.2);
+  --ng-selection-text: var(--ng-text-primary);
+
+  /* ----------------------------------------
+     Dividers and Borders
+     ---------------------------------------- */
+  --ng-divider: rgba(0, 0, 0, 0.08);
+  --ng-divider-strong: rgba(0, 0, 0, 0.12);
+  --ng-border-default: rgba(0, 0, 0, 0.1);
+}

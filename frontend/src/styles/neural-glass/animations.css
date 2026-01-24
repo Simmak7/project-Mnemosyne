@@ -1,0 +1,380 @@
+/* ============================================
+   Neural Glass Design System - Animations
+   Keyframes, transitions, and motion utilities
+   ============================================ */
+
+/* ----------------------------------------
+   Keyframe Animations
+   ---------------------------------------- */
+
+/* Fade In */
+@keyframes ng-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade Out */
+@keyframes ng-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Fade Up (entrance) */
+@keyframes ng-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade Down (exit) */
+@keyframes ng-fade-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Scale In (for modals, popovers) */
+@keyframes ng-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scale Out */
+@keyframes ng-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Glass In (with blur transition) */
+@keyframes ng-glass-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(var(--ng-blur-lg));
+    -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+    transform: translateY(0);
+  }
+}
+
+/* Slide In from Left */
+@keyframes ng-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide In from Right */
+@keyframes ng-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Slide Out to Left */
+@keyframes ng-slide-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+}
+
+/* Slide Out to Right */
+@keyframes ng-slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+/* Glow Pulse (for active/focus indicators) */
+@keyframes ng-glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(129, 140, 248, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--ng-accent-ai-glow);
+  }
+}
+
+/* Glow Pulse - Cyan */
+@keyframes ng-glow-pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 0 rgba(34, 211, 238, 0);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--ng-accent-image-glow);
+  }
+}
+
+/* Shimmer (loading state) */
+@keyframes ng-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Spin (loading indicator) */
+@keyframes ng-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bounce (attention) */
+@keyframes ng-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* ----------------------------------------
+   Animation Classes
+   ---------------------------------------- */
+
+.ng-animate-fade-in {
+  animation: ng-fade-in var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-fade-out {
+  animation: ng-fade-out var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-fade-up {
+  animation: ng-fade-up var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-fade-down {
+  animation: ng-fade-down var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-scale-in {
+  animation: ng-scale-in var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-scale-out {
+  animation: ng-scale-out var(--ng-duration-fast) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-glass-in {
+  animation: ng-glass-in var(--ng-duration-slow) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-slide-in-left {
+  animation: ng-slide-in-left var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-slide-in-right {
+  animation: ng-slide-in-right var(--ng-duration-normal) var(--ng-ease-out) forwards;
+}
+
+.ng-animate-glow-pulse {
+  animation: ng-glow-pulse 2s var(--ng-ease-in-out) infinite;
+}
+
+.ng-animate-glow-pulse-cyan {
+  animation: ng-glow-pulse-cyan 2s var(--ng-ease-in-out) infinite;
+}
+
+.ng-animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--ng-charcoal-800) 0%,
+    var(--ng-charcoal-700) 50%,
+    var(--ng-charcoal-800) 100%
+  );
+  background-size: 200% 100%;
+  animation: ng-shimmer 1.5s linear infinite;
+}
+
+.ng-animate-spin {
+  animation: ng-spin 1s linear infinite;
+}
+
+.ng-animate-bounce {
+  animation: ng-bounce 1s var(--ng-ease-in-out) infinite;
+}
+
+/* ----------------------------------------
+   Transition Utilities
+   ---------------------------------------- */
+
+.ng-transition-none {
+  transition: none;
+}
+
+.ng-transition-all {
+  transition: all var(--ng-transition-normal);
+}
+
+.ng-transition-colors {
+  transition:
+    color var(--ng-transition-fast),
+    background-color var(--ng-transition-fast),
+    border-color var(--ng-transition-fast);
+}
+
+.ng-transition-opacity {
+  transition: opacity var(--ng-transition-normal);
+}
+
+.ng-transition-transform {
+  transition: transform var(--ng-transition-normal);
+}
+
+.ng-transition-shadow {
+  transition: box-shadow var(--ng-transition-normal);
+}
+
+/* Combined common transition */
+.ng-transition-interactive {
+  transition:
+    background-color var(--ng-transition-fast),
+    border-color var(--ng-transition-fast),
+    box-shadow var(--ng-transition-fast),
+    transform var(--ng-transition-fast),
+    opacity var(--ng-transition-fast);
+}
+
+/* ----------------------------------------
+   Animation Delays
+   ---------------------------------------- */
+
+.ng-delay-75 {
+  animation-delay: 75ms;
+}
+
+.ng-delay-100 {
+  animation-delay: 100ms;
+}
+
+.ng-delay-150 {
+  animation-delay: 150ms;
+}
+
+.ng-delay-200 {
+  animation-delay: 200ms;
+}
+
+.ng-delay-300 {
+  animation-delay: 300ms;
+}
+
+.ng-delay-500 {
+  animation-delay: 500ms;
+}
+
+/* ----------------------------------------
+   Stagger Animation Helper
+   Use on parent, children get staggered delays
+   ---------------------------------------- */
+
+.ng-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.ng-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.ng-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.ng-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.ng-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.ng-stagger > *:nth-child(6) { animation-delay: 250ms; }
+.ng-stagger > *:nth-child(7) { animation-delay: 300ms; }
+.ng-stagger > *:nth-child(8) { animation-delay: 350ms; }
+
+/* ----------------------------------------
+   Reduced Motion
+   Respect user preferences
+   ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .ng-animate-glow-pulse,
+  .ng-animate-glow-pulse-cyan,
+  .ng-animate-shimmer,
+  .ng-animate-spin,
+  .ng-animate-bounce {
+    animation: none;
+  }
+}
+
+/* ----------------------------------------
+   Will-Change Hints
+   For performance optimization
+   ---------------------------------------- */
+
+.ng-will-change-transform {
+  will-change: transform;
+}
+
+.ng-will-change-opacity {
+  will-change: opacity;
+}
+
+.ng-will-change-auto {
+  will-change: auto;
+}

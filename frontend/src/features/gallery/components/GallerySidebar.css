@@ -1,0 +1,442 @@
+/* GallerySidebar.css - Left navigation panel */
+/* Neural Glass Design */
+
+.gallery-sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ng-space-4, 16px);
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.gallery-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gallery-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gallery-sidebar::-webkit-scrollbar-thumb {
+  background: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+.gallery-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-accent-image, #22d3ee);
+  opacity: 0.5;
+}
+
+/* Header */
+.sidebar-header {
+  margin-bottom: var(--ng-space-6, 24px);
+}
+
+.sidebar-title {
+  font-size: var(--ng-text-xl, 1.25rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* Navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 4px);
+  margin-bottom: var(--ng-space-6, 24px);
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  border-radius: var(--ng-radius-lg, 8px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-nav-item:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.sidebar-nav-item.active {
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.1));
+  border-left: 3px solid var(--ng-accent-image, #22d3ee);
+  padding-left: calc(var(--ng-space-4, 16px) - 3px);
+}
+
+.nav-icon {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  flex-shrink: 0;
+}
+
+.sidebar-nav-item.active .nav-icon {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.nav-label {
+  flex: 1;
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.nav-count {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+/* Section */
+.sidebar-section {
+  margin-top: var(--ng-space-2, 8px);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border-radius: var(--ng-radius-md, 6px);
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.section-header:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.section-chevron {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.section-icon {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.section-title {
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Albums List */
+.albums-list {
+  padding-left: var(--ng-space-4, 16px);
+  margin-top: var(--ng-space-2, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 4px);
+}
+
+.create-album-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border: 1px dashed var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-sm, 0.875rem);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.create-album-btn:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--ng-accent-image, #22d3ee);
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.albums-empty {
+  padding: var(--ng-space-4, 16px);
+  text-align: center;
+}
+
+.albums-empty p {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  margin: 0;
+}
+
+/* Album Item */
+.album-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.album-item:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.album-item.active {
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.1));
+}
+
+.album-thumbnail {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ng-radius-sm, 4px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.album-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.album-thumbnail svg {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.album-name {
+  flex: 1;
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.album-count {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+/* Section count */
+.section-count {
+  margin-left: auto;
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  padding: 2px 8px;
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+/* Album Item Wrapper for context menu positioning */
+.album-item-wrapper {
+  position: relative;
+}
+
+/* Album Menu Button */
+.album-menu-btn {
+  opacity: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  padding: var(--ng-space-1, 4px);
+  border-radius: var(--ng-radius-sm, 4px);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  flex-shrink: 0;
+}
+
+.album-item:hover .album-menu-btn {
+  opacity: 1;
+}
+
+.album-menu-btn:hover {
+  color: var(--ng-text-primary, #ffffff);
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.1));
+}
+
+/* Context Menu */
+.album-context-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  min-width: 140px;
+  background: var(--ng-glass-bg-solid, rgba(20, 20, 25, 0.98));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-lg, 8px);
+  padding: var(--ng-space-1, 4px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  width: 100%;
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #ffffff);
+  text-align: left;
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.context-menu-item:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.1));
+}
+
+.context-menu-item.danger {
+  color: var(--ng-accent-error, #ef4444);
+}
+
+.context-menu-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Create/Edit Album Form */
+.create-album-form,
+.edit-album-form {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--ng-accent-image, #22d3ee);
+  border-radius: var(--ng-radius-md, 6px);
+}
+
+.album-name-input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-primary, #ffffff);
+  font-size: var(--ng-text-sm, 0.875rem);
+  outline: none;
+  transition: border-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.album-name-input:focus {
+  border-color: var(--ng-accent-image, #22d3ee);
+}
+
+.album-name-input::placeholder {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.create-album-actions {
+  display: flex;
+  gap: var(--ng-space-1, 4px);
+}
+
+.album-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.album-action-btn.confirm {
+  background: var(--ng-accent-image, #22d3ee);
+  color: #000;
+}
+
+.album-action-btn.confirm:hover:not(:disabled) {
+  background: #06b6d4;
+}
+
+.album-action-btn.confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.album-action-btn.cancel {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.album-action-btn.cancel:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--ng-accent-error, #ef4444);
+}
+
+/* Loading State */
+.albums-loading {
+  padding: var(--ng-space-4, 16px);
+  text-align: center;
+}
+
+.albums-loading span {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .gallery-sidebar::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .gallery-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-accent-image);
+}
+
+[data-theme="light"] .sidebar-nav-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .section-header:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .album-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .create-album-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .album-menu-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .album-context-menu {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .context-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

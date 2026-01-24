@@ -1,0 +1,313 @@
+/* ============================================
+   Neural Glass Design System - Typography
+   Inter for UI, Merriweather for reading,
+   JetBrains Mono for code
+   ============================================ */
+
+/* ----------------------------------------
+   Font Imports
+   ---------------------------------------- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* ----------------------------------------
+     Font Families
+     ---------------------------------------- */
+  --ng-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ng-font-reading: 'Merriweather', Georgia, 'Times New Roman', serif;
+  --ng-font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+
+  /* ----------------------------------------
+     Font Sizes (Type Scale)
+     Based on 1.25 ratio (Major Third)
+     ---------------------------------------- */
+  --ng-text-xs: 0.75rem;      /* 12px */
+  --ng-text-sm: 0.875rem;     /* 14px */
+  --ng-text-base: 1rem;       /* 16px */
+  --ng-text-lg: 1.125rem;     /* 18px */
+  --ng-text-xl: 1.25rem;      /* 20px */
+  --ng-text-2xl: 1.5rem;      /* 24px */
+  --ng-text-3xl: 1.875rem;    /* 30px */
+  --ng-text-4xl: 2.25rem;     /* 36px */
+  --ng-text-5xl: 3rem;        /* 48px */
+  --ng-text-6xl: 3.75rem;     /* 60px */
+  --ng-text-7xl: 4.5rem;      /* 72px */
+
+  /* ----------------------------------------
+     Font Weights
+     ---------------------------------------- */
+  --ng-font-light: 300;
+  --ng-font-normal: 400;
+  --ng-font-medium: 500;
+  --ng-font-semibold: 600;
+  --ng-font-bold: 700;
+
+  /* ----------------------------------------
+     Line Heights
+     ---------------------------------------- */
+  --ng-leading-none: 1;
+  --ng-leading-tight: 1.25;
+  --ng-leading-snug: 1.375;
+  --ng-leading-normal: 1.5;
+  --ng-leading-relaxed: 1.625;
+  --ng-leading-loose: 2;
+
+  /* ----------------------------------------
+     Letter Spacing
+     ---------------------------------------- */
+  --ng-tracking-tighter: -0.05em;
+  --ng-tracking-tight: -0.025em;
+  --ng-tracking-normal: 0;
+  --ng-tracking-wide: 0.025em;
+  --ng-tracking-wider: 0.05em;
+  --ng-tracking-widest: 0.1em;
+}
+
+/* ----------------------------------------
+   Base Typography Styles
+   ---------------------------------------- */
+
+/* UI Text (default) */
+.ng-text-ui {
+  font-family: var(--ng-font-ui);
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Reading Text (for notes, content) */
+.ng-text-reading {
+  font-family: var(--ng-font-reading);
+  font-feature-settings: 'liga', 'kern';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Code Text */
+.ng-text-mono {
+  font-family: var(--ng-font-mono);
+  font-feature-settings: 'liga', 'calt';
+  font-variant-ligatures: contextual;
+}
+
+/* ----------------------------------------
+   Heading Styles (Serif - Elegant)
+   For use in editor/content areas
+   ---------------------------------------- */
+
+.ng-heading-1 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-5xl);
+  font-weight: var(--ng-font-bold);
+  line-height: var(--ng-leading-tight);
+  letter-spacing: var(--ng-tracking-tight);
+  color: var(--ng-text-primary);
+}
+
+.ng-heading-2 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-4xl);
+  font-weight: var(--ng-font-bold);
+  line-height: var(--ng-leading-tight);
+  letter-spacing: var(--ng-tracking-tight);
+  color: var(--ng-text-primary);
+}
+
+.ng-heading-3 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-3xl);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-snug);
+  letter-spacing: var(--ng-tracking-tight);
+  color: var(--ng-text-primary);
+}
+
+.ng-heading-4 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-2xl);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-snug);
+  color: var(--ng-text-primary);
+}
+
+.ng-heading-5 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-xl);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-primary);
+}
+
+.ng-heading-6 {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-secondary);
+}
+
+/* ----------------------------------------
+   UI Heading Styles (Sans-serif)
+   For sidebar headers, panel titles
+   ---------------------------------------- */
+
+.ng-ui-heading-lg {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-tight);
+  letter-spacing: var(--ng-tracking-tight);
+  color: var(--ng-text-primary);
+}
+
+.ng-ui-heading-md {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-base);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-tight);
+  color: var(--ng-text-primary);
+}
+
+.ng-ui-heading-sm {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-sm);
+  font-weight: var(--ng-font-medium);
+  line-height: var(--ng-leading-tight);
+  letter-spacing: var(--ng-tracking-wide);
+  text-transform: uppercase;
+  color: var(--ng-text-tertiary);
+}
+
+/* ----------------------------------------
+   Body Text Styles
+   ---------------------------------------- */
+
+.ng-body-lg {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-normal);
+  line-height: var(--ng-leading-relaxed);
+  color: var(--ng-text-secondary);
+}
+
+.ng-body {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-base);
+  font-weight: var(--ng-font-normal);
+  line-height: var(--ng-leading-relaxed);
+  color: var(--ng-text-secondary);
+}
+
+.ng-body-sm {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-sm);
+  font-weight: var(--ng-font-normal);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-tertiary);
+}
+
+.ng-body-xs {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-normal);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-muted);
+}
+
+/* ----------------------------------------
+   Special Text Styles
+   ---------------------------------------- */
+
+/* Label (for form labels, metadata) */
+.ng-label {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-sm);
+  font-weight: var(--ng-font-medium);
+  line-height: var(--ng-leading-tight);
+  color: var(--ng-text-secondary);
+}
+
+/* Caption (for image captions, timestamps) */
+.ng-caption {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-normal);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-muted);
+}
+
+/* Overline (for category labels) */
+.ng-overline {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-semibold);
+  line-height: var(--ng-leading-tight);
+  letter-spacing: var(--ng-tracking-widest);
+  text-transform: uppercase;
+  color: var(--ng-text-muted);
+}
+
+/* Code inline */
+.ng-code {
+  font-family: var(--ng-font-mono);
+  font-size: 0.9em;
+  font-weight: var(--ng-font-normal);
+  background: var(--ng-glass-bg);
+  padding: 0.125em 0.375em;
+  border-radius: var(--ng-radius-sm);
+  border: 1px solid var(--ng-glass-border);
+}
+
+/* Blockquote */
+.ng-blockquote {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-light);
+  font-style: italic;
+  line-height: var(--ng-leading-relaxed);
+  color: var(--ng-text-secondary);
+  padding-left: var(--ng-space-6);
+  border-left: 3px solid var(--ng-accent-ai);
+  box-shadow: -4px 0 12px var(--ng-accent-ai-glow);
+}
+
+/* Link */
+.ng-link {
+  color: var(--ng-accent-link);
+  text-decoration: none;
+  transition: color var(--ng-transition-fast);
+}
+
+.ng-link:hover {
+  color: var(--ng-accent-link-light);
+  text-decoration: underline;
+}
+
+/* ----------------------------------------
+   Text Utilities
+   ---------------------------------------- */
+
+.ng-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ng-line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ng-line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ng-text-balance {
+  text-wrap: balance;
+}

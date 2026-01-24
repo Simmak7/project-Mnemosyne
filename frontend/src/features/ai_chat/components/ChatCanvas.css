@@ -1,0 +1,550 @@
+/**
+ * ChatCanvas - Center panel styles
+ * AI accent color: violet (#818cf8)
+ */
+
+.chat-canvas {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ng-base-primary, #050505);
+}
+
+/* Messages Area */
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Message Bubble */
+.message-bubble {
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message-bubble.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message-bubble.assistant {
+  align-self: flex-start;
+}
+
+.message-bubble.error .message-avatar {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.message-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(129, 140, 248, 0.15);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.message-bubble.user .message-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.message-text {
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-bubble.user .message-text {
+  background: rgba(129, 140, 248, 0.2);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+}
+
+.message-bubble.assistant .message-text {
+  background: var(--ng-glass-bg, rgba(15, 15, 15, 0.8));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.06));
+}
+
+.message-bubble.error .message-text {
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fca5a5;
+}
+
+/* Streaming cursor */
+.streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: var(--ng-accent-ai, #818cf8);
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Citation chips in text */
+.citation-chip {
+  display: inline-flex;
+  padding: 0 4px;
+  margin: 0 2px;
+  background: rgba(129, 140, 248, 0.2);
+  border: none;
+  border-radius: 4px;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.citation-chip:hover {
+  background: rgba(129, 140, 248, 0.35);
+}
+
+/* Citations summary */
+.message-citations {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.citations-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.citations-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.citation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.citation-badge:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.citation-badge.note {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.citation-badge.note:hover {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.citation-badge.note svg {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.citation-badge.image {
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.citation-badge.image:hover {
+  background: rgba(34, 211, 238, 0.1);
+}
+
+.citation-badge.image svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.citations-more {
+  font-size: 11px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+/* Message Footer - Timestamp and Actions */
+.message-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  min-height: 24px;
+}
+
+.message-footer.visible {
+  opacity: 1;
+}
+
+.message-bubble:hover .message-footer {
+  opacity: 1;
+}
+
+/* Timestamp */
+.message-timestamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.message-timestamp svg {
+  opacity: 0.6;
+}
+
+/* Action buttons */
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.message-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.message-action-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.message-action-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.message-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Copied state */
+.message-action-btn.copied {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: var(--ng-accent-link, #34d399);
+}
+
+/* Regenerating state */
+.message-action-btn.regenerating {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: rgba(129, 140, 248, 0.3);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+/* Confidence indicator */
+.message-confidence {
+  padding: 4px 8px;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.message-confidence.high {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--ng-accent-link, #34d399);
+}
+
+.message-confidence.medium {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.message-confidence.low {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+/* Empty State */
+.chat-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 48px;
+  text-align: center;
+}
+
+.empty-icon {
+  color: var(--ng-accent-ai, #818cf8);
+  opacity: 0.5;
+  margin-bottom: 16px;
+}
+
+.chat-empty-state h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+}
+
+.chat-empty-state p {
+  margin: 0 0 24px;
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.empty-suggestions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.suggestion-label {
+  font-size: 12px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.suggestions-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.suggestion-chip {
+  padding: 8px 14px;
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 20px;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-chip:hover {
+  background: rgba(129, 140, 248, 0.2);
+  border-color: rgba(129, 140, 248, 0.4);
+}
+
+/* Input Area */
+.chat-input-area {
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.06));
+  background: var(--ng-base-secondary, #0a0a0a);
+}
+
+.chat-input-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--ng-glass-bg, rgba(15, 15, 15, 0.8));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.chat-input-container:focus-within {
+  border-color: rgba(129, 140, 248, 0.4);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+}
+
+.chat-input {
+  flex: 1;
+  min-height: 24px;
+  max-height: 150px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  font-family: inherit;
+}
+
+.chat-input::placeholder {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.chat-input:disabled {
+  opacity: 0.6;
+}
+
+.chat-send-btn,
+.chat-cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(129, 140, 248, 0.2);
+  border: none;
+  border-radius: 8px;
+  color: var(--ng-accent-ai, #818cf8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.chat-send-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.35);
+}
+
+.chat-send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.chat-cancel-btn {
+  background: rgba(248, 113, 113, 0.2);
+  color: #f87171;
+}
+
+.chat-cancel-btn:hover {
+  background: rgba(248, 113, 113, 0.35);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.chat-input-hint {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+}
+
+/* Keyboard shortcut hint */
+.chat-input-hint kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  margin: 0 2px;
+  font-size: 10px;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .chat-canvas {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .chat-messages::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-500);
+}
+
+[data-theme="light"] .message-bubble.assistant .message-text {
+  background: var(--ng-glass-bg-light, rgba(248, 250, 252, 0.9));
+}
+
+[data-theme="light"] .message-action-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .citation-badge:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .chat-input-area {
+  background: var(--ng-slate-50, #f8fafc);
+}
+
+[data-theme="light"] .chat-input-container {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .chat-input-hint kbd {
+  background: rgba(0, 0, 0, 0.05);
+}

@@ -1,0 +1,413 @@
+/* ============================================
+   Neural Glass Design System - Surfaces
+   Glassmorphism effects, backgrounds,
+   and panel styles
+   ============================================ */
+
+/* ----------------------------------------
+   Ambient Backgrounds
+   Subtle gradients for depth
+   ---------------------------------------- */
+
+.ng-ambient-bg {
+  background:
+    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+    linear-gradient(180deg, var(--ng-void-deep) 0%, var(--ng-void) 100%);
+}
+
+.ng-ambient-bg-subtle {
+  background:
+    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.04) 0%, transparent 40%),
+    linear-gradient(180deg, var(--ng-void-deep) 0%, var(--ng-void) 100%);
+}
+
+.ng-ambient-bg-ai {
+  background:
+    radial-gradient(ellipse at center, rgba(129, 140, 248, 0.1) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+.ng-ambient-bg-image {
+  background:
+    radial-gradient(ellipse at center, rgba(34, 211, 238, 0.1) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+.ng-ambient-bg-note {
+  background:
+    radial-gradient(ellipse at center, rgba(251, 191, 36, 0.08) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+/* ----------------------------------------
+   Glass Panels
+   Core glassmorphism components
+   ---------------------------------------- */
+
+/* Base glass panel */
+.ng-glass {
+  background: var(--ng-glass-bg);
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+/* Glass with stronger blur */
+.ng-glass-heavy {
+  background: var(--ng-glass-bg-heavy);
+  backdrop-filter: blur(var(--ng-blur-xl));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl));
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+/* Glass with lighter effect */
+.ng-glass-light {
+  background: var(--ng-glass-bg-light);
+  backdrop-filter: blur(var(--ng-blur-md));
+  -webkit-backdrop-filter: blur(var(--ng-blur-md));
+  border: 1px solid var(--ng-glass-border-subtle);
+  border-radius: var(--ng-radius-lg);
+}
+
+/* Elevated glass (floating panels, modals) */
+.ng-glass-elevated {
+  background: var(--ng-glass-bg-solid);
+  backdrop-filter: blur(var(--ng-blur-xl));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl));
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-xl);
+  box-shadow: var(--ng-shadow-xl);
+}
+
+/* Inset glass (input fields, recessed areas) */
+.ng-glass-inset {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(var(--ng-blur-sm));
+  -webkit-backdrop-filter: blur(var(--ng-blur-sm));
+  border: 1px solid var(--ng-glass-border-subtle);
+  border-radius: var(--ng-radius-lg);
+  box-shadow: var(--ng-shadow-inner);
+}
+
+/* Interactive glass (buttons, cards) */
+.ng-glass-interactive {
+  background: var(--ng-glass-bg);
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-lg);
+  transition:
+    background var(--ng-transition-fast),
+    border-color var(--ng-transition-fast),
+    box-shadow var(--ng-transition-fast),
+    transform var(--ng-transition-fast);
+  cursor: pointer;
+}
+
+.ng-glass-interactive:hover {
+  background: var(--ng-glass-bg-hover);
+  border-color: var(--ng-glass-border-hover);
+  transform: translateY(-1px);
+}
+
+.ng-glass-interactive:active {
+  transform: translateY(0);
+  background: var(--ng-glass-bg-active);
+}
+
+/* ----------------------------------------
+   Semantic Glass Panels
+   Accent-colored glass for specific content
+   ---------------------------------------- */
+
+.ng-glass-ai {
+  background: linear-gradient(
+    135deg,
+    rgba(129, 140, 248, 0.1) 0%,
+    var(--ng-glass-bg) 100%
+  );
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-accent-ai-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+.ng-glass-image {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 211, 238, 0.1) 0%,
+    var(--ng-glass-bg) 100%
+  );
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-accent-image-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+.ng-glass-note {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.08) 0%,
+    var(--ng-glass-bg) 100%
+  );
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-accent-note-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+.ng-glass-link {
+  background: linear-gradient(
+    135deg,
+    rgba(52, 211, 153, 0.1) 0%,
+    var(--ng-glass-bg) 100%
+  );
+  backdrop-filter: blur(var(--ng-blur-lg));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg));
+  border: 1px solid var(--ng-accent-link-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+/* ----------------------------------------
+   Solid Surfaces
+   For areas that shouldn't be transparent
+   ---------------------------------------- */
+
+.ng-surface-solid {
+  background: var(--ng-void);
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-xl);
+}
+
+.ng-surface-raised {
+  background: var(--ng-charcoal-900);
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-xl);
+  box-shadow: var(--ng-shadow-lg);
+}
+
+/* ----------------------------------------
+   Dividers
+   ---------------------------------------- */
+
+.ng-divider {
+  height: 1px;
+  background: var(--ng-divider);
+  border: none;
+  margin: var(--ng-space-4) 0;
+}
+
+.ng-divider-strong {
+  height: 1px;
+  background: var(--ng-divider-strong);
+  border: none;
+  margin: var(--ng-space-4) 0;
+}
+
+.ng-divider-vertical {
+  width: 1px;
+  background: var(--ng-divider);
+  border: none;
+  margin: 0 var(--ng-space-4);
+  align-self: stretch;
+}
+
+/* ----------------------------------------
+   Glow Effects
+   For emphasis and focus states
+   ---------------------------------------- */
+
+.ng-glow-ai {
+  box-shadow: 0 0 20px var(--ng-accent-ai-glow);
+}
+
+.ng-glow-image {
+  box-shadow: 0 0 20px var(--ng-accent-image-glow);
+}
+
+.ng-glow-note {
+  box-shadow: 0 0 20px var(--ng-accent-note-glow);
+}
+
+.ng-glow-link {
+  box-shadow: 0 0 20px var(--ng-accent-link-glow);
+}
+
+/* ----------------------------------------
+   Scrollbars (for glass containers)
+   ---------------------------------------- */
+
+.ng-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ng-charcoal-500) transparent;
+}
+
+.ng-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ng-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ng-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-500);
+  border-radius: var(--ng-radius-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.ng-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-400);
+  background-clip: content-box;
+}
+
+/* Hidden scrollbar but still scrollable */
+.ng-scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.ng-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* ----------------------------------------
+   Backdrop Fallback
+   For browsers without backdrop-filter
+   ---------------------------------------- */
+
+@supports not (backdrop-filter: blur(1px)) {
+  .ng-glass,
+  .ng-glass-heavy,
+  .ng-glass-light,
+  .ng-glass-elevated,
+  .ng-glass-interactive,
+  .ng-glass-ai,
+  .ng-glass-image,
+  .ng-glass-note,
+  .ng-glass-link {
+    background: var(--ng-glass-bg-solid);
+  }
+}
+
+/* ============================================
+   Light Mode Surface Overrides
+   Ethereal Light theme surfaces
+   ============================================ */
+
+/* ----------------------------------------
+   Light Mode Ambient Backgrounds
+   Soft gradients for ethereal light feel
+   ---------------------------------------- */
+
+[data-theme="light"] .ng-ambient-bg {
+  background:
+    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(8, 145, 178, 0.04) 0%, transparent 50%),
+    linear-gradient(180deg, var(--ng-void-deep) 0%, var(--ng-void) 100%);
+}
+
+[data-theme="light"] .ng-ambient-bg-subtle {
+  background:
+    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.03) 0%, transparent 40%),
+    linear-gradient(180deg, var(--ng-void-deep) 0%, var(--ng-void) 100%);
+}
+
+[data-theme="light"] .ng-ambient-bg-ai {
+  background:
+    radial-gradient(ellipse at center, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+[data-theme="light"] .ng-ambient-bg-image {
+  background:
+    radial-gradient(ellipse at center, rgba(8, 145, 178, 0.08) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+[data-theme="light"] .ng-ambient-bg-note {
+  background:
+    radial-gradient(ellipse at center, rgba(217, 119, 6, 0.06) 0%, transparent 60%),
+    var(--ng-void);
+}
+
+/* ----------------------------------------
+   Light Mode Semantic Glass Panels
+   Lighter accent tints for light mode
+   ---------------------------------------- */
+
+[data-theme="light"] .ng-glass-ai {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.08) 0%,
+    var(--ng-glass-bg) 100%
+  );
+}
+
+[data-theme="light"] .ng-glass-image {
+  background: linear-gradient(
+    135deg,
+    rgba(8, 145, 178, 0.08) 0%,
+    var(--ng-glass-bg) 100%
+  );
+}
+
+[data-theme="light"] .ng-glass-note {
+  background: linear-gradient(
+    135deg,
+    rgba(217, 119, 6, 0.06) 0%,
+    var(--ng-glass-bg) 100%
+  );
+}
+
+[data-theme="light"] .ng-glass-link {
+  background: linear-gradient(
+    135deg,
+    rgba(5, 150, 105, 0.08) 0%,
+    var(--ng-glass-bg) 100%
+  );
+}
+
+/* ----------------------------------------
+   Light Mode Inset Glass
+   Subtle recessed areas for light mode
+   ---------------------------------------- */
+
+[data-theme="light"] .ng-glass-inset {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* ----------------------------------------
+   Light Mode Interactive States
+   Adjusted hover/active for visibility
+   ---------------------------------------- */
+
+[data-theme="light"] .ng-glass-interactive:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .ng-glass-interactive:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* ----------------------------------------
+   Light Mode Scrollbars
+   Darker scrollbar for light backgrounds
+   ---------------------------------------- */
+
+[data-theme="light"] .ng-scrollbar {
+  scrollbar-color: var(--ng-charcoal-400) transparent;
+}
+
+[data-theme="light"] .ng-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .ng-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-300);
+}

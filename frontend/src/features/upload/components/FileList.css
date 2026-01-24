@@ -1,0 +1,138 @@
+/* ============================================
+   FileList Styles
+   Queue of uploaded files
+   ============================================ */
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 0.75rem);
+  flex: 1;
+  min-height: 0;
+}
+
+/* ----------------------------------------
+   Header
+   ---------------------------------------- */
+
+.file-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--ng-space-1, 0.25rem);
+}
+
+.file-list-title {
+  margin: 0;
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-secondary, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.file-list-actions {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.file-list-action {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-1, 0.25rem) var(--ng-space-2, 0.5rem);
+  background: transparent;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 8px);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-list-action:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.file-list-action-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+/* ----------------------------------------
+   Summary
+   ---------------------------------------- */
+
+.file-list-summary {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+  padding: 0 var(--ng-space-1, 0.25rem);
+}
+
+.summary-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-1, 0.25rem) var(--ng-space-2, 0.5rem);
+  border-radius: var(--ng-radius-full, 9999px);
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 500;
+}
+
+.summary-success {
+  background: rgba(52, 211, 153, 0.1);
+  color: var(--ng-accent-link, #34d399);
+}
+
+.summary-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+}
+
+/* ----------------------------------------
+   Items Container
+   ---------------------------------------- */
+
+.file-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 0.5rem);
+  overflow-y: auto;
+  padding-right: var(--ng-space-1, 0.25rem);
+}
+
+/* Scrollbar styling */
+.file-list-items::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-list-items::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-list-items::-webkit-scrollbar-thumb {
+  background: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 3px;
+}
+
+.file-list-items::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .file-list-items::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .file-list-items::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-500);
+}
+
+[data-theme="light"] .file-list-action:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

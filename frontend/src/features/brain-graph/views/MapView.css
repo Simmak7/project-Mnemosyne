@@ -1,0 +1,219 @@
+/**
+ * MapView.css - Clustered overview styling
+ */
+
+.map-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Controls */
+.map-view__controls {
+  position: absolute;
+  top: var(--ng-space-4, 16px);
+  right: var(--ng-space-4, 16px);
+  display: flex;
+  gap: var(--ng-space-2, 8px);
+  z-index: 10;
+}
+
+.map-view__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.map-view__control:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.map-view__control.is-active {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.map-view__control .is-spinning {
+  animation: map-spin 1s linear infinite;
+}
+
+@keyframes map-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Community Legend */
+.map-view__legend {
+  position: absolute;
+  top: var(--ng-space-4, 16px);
+  left: var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  padding: var(--ng-space-3, 12px);
+  z-index: 10;
+}
+
+.map-view__legend-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+  margin-bottom: var(--ng-space-2, 8px);
+  padding-bottom: var(--ng-space-2, 8px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.map-view__legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-1, 4px);
+  max-width: 180px;
+}
+
+.map-view__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: transparent;
+  border: 1px solid var(--community-color, var(--ng-glass-border));
+  border-radius: var(--ng-radius-full, 9999px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.map-view__legend-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.map-view__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.map-view__legend-count {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ng-text-secondary, #d1d5db);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Stats Panel */
+.map-view__stats {
+  position: absolute;
+  bottom: var(--ng-space-4, 16px);
+  left: var(--ng-space-4, 16px);
+  display: flex;
+  gap: var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  z-index: 10;
+}
+
+.map-view__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.map-view__stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  font-variant-numeric: tabular-nums;
+}
+
+.map-view__stat-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+/* Loading State */
+.map-view__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 13px;
+}
+
+.map-view__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: map-spin 1s linear infinite;
+}
+
+/* Error State */
+.map-view__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-error, #ef4444);
+  font-size: 13px;
+}
+
+.map-view__error button {
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--ng-error-border, rgba(239, 68, 68, 0.3));
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-error, #ef4444);
+  cursor: pointer;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .map-view__control {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .map-view__control:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .map-view__legend {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .map-view__legend-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .map-view__stats {
+  background: rgba(255, 255, 255, 0.9);
+}

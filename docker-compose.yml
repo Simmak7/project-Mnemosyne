@@ -1,0 +1,143 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: always
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    # GPU support for Ollama AI inference (RTX 5070)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  backend:
+    build: ./backend
+    restart: always
+    ports:
+      - "${BACKEND_PORT}:8000"
+    volumes:
+      - ./backend/app:/app
+      - ./backend/migrations:/app/migrations
+      - uploaded_images:/app/uploaded_images
+      - adapters_data:/data/adapters
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      ADAPTERS_DIR: /data/adapters
+      REDIS_URL: ${REDIS_URL}
+      OLLAMA_HOST: ${OLLAMA_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB}
+      ALLOWED_FILE_TYPES: ${ALLOWED_FILE_TYPES}
+      # Phase 1: AI Model Migration
+      USE_NEW_MODEL: ${USE_NEW_MODEL}
+      NEW_MODEL_ROLLOUT_PERCENT: ${NEW_MODEL_ROLLOUT_PERCENT}
+      OLLAMA_MODEL_OLD: ${OLLAMA_MODEL_OLD}
+      OLLAMA_MODEL_NEW: ${OLLAMA_MODEL_NEW}
+      PROMPT_VERSION: ${PROMPT_VERSION}
+      PROMPT_ROLLOUT_PERCENT: ${PROMPT_ROLLOUT_PERCENT}
+      LOG_MODEL_SELECTION: ${LOG_MODEL_SELECTION}
+      LOG_DETECTED_CONTENT_TYPE: ${LOG_DETECTED_CONTENT_TYPE}
+      METRICS_ENABLED: ${METRICS_ENABLED}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+  celery_worker:
+    build: ./backend
+    command: celery -A celery_app worker --loglevel=info --concurrency=2 -Q ai_analysis,celery
+    restart: always
+    volumes:
+      - ./backend/app:/app
+      - uploaded_images:/app/uploaded_images
+      - adapters_data:/data/adapters
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      OLLAMA_HOST: ${OLLAMA_HOST}
+      SECRET_KEY: ${SECRET_KEY}
+      ADAPTERS_DIR: /data/adapters
+      LORA_BASE_MODEL: ${LORA_BASE_MODEL:-TinyLlama/TinyLlama-1.1B-Chat-v1.0}
+      # Phase 1: AI Model Migration
+      USE_NEW_MODEL: ${USE_NEW_MODEL}
+      NEW_MODEL_ROLLOUT_PERCENT: ${NEW_MODEL_ROLLOUT_PERCENT}
+      OLLAMA_MODEL_OLD: ${OLLAMA_MODEL_OLD}
+      OLLAMA_MODEL_NEW: ${OLLAMA_MODEL_NEW}
+      PROMPT_VERSION: ${PROMPT_VERSION}
+      PROMPT_ROLLOUT_PERCENT: ${PROMPT_ROLLOUT_PERCENT}
+      LOG_MODEL_SELECTION: ${LOG_MODEL_SELECTION}
+      LOG_DETECTED_CONTENT_TYPE: ${LOG_DETECTED_CONTENT_TYPE}
+      METRICS_ENABLED: ${METRICS_ENABLED}
+    # GPU support for LoRA training (enabled for RTX 5070)
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    restart: always
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:${BACKEND_PORT}
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+volumes:
+  db_data:
+  redis_data:
+  ollama_data:
+  uploaded_images:
+  adapters_data:

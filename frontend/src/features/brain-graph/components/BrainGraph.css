@@ -1,0 +1,264 @@
+/**
+ * BrainGraph.css - Neural Glass styling for knowledge graph
+ *
+ * Uses Neural Glass design system variables for dark glass UI.
+ */
+
+/* Semantic node colors */
+.brain-graph {
+  --bg-node-note: var(--ng-accent-note, #fbbf24);
+  --bg-node-tag: var(--ng-accent-link, #34d399);
+  --bg-node-image: var(--ng-accent-image, #22d3ee);
+  --bg-node-entity: var(--ng-accent-ai, #818cf8);
+
+  --bg-edge-wikilink: rgba(255, 255, 255, 0.6);
+  --bg-edge-tag: var(--ng-accent-link, #34d399);
+  --bg-edge-semantic: var(--ng-accent-ai, #818cf8);
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--ng-void-deep, #050505);
+  border-radius: var(--ng-radius-xl, 12px);
+  overflow: hidden;
+}
+
+/* Content layout */
+.brain-graph__content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* Canvas container with ambient gradient */
+.brain-graph__canvas-container {
+  flex: 1;
+  position: relative;
+  min-width: 0;
+  background:
+    radial-gradient(ellipse at top left, rgba(129, 140, 248, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.05) 0%, transparent 50%),
+    var(--ng-void, #0a0a0a);
+}
+
+/* Glass panel base */
+.brain-graph__panel {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-xl, 12px);
+}
+
+/* Left panel */
+.brain-graph__left-panel {
+  width: 220px;
+  flex-shrink: 0;
+  padding: var(--ng-space-4, 16px);
+  border-right: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  overflow-y: auto;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+}
+
+/* Right panel (Inspector) */
+.brain-graph__right-panel {
+  width: 280px;
+  flex-shrink: 0;
+  padding: var(--ng-space-4, 16px);
+  border-left: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  overflow-y: auto;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+}
+
+/* Panel entrance animations - staggered */
+@keyframes brain-graph-panel-left-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+    transform: translateX(0);
+  }
+}
+
+@keyframes brain-graph-panel-right-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+    transform: translateX(0);
+  }
+}
+
+@keyframes brain-graph-canvas-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.brain-graph__left-panel {
+  animation: brain-graph-panel-left-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brain-graph__right-panel {
+  animation: brain-graph-panel-right-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: 0.05s;
+  animation-fill-mode: backwards;
+}
+
+.brain-graph__canvas-container {
+  animation: brain-graph-canvas-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  animation-delay: 0.1s;
+  animation-fill-mode: backwards;
+}
+
+/* Panel headers */
+.brain-graph__panel-header {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+  margin-bottom: var(--ng-space-3, 12px);
+  padding-bottom: var(--ng-space-2, 8px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+/* Panel sections */
+.brain-graph__panel-section {
+  margin-bottom: var(--ng-space-5, 20px);
+}
+
+.brain-graph__panel-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Loading state */
+.brain-graph__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.brain-graph__loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Empty state */
+.brain-graph__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--ng-text-muted, #6b7280);
+  text-align: center;
+  padding: var(--ng-space-8, 32px);
+}
+
+.brain-graph__empty-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.5;
+}
+
+.brain-graph__empty-title {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: var(--ng-space-2, 8px);
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.brain-graph__empty-text {
+  font-size: 14px;
+  max-width: 280px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .brain-graph__left-panel {
+    width: 180px;
+  }
+
+  .brain-graph__right-panel {
+    width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .brain-graph__left-panel,
+  .brain-graph__right-panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+  }
+
+  .brain-graph__left-panel {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .brain-graph__right-panel {
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  .brain-graph__left-panel.is-open {
+    transform: translateX(0);
+  }
+
+  .brain-graph__right-panel.is-open {
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .brain-graph {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .brain-graph__canvas-container {
+  background:
+    radial-gradient(ellipse at top left, rgba(129, 140, 248, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.04) 0%, transparent 50%),
+    var(--ng-slate-50, #f8fafc);
+}
+
+[data-theme="light"] .brain-graph__left-panel,
+[data-theme="light"] .brain-graph__right-panel {
+  background: var(--ng-glass-bg-light, rgba(255, 255, 255, 0.8));
+}
+
+[data-theme="light"] .brain-graph__left-panel::-webkit-scrollbar-thumb,
+[data-theme="light"] .brain-graph__right-panel::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}

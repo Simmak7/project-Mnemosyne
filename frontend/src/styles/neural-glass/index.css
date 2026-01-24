@@ -1,0 +1,245 @@
+/* ============================================
+   Neural Glass Design System
+   Main Entry Point
+
+   A dark-mode-first design system featuring:
+   - Deep void backgrounds
+   - Glassmorphism effects
+   - Semantic accent colors
+   - Dual typography (Inter UI + Merriweather reading)
+
+   Version: 1.0.0
+   Last Updated: 2025-12-11
+   ============================================ */
+
+/* Core Variables */
+@import './variables.css';
+
+/* Color System */
+@import './colors.css';
+
+/* Typography */
+@import './typography.css';
+
+/* Glass Surfaces */
+@import './surfaces.css';
+
+/* Animations */
+@import './animations.css';
+
+/* Utility Classes */
+@import './utilities.css';
+
+/* ============================================
+   Global Neural Glass Styles
+   Applied when .ng-theme class is present
+   ============================================ */
+
+.ng-theme {
+  /* Base settings */
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-base);
+  line-height: var(--ng-leading-normal);
+  color: var(--ng-text-primary);
+  background-color: var(--ng-void);
+
+  /* Font smoothing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Text rendering */
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================
+   Reset / Normalization for Neural Glass
+   ============================================ */
+
+.ng-theme *,
+.ng-theme *::before,
+.ng-theme *::after {
+  box-sizing: border-box;
+}
+
+.ng-theme button,
+.ng-theme input,
+.ng-theme select,
+.ng-theme textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.ng-theme button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.ng-theme a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ng-theme img,
+.ng-theme svg {
+  display: block;
+  max-width: 100%;
+}
+
+.ng-theme ul,
+.ng-theme ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ng-theme h1,
+.ng-theme h2,
+.ng-theme h3,
+.ng-theme h4,
+.ng-theme h5,
+.ng-theme h6 {
+  margin: 0;
+  font-weight: inherit;
+  font-size: inherit;
+}
+
+.ng-theme p {
+  margin: 0;
+}
+
+/* ============================================
+   Common Component Patterns
+   ============================================ */
+
+/* Icon container */
+.ng-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ng-icon-xs { width: 12px; height: 12px; }
+.ng-icon-sm { width: 16px; height: 16px; }
+.ng-icon-md { width: 20px; height: 20px; }
+.ng-icon-lg { width: 24px; height: 24px; }
+.ng-icon-xl { width: 32px; height: 32px; }
+
+/* Badge / Pill */
+.ng-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ng-space-1) var(--ng-space-2);
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-medium);
+  line-height: 1;
+  border-radius: var(--ng-radius-full);
+  background: var(--ng-glass-bg);
+  border: 1px solid var(--ng-glass-border);
+}
+
+.ng-badge-ai {
+  background: var(--ng-accent-ai-bg);
+  border-color: var(--ng-accent-ai-border);
+  color: var(--ng-accent-ai);
+}
+
+.ng-badge-image {
+  background: var(--ng-accent-image-bg);
+  border-color: var(--ng-accent-image-border);
+  color: var(--ng-accent-image);
+}
+
+.ng-badge-note {
+  background: var(--ng-accent-note-bg);
+  border-color: var(--ng-accent-note-border);
+  color: var(--ng-accent-note);
+}
+
+.ng-badge-link {
+  background: var(--ng-accent-link-bg);
+  border-color: var(--ng-accent-link-border);
+  color: var(--ng-accent-link);
+}
+
+/* Skeleton loading */
+.ng-skeleton {
+  background: var(--ng-charcoal-800);
+  border-radius: var(--ng-radius-md);
+  animation: ng-shimmer 1.5s linear infinite;
+  background: linear-gradient(
+    90deg,
+    var(--ng-charcoal-800) 0%,
+    var(--ng-charcoal-700) 50%,
+    var(--ng-charcoal-800) 100%
+  );
+  background-size: 200% 100%;
+}
+
+/* Avatar */
+.ng-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ng-radius-full);
+  background: linear-gradient(135deg, var(--ng-accent-ai) 0%, var(--ng-accent-link) 100%);
+  color: var(--ng-text-inverse);
+  font-weight: var(--ng-font-semibold);
+  text-transform: uppercase;
+}
+
+.ng-avatar-sm { width: 24px; height: 24px; font-size: var(--ng-text-xs); }
+.ng-avatar-md { width: 32px; height: 32px; font-size: var(--ng-text-sm); }
+.ng-avatar-lg { width: 40px; height: 40px; font-size: var(--ng-text-base); }
+.ng-avatar-xl { width: 56px; height: 56px; font-size: var(--ng-text-xl); }
+
+/* Empty state */
+.ng-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-12);
+  text-align: center;
+}
+
+.ng-empty-state-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--ng-text-muted);
+  margin-bottom: var(--ng-space-4);
+}
+
+.ng-empty-state-title {
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-medium);
+  color: var(--ng-text-secondary);
+  margin-bottom: var(--ng-space-2);
+}
+
+.ng-empty-state-description {
+  font-size: var(--ng-text-sm);
+  color: var(--ng-text-muted);
+  max-width: 320px;
+}
+
+/* ============================================
+   Usage Example:
+
+   1. Import in your main CSS or JS:
+      @import './styles/neural-glass/index.css';
+
+   2. Add .ng-theme class to your root element:
+      <div className="ng-theme ng-ambient-bg">
+        <div className="ng-glass ng-p-4">
+          <h1 className="ng-heading-1">Hello</h1>
+        </div>
+      </div>
+
+   3. Use Neural Glass classes alongside
+      existing styles during migration
+   ============================================ */

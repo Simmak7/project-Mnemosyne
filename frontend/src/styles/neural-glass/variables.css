@@ -1,0 +1,164 @@
+/* ============================================
+   Neural Glass Design System - Variables
+   Core CSS custom properties for spacing,
+   borders, shadows, z-index, and transitions
+   ============================================ */
+
+:root {
+  /* ----------------------------------------
+     Spacing Scale (4px grid)
+     ---------------------------------------- */
+  --ng-space-0: 0;
+  --ng-space-px: 1px;
+  --ng-space-0-5: 2px;
+  --ng-space-1: 4px;
+  --ng-space-1-5: 6px;
+  --ng-space-2: 8px;
+  --ng-space-2-5: 10px;
+  --ng-space-3: 12px;
+  --ng-space-3-5: 14px;
+  --ng-space-4: 16px;
+  --ng-space-5: 20px;
+  --ng-space-6: 24px;
+  --ng-space-7: 28px;
+  --ng-space-8: 32px;
+  --ng-space-9: 36px;
+  --ng-space-10: 40px;
+  --ng-space-11: 44px;
+  --ng-space-12: 48px;
+  --ng-space-14: 56px;
+  --ng-space-16: 64px;
+  --ng-space-20: 80px;
+  --ng-space-24: 96px;
+  --ng-space-28: 112px;
+  --ng-space-32: 128px;
+
+  /* ----------------------------------------
+     Border Radius
+     ---------------------------------------- */
+  --ng-radius-none: 0;
+  --ng-radius-sm: 4px;
+  --ng-radius-md: 6px;
+  --ng-radius-lg: 8px;
+  --ng-radius-xl: 12px;
+  --ng-radius-2xl: 16px;
+  --ng-radius-3xl: 24px;
+  --ng-radius-full: 9999px;
+
+  /* ----------------------------------------
+     Shadows (for dark mode - subtle)
+     ---------------------------------------- */
+  --ng-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --ng-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --ng-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --ng-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  --ng-shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.7);
+  --ng-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  --ng-shadow-none: none;
+
+  /* Glow shadows (for accents) */
+  --ng-glow-sm: 0 0 8px;
+  --ng-glow-md: 0 0 16px;
+  --ng-glow-lg: 0 0 24px;
+  --ng-glow-xl: 0 0 32px;
+
+  /* ----------------------------------------
+     Z-Index Layers
+     ---------------------------------------- */
+  --ng-z-base: 0;
+  --ng-z-dropdown: 1000;
+  --ng-z-sticky: 1100;
+  --ng-z-fixed: 1200;
+  --ng-z-modal-backdrop: 1300;
+  --ng-z-modal: 1400;
+  --ng-z-popover: 1500;
+  --ng-z-tooltip: 1600;
+  --ng-z-toast: 1700;
+
+  /* ----------------------------------------
+     Transitions
+     ---------------------------------------- */
+  --ng-duration-instant: 0ms;
+  --ng-duration-fast: 100ms;
+  --ng-duration-normal: 200ms;
+  --ng-duration-slow: 300ms;
+  --ng-duration-slower: 500ms;
+
+  --ng-ease-linear: linear;
+  --ng-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ng-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ng-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ng-ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ng-ease-bounce: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+
+  /* Composite transitions */
+  --ng-transition-fast: var(--ng-duration-fast) var(--ng-ease-out);
+  --ng-transition-normal: var(--ng-duration-normal) var(--ng-ease-out);
+  --ng-transition-slow: var(--ng-duration-slow) var(--ng-ease-out);
+  --ng-transition-spring: var(--ng-duration-normal) var(--ng-ease-spring);
+
+  /* ----------------------------------------
+     Layout
+     ---------------------------------------- */
+  --ng-sidebar-width: 280px;
+  --ng-sidebar-collapsed: 64px;
+  --ng-header-height: 56px;
+  --ng-panel-min-width: 200px;
+  --ng-panel-max-width: 480px;
+  --ng-content-max-width: 720px;
+  --ng-editor-max-width: 800px;
+
+  /* ----------------------------------------
+     Blur values for glassmorphism
+     ---------------------------------------- */
+  --ng-blur-sm: 8px;
+  --ng-blur-md: 12px;
+  --ng-blur-lg: 20px;
+  --ng-blur-xl: 32px;
+
+  /* ----------------------------------------
+     Opacity levels
+     ---------------------------------------- */
+  --ng-opacity-0: 0;
+  --ng-opacity-5: 0.05;
+  --ng-opacity-10: 0.1;
+  --ng-opacity-20: 0.2;
+  --ng-opacity-30: 0.3;
+  --ng-opacity-40: 0.4;
+  --ng-opacity-50: 0.5;
+  --ng-opacity-60: 0.6;
+  --ng-opacity-70: 0.7;
+  --ng-opacity-80: 0.8;
+  --ng-opacity-90: 0.9;
+  --ng-opacity-100: 1;
+}
+
+/* ============================================
+   Light Mode Variable Overrides
+   Softer shadows for ethereal light theme
+   ============================================ */
+
+[data-theme="light"] {
+  /* ----------------------------------------
+     Shadows (for light mode - softer)
+     Using gray tones instead of black
+     ---------------------------------------- */
+  --ng-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --ng-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --ng-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+  --ng-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+  --ng-shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.12);
+  --ng-shadow-inner: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+
+  /* Colored shadow for elevated elements */
+  --ng-shadow-colored: 0 4px 14px rgba(99, 102, 241, 0.1);
+
+  /* ----------------------------------------
+     Blur values (slightly reduced for light)
+     Glass effect is more subtle in light mode
+     ---------------------------------------- */
+  --ng-blur-sm: 6px;
+  --ng-blur-md: 10px;
+  --ng-blur-lg: 16px;
+  --ng-blur-xl: 24px;
+}

@@ -1,0 +1,273 @@
+/**
+ * ExploreView.css - Local navigation view styling
+ */
+
+.explore-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Search Bar */
+.explore-view__search {
+  position: absolute;
+  top: var(--ng-space-4, 16px);
+  left: var(--ng-space-4, 16px);
+  right: var(--ng-space-4, 16px);
+  display: flex;
+  gap: var(--ng-space-2, 8px);
+  z-index: 10;
+  max-width: 400px;
+}
+
+.explore-view__search-form {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  padding: 0 var(--ng-space-3, 12px);
+}
+
+.explore-view__search-icon {
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+.explore-view__search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: var(--ng-space-2, 8px);
+  color: var(--ng-text-primary, #f9fafb);
+  font-size: 13px;
+  outline: none;
+}
+
+.explore-view__search-input::placeholder {
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.explore-view__search-clear {
+  background: transparent;
+  border: none;
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 11px;
+  cursor: pointer;
+  padding: var(--ng-space-1, 4px);
+}
+
+.explore-view__search-clear:hover {
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.explore-view__refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.explore-view__refresh:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.explore-view__refresh .is-spinning {
+  animation: explore-spin 1s linear infinite;
+}
+
+@keyframes explore-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Focus Info */
+.explore-view__focus-info {
+  position: absolute;
+  bottom: var(--ng-space-4, 16px);
+  left: var(--ng-space-4, 16px);
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-md, 6px);
+  font-size: 12px;
+  z-index: 10;
+}
+
+.explore-view__focus-icon {
+  color: var(--ng-accent-ai, #818cf8);
+  flex-shrink: 0;
+}
+
+.explore-view__focus-label {
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.explore-view__focus-id {
+  color: var(--ng-text-primary, #f9fafb);
+  font-weight: 500;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explore-view__center-btn {
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  border: 1px solid var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.explore-view__center-btn:hover {
+  background: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-void, #0a0a0a);
+}
+
+/* Loading State */
+.explore-view__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 13px;
+}
+
+.explore-view__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: explore-spin 1s linear infinite;
+}
+
+/* Error State */
+.explore-view__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-error, #ef4444);
+  font-size: 13px;
+}
+
+.explore-view__error button {
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--ng-error-border, rgba(239, 68, 68, 0.3));
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-error, #ef4444);
+  cursor: pointer;
+}
+
+/* Empty State */
+.explore-view__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.explore-view__empty-hint {
+  font-size: 12px;
+  max-width: 250px;
+  margin-top: var(--ng-space-2, 8px);
+}
+
+/* Welcome State */
+.explore-view__welcome {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--ng-text-muted, #6b7280);
+  padding: var(--ng-space-8, 32px);
+}
+
+.explore-view__welcome-icon {
+  color: var(--ng-accent-ai, #818cf8);
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.6;
+}
+
+.explore-view__welcome h3 {
+  color: var(--ng-text-primary, #f9fafb);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 var(--ng-space-3, 12px) 0;
+}
+
+.explore-view__welcome p {
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 320px;
+  margin: 0 0 var(--ng-space-2, 8px) 0;
+}
+
+.explore-view__welcome strong {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.explore-view__welcome-hint {
+  font-size: 12px;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .explore-view__search-form {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .explore-view__refresh {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .explore-view__refresh:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .explore-view__focus-info {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .explore-view__center-btn:hover {
+  color: #ffffff;
+}

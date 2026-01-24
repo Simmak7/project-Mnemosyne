@@ -1,0 +1,192 @@
+/**
+ * MediaView.css - Visual content view styling
+ */
+
+.media-view {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Filter Controls */
+.media-view__filters {
+  position: absolute;
+  top: var(--ng-space-4, 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--ng-space-2, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-xl, 12px);
+  padding: var(--ng-space-1, 4px);
+  z-index: 10;
+}
+
+.media-view__filter {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ng-radius-lg, 8px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.media-view__filter:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.media-view__filter.is-active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--filter-color, var(--ng-glass-border-active));
+  color: var(--filter-color, var(--ng-text-primary));
+}
+
+.media-view__filter.is-active svg {
+  color: var(--filter-color);
+}
+
+.media-view__filter-count {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  background: var(--ng-charcoal-700, #262626);
+  border-radius: var(--ng-radius-full, 9999px);
+  font-variant-numeric: tabular-nums;
+}
+
+.media-view__filter.is-active .media-view__filter-count {
+  background: var(--filter-color);
+  color: var(--ng-void, #0a0a0a);
+}
+
+.media-view__refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.media-view__refresh:hover {
+  background: var(--ng-charcoal-600, #2e2e2e);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.media-view__refresh .is-spinning {
+  animation: media-spin 1s linear infinite;
+}
+
+@keyframes media-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Loading State */
+.media-view__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 13px;
+}
+
+.media-view__spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-image, #22d3ee);
+  border-radius: 50%;
+  animation: media-spin 1s linear infinite;
+}
+
+/* Error State */
+.media-view__error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  color: var(--ng-error, #ef4444);
+  font-size: 13px;
+}
+
+.media-view__error button {
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+  border: 1px solid var(--ng-error-border, rgba(239, 68, 68, 0.3));
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-error, #ef4444);
+  cursor: pointer;
+}
+
+/* Empty State */
+.media-view__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.media-view__empty-icon {
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.3;
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.media-view__empty-hint {
+  font-size: 12px;
+  max-width: 250px;
+  margin-top: var(--ng-space-2, 8px);
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .media-view__filters {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .media-view__filter:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .media-view__filter.is-active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .media-view__filter-count {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .media-view__filter.is-active .media-view__filter-count {
+  color: #ffffff;
+}
+
+[data-theme="light"] .media-view__refresh:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}

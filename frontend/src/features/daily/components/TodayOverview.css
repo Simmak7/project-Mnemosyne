@@ -1,0 +1,158 @@
+/* ============================================
+   TodayOverview Component Styles
+   Activity statistics summary
+   ============================================ */
+
+.today-overview {
+  padding: var(--ng-space-4) var(--ng-space-6);
+  border-bottom: 1px solid var(--ng-glass-border);
+}
+
+.overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ng-space-3);
+}
+
+.overview-title {
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-medium);
+  color: var(--ng-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.overview-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1);
+  padding: var(--ng-space-1) var(--ng-space-2);
+  background: var(--ng-glass-bg);
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-md);
+  color: var(--ng-text-secondary);
+  font-size: var(--ng-text-xs);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast);
+}
+
+.overview-edit-btn:hover {
+  background: var(--ng-accent-note-bg);
+  border-color: var(--ng-accent-note-border);
+  color: var(--ng-accent-note);
+}
+
+.overview-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-4);
+}
+
+/* ----------------------------------------
+   Individual Stat
+   ---------------------------------------- */
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2);
+  padding: var(--ng-space-2) var(--ng-space-3);
+  background: var(--ng-glass-bg);
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-lg);
+}
+
+.stat-icon {
+  flex-shrink: 0;
+}
+
+.stat-value {
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-semibold);
+  color: var(--ng-text-primary);
+}
+
+.stat-label {
+  font-size: var(--ng-text-xs);
+  color: var(--ng-text-tertiary);
+}
+
+/* ----------------------------------------
+   Color Variants
+   ---------------------------------------- */
+
+.stat-note {
+  border-color: var(--ng-accent-note-border);
+}
+
+.stat-note .stat-icon {
+  color: var(--ng-accent-note);
+}
+
+.stat-ai {
+  border-color: var(--ng-accent-ai-border);
+}
+
+.stat-ai .stat-icon {
+  color: var(--ng-accent-ai);
+}
+
+.stat-image {
+  border-color: var(--ng-accent-image-border);
+}
+
+.stat-image .stat-icon {
+  color: var(--ng-accent-image);
+}
+
+.stat-link {
+  border-color: var(--ng-accent-link-border);
+}
+
+.stat-link .stat-icon {
+  color: var(--ng-accent-link);
+}
+
+.stat-todo {
+  border-color: var(--ng-success-border, #22c55e40);
+}
+
+.stat-todo .stat-icon {
+  color: var(--ng-success, #22c55e);
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+
+@media (max-width: 640px) {
+  .overview-stats {
+    gap: var(--ng-space-2);
+  }
+
+  .stat-item {
+    padding: var(--ng-space-1) var(--ng-space-2);
+  }
+
+  .stat-value {
+    font-size: var(--ng-text-base);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .overview-edit-btn {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .overview-edit-btn:hover {
+  background: rgba(249, 115, 22, 0.1);
+}
+
+[data-theme="light"] .stat-item {
+  background: var(--ng-slate-50, #f8fafc);
+}

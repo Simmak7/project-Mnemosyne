@@ -1,0 +1,492 @@
+/**
+ * ConversationPane - Left panel styles
+ * AI accent color: violet (#818cf8)
+ */
+
+.conversation-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px 12px;
+  gap: 12px;
+  overflow: hidden; /* Prevent the pane itself from scrolling */
+}
+
+/* Header */
+.conversation-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.06));
+}
+
+.conversation-pane-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.conversation-pane-title span {
+  background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8), var(--ng-accent-note, #fbbf24));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brain-icon {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.collapse-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+}
+
+/* New Chat Button */
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: rgba(129, 140, 248, 0.15);
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  border-radius: 8px;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.new-chat-btn:hover {
+  background: rgba(129, 140, 248, 0.25);
+  border-color: rgba(129, 140, 248, 0.5);
+}
+
+.new-chat-btn:active {
+  transform: scale(0.98);
+}
+
+/* Search */
+.conversation-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.conversation-search .search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+  pointer-events: none;
+}
+
+.conversation-search input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.06));
+  border-radius: 6px;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.conversation-search input::placeholder {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+.conversation-search input:focus {
+  border-color: rgba(129, 140, 248, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Conversation List */
+.conversation-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0; /* Required for flex scroll containers */
+}
+
+.conversation-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.conversation-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.conversation-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Conversation Groups */
+.conversation-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 12px;
+}
+
+.conversation-group-header {
+  padding: 8px 8px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+}
+
+/* Conversation Item */
+.conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.conversation-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.conversation-item.active {
+  background: rgba(129, 140, 248, 0.15);
+}
+
+.conversation-item.active .conversation-icon {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.conversation-icon {
+  flex-shrink: 0;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.conversation-title {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conversation-menu-btn {
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.conversation-item:hover .conversation-menu-btn {
+  opacity: 1;
+}
+
+.conversation-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+}
+
+/* Conversation Menu Dropdown */
+.conversation-menu {
+  position: absolute;
+  right: 8px;
+  top: 100%;
+  z-index: 100;
+  min-width: 120px;
+  padding: 4px;
+  background: var(--ng-glass-elevated, rgba(25, 25, 25, 0.95));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.conversation-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.conversation-menu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.conversation-menu-item.delete {
+  color: #f87171;
+}
+
+.conversation-menu-item.delete:hover {
+  background: rgba(248, 113, 113, 0.1);
+}
+
+/* Empty State */
+.conversation-empty,
+.conversation-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px 16px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+  text-align: center;
+}
+
+.conversation-empty-hint {
+  font-size: 12px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+}
+
+/* Brain Status Card */
+.brain-status-card {
+  margin-top: auto;
+  padding: 12px;
+  background: rgba(129, 140, 248, 0.05);
+  border: 1px solid rgba(129, 140, 248, 0.15);
+  border-radius: 8px;
+}
+
+.brain-status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ng-accent-ai, #818cf8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.brain-status-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.brain-status-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.brain-status-label {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.brain-status-value {
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+}
+
+.brain-status-value.ready {
+  color: var(--ng-accent-link, #34d399);
+}
+
+.brain-status-value.indexing,
+.brain-status-value.training {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.brain-status-value.indexed {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.brain-status-value .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.brain-train-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 6px;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.brain-train-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.2);
+}
+
+.brain-train-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Conversation Edit Mode */
+.conversation-item.editing {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.conversation-edit-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.conversation-edit-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(129, 140, 248, 0.4);
+  border-radius: 4px;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  font-size: 13px;
+  outline: none;
+}
+
+.conversation-edit-input:focus {
+  border-color: var(--ng-accent-ai, #818cf8);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.conversation-edit-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.conversation-edit-btn.save {
+  color: var(--ng-accent-link, #34d399);
+}
+
+.conversation-edit-btn.save:hover {
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.conversation-edit-btn.cancel {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.conversation-edit-btn.cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f87171;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .conversation-list::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .conversation-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-500);
+}
+
+[data-theme="light"] .collapse-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .conversation-search input {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .conversation-search input:focus {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .conversation-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .conversation-menu {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .conversation-menu-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .conversation-edit-input {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .conversation-edit-input:focus {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .conversation-edit-btn.cancel:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

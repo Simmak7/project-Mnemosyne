@@ -1,0 +1,226 @@
+﻿from fastapi import FastAPI, UploadFile, File, Depends, HTTPException, status
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from typing import Annotated
+from pydantic import BaseModel
+import os
+import uuid
+import requests
+import base64
+from pathlib import Path
+
+import database
+import models
+import crud
+import schemas
+
+models.Base.metadata.create_all(bind=database.engine)
+
+app = FastAPI(title="AI Notes Notetaker API", version="1.0.0")
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Dependency
+def get_db():
+    db = database.SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
+UPLOAD_DIR = "uploaded_images"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+class ChatRequest(BaseModel):
+    text: str
+
+class AnalyzeRequest(BaseModel):
+    prompt: str = "Describe this image in detail"
+
+@app.get("/", tags=["Root"])
+async def read_root():
+    return {
+        "message": "Welcome to AI Notes Notetaker Backend!",
+        "version": "1.0.0"
+    }
+
+@app.get("/health", tags=["System"])
+async def health_check():
+    try:
+        ollama_check = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=2)
+        ollama_status = "connected" if ollama_check.status_code == 200 else "disconnected"
+    except:
+        ollama_status = "disconnected"
+    
+    return {
+        "status": "healthy",
+        "ollama": ollama_status,
+        "upload_dir": os.path.exists(UPLOAD_DIR)
+    }
+
+@app.post("/upload-image/", tags=["Image Processing"])
+async def upload_image(
+    file: Annotated[UploadFile, File(description="Image file to upload")],
+    prompt: Annotated[str | None, "Prompt for AI analysis"] = None,
+    db: Session = Depends(get_db)
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Only image files are allowed")
+
+    try:
+        file_extension = os.path.splitext(file.filename)[1]
+        unique_filename = f"{uuid.uuid4()}{file_extension}"
+        file_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+        contents = await file.read()
+        with open(file_path, "wb") as buffer:
+            buffer.write(contents)
+
+        image_data = crud.create_image(
+            db=db, 
+            filename=unique_filename, 
+            filepath=file_path, 
+            prompt=prompt or "Describe this image"
+        )
+
+        try:
+            await analyze_image_with_ollama(
+                image_path=file_path,
+                prompt=prompt or "Describe this image in detail",
+                image_id=image_data.id,
+                db=db
+            )
+        except Exception as e:
+            crud.update_image_analysis_result(
+                db=db, 
+                image_id=image_data.id, 
+                status="failed", 
+                result=f"Analysis failed: {str(e)}"
+            )
+
+        return JSONResponse(content={
+            "message": "Image uploaded successfully",
+            "filename": unique_filename,
+            "image_id": image_data.id,
+            "prompt": prompt,
+            "analysis_status": image_data.ai_analysis_status
+        }, status_code=status.HTTP_200_OK)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to upload image: {str(e)}")
+
+async def analyze_image_with_ollama(image_path: str, prompt: str, image_id: int, db: Session):
+    try:
+        crud.update_image_analysis_result(db=db, image_id=image_id, status="processing")
+        
+        with open(image_path, "rb") as img_file:
+            image_bytes = img_file.read()
+            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+
+        ollama_response = requests.post(
+            f"{OLLAMA_HOST}/api/generate",
+            json={
+                "model": "llava",
+                "prompt": prompt,
+                "images": [image_base64],
+                "stream": False
+            },
+            timeout=120
+        )
+
+        if ollama_response.status_code == 200:
+            result = ollama_response.json()
+            analysis_text = result.get("response", "No response from AI")
+            
+            crud.update_image_analysis_result(
+                db=db, 
+                image_id=image_id, 
+                status="completed", 
+                result=analysis_text
+            )
+            
+            note_title = f"Analysis: {Path(image_path).stem}"
+            crud.create_note(
+                db=db,
+                title=note_title,
+                content=f"Image: {Path(image_path).name}\n\nPrompt: {prompt}\n\nAnalysis:\n{analysis_text}"
+            )
+            
+            return analysis_text
+        else:
+            raise Exception(f"Ollama API error: {ollama_response.status_code}")
+            
+    except Exception as e:
+        crud.update_image_analysis_result(
+            db=db, 
+            image_id=image_id, 
+            status="failed", 
+            result=str(e)
+        )
+        raise
+
+@app.get("/images/", tags=["Image Processing"])
+async def get_images(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    images = crud.get_images(db, skip=skip, limit=limit)
+    return [schemas.Image.model_validate(img) for img in images]
+
+@app.get("/image/{image_id}", tags=["Image Processing"])
+async def get_image_file(image_id: int, db: Session = Depends(get_db)):
+    image = crud.get_image(db, image_id=image_id)
+    if not image:
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    if not os.path.exists(image.filepath):
+        raise HTTPException(status_code=404, detail="Image file not found on disk")
+    
+    return FileResponse(image.filepath)
+
+@app.post("/chat-with-ai/", tags=["AI Integration"])
+async def chat_with_ai(request: ChatRequest, db: Session = Depends(get_db)):
+    try:
+        notes = crud.get_notes(db, limit=5)
+        context = "\n\n".join([f"Note: {note.title}\n{note.content[:200]}" for note in notes])
+        
+        full_prompt = f"Context (recent notes):\n{context}\n\nUser question: {request.text}\n\nPlease answer based on the context if relevant, or provide general assistance."
+        
+        response = requests.post(
+            f"{OLLAMA_HOST}/api/generate",
+            json={
+                "model": "llava",
+                "prompt": full_prompt,
+                "stream": False
+            },
+            timeout=60
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            ai_response = result.get("response", "I couldn't generate a response.")
+            return {"response": ai_response}
+        else:
+            raise HTTPException(status_code=500, detail="AI service unavailable")
+            
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="AI response timeout")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
+
+@app.get("/notes/", tags=["Notes"])
+async def get_notes(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    notes = crud.get_notes(db, skip=skip, limit=limit)
+    return [schemas.Note.model_validate(note) for note in notes]
+
+@app.get("/notes/{note_id}", tags=["Notes"])
+async def get_note(note_id: int, db: Session = Depends(get_db)):
+    note = crud.get_note(db, note_id=note_id)
+    if not note:
+        raise HTTPException(status_code=404, detail="Note not found")
+    return schemas.Note.model_validate(note)

@@ -1,0 +1,174 @@
+/**
+ * ViewSwitcher.css - Neural Glass tab navigation
+ */
+
+/* Entrance animation */
+@keyframes view-switcher-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  animation: view-switcher-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Tabs Container */
+.view-switcher__tabs {
+  display: flex;
+  gap: var(--ng-space-1, 4px);
+}
+
+/* Individual Tab */
+.view-switcher__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ng-radius-lg, 8px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-switcher__tab:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.view-switcher__tab.is-active {
+  background: var(--ng-glass-bg-active, rgba(255, 255, 255, 0.05));
+  border-color: var(--ng-glass-border-active, rgba(255, 255, 255, 0.15));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.view-switcher__tab-icon {
+  flex-shrink: 0;
+}
+
+.view-switcher__tab-label {
+  font-weight: 500;
+}
+
+/* Controls Container */
+.view-switcher__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-4, 16px);
+}
+
+/* Control Group */
+.view-switcher__control-group {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px);
+  background: var(--ng-charcoal-800, #1f1f1f);
+  border-radius: var(--ng-radius-md, 6px);
+}
+
+/* Individual Control Button */
+.view-switcher__control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.view-switcher__control:hover {
+  background: var(--ng-charcoal-600, #2e2e2e);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.view-switcher__control:active {
+  transform: scale(0.95);
+}
+
+.view-switcher__control.is-paused {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+/* Zoom Level Display */
+.view-switcher__zoom-level {
+  min-width: 40px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .view-switcher {
+    padding: var(--ng-space-2, 8px);
+    flex-wrap: wrap;
+    gap: var(--ng-space-2, 8px);
+  }
+
+  .view-switcher__tabs {
+    order: 1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .view-switcher__controls {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .view-switcher__tab-label {
+    display: none;
+  }
+
+  .view-switcher__tab {
+    padding: var(--ng-space-2, 8px);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .view-switcher {
+  background: var(--ng-glass-bg-light, rgba(255, 255, 255, 0.8));
+}
+
+[data-theme="light"] .view-switcher__tab:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .view-switcher__tab.is-active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .view-switcher__control-group {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .view-switcher__control:hover {
+  background: var(--ng-slate-200, #e2e8f0);
+}

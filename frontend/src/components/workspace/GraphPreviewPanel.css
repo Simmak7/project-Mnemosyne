@@ -1,0 +1,175 @@
+/* GraphPreviewPanel.css - Mini force-directed graph styles */
+/* Version: 2.0 - Neural Glass Design System */
+
+.graph-preview-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: transparent; /* Inside glass panel */
+}
+
+/* Live indicator header */
+.graph-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: var(--ng-text-xs, 12px);
+}
+
+.graph-live-indicator .live-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ng-space-1-5, 6px);
+  background: var(--ng-accent-link, #34d399);
+  color: var(--ng-void, #0a0a0a);
+  border-radius: var(--ng-radius-sm, 4px);
+  font-size: 10px;
+  font-weight: var(--ng-font-semibold, 600);
+  text-transform: uppercase;
+  box-shadow: 0 0 8px var(--ng-accent-link-glow, rgba(52, 211, 153, 0.3));
+}
+
+.graph-live-indicator .live-text {
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Graph canvas container - Neural Glass ambient gradient */
+.graph-preview-container {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at top left, rgba(129, 140, 248, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(251, 191, 36, 0.04) 0%, transparent 40%),
+    var(--ng-void-deep, #050505);
+}
+
+.graph-preview-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+}
+
+.graph-preview-container canvas:active {
+  cursor: grabbing;
+}
+
+/* Legend bar */
+.graph-preview-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: 11px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px currentColor;
+}
+
+/* Semantic legend colors */
+.legend-dot.note-dot {
+  background: var(--ng-accent-note, #fbbf24);
+}
+
+.legend-dot.tag-dot {
+  background: var(--ng-accent-link, #34d399);
+}
+
+.legend-dot.image-dot {
+  background: var(--ng-accent-image, #22d3ee);
+}
+
+.legend-dot.entity-dot {
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+/* Hint footer */
+.graph-preview-hint {
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-3, 12px);
+  text-align: center;
+  font-size: 11px;
+  color: var(--ng-text-tertiary, #9ca3af);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+/* Empty state */
+.graph-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--ng-space-6, 24px);
+  text-align: center;
+}
+
+.graph-preview-empty svg {
+  opacity: 0.3;
+  color: var(--ng-text-tertiary, #9ca3af);
+  margin-bottom: var(--ng-space-3, 12px);
+}
+
+.graph-preview-empty p {
+  font-size: var(--ng-text-sm, 13px);
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .graph-live-indicator .live-badge {
+    box-shadow: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Live indicator header */
+[data-theme="light"] .graph-live-indicator {
+  background: var(--ng-glass-bg-light);
+}
+
+/* Live badge - white text on accent */
+[data-theme="light"] .graph-live-indicator .live-badge {
+  color: #ffffff;
+}
+
+/* Graph canvas - light ethereal gradient */
+[data-theme="light"] .graph-preview-container {
+  background:
+    radial-gradient(ellipse at top left, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(8, 145, 178, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at center, rgba(217, 119, 6, 0.03) 0%, transparent 40%),
+    var(--ng-void-deep);
+}
+
+/* Legend bar */
+[data-theme="light"] .graph-preview-legend {
+  background: var(--ng-glass-bg-light);
+}
+
+/* Hint footer */
+[data-theme="light"] .graph-preview-hint {
+  background: rgba(0, 0, 0, 0.03);
+}

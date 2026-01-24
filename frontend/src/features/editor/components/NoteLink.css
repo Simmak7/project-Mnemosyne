@@ -1,0 +1,178 @@
+/* ============================================
+   Note Link - Neural Glass Style
+   Styled wikilink pills with emerald accent
+   ============================================ */
+
+/* Pill-style NoteLink */
+.ng-note-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-3, 12px);
+  background: var(--ng-accent-link-bg, rgba(52, 211, 153, 0.1));
+  border: 1px solid var(--ng-accent-link-border, rgba(52, 211, 153, 0.3));
+  border-radius: var(--ng-radius-full, 9999px);
+  color: var(--ng-accent-link, #34d399);
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: var(--ng-font-medium, 500);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.ng-note-link:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: var(--ng-accent-link, #34d399);
+  box-shadow: 0 0 12px var(--ng-accent-link-glow, rgba(52, 211, 153, 0.3));
+  transform: translateY(-1px);
+}
+
+.ng-note-link:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-void, #0a0a0a),
+    0 0 0 4px var(--ng-accent-link, #34d399);
+}
+
+.ng-note-link:active {
+  transform: translateY(0);
+}
+
+/* Not found state - dotted border */
+.ng-note-link.not-found {
+  border-style: dashed;
+  color: var(--ng-text-tertiary, #9ca3af);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border-color: var(--ng-text-muted, #6b7280);
+}
+
+.ng-note-link.not-found:hover {
+  color: var(--ng-accent-link, #34d399);
+  border-color: var(--ng-accent-link, #34d399);
+  background: var(--ng-accent-link-bg, rgba(52, 211, 153, 0.1));
+}
+
+.ng-note-link-icon {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.ng-note-link-text {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ng-note-link-create {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* Inline version for editor */
+.ng-note-link-inline {
+  color: var(--ng-accent-link, #34d399);
+  font-weight: var(--ng-font-medium, 500);
+  cursor: pointer;
+  border-radius: var(--ng-radius-sm, 4px);
+  padding: 0 var(--ng-space-0-5, 2px);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.ng-note-link-inline:hover {
+  background: var(--ng-accent-link-bg, rgba(52, 211, 153, 0.1));
+  text-decoration: underline;
+}
+
+.ng-note-link-inline.not-found {
+  color: var(--ng-text-tertiary, #9ca3af);
+  border-bottom: 1px dashed var(--ng-text-muted, #6b7280);
+}
+
+.ng-note-link-inline.not-found:hover {
+  color: var(--ng-accent-link, #34d399);
+  border-bottom-color: var(--ng-accent-link, #34d399);
+}
+
+/* Wikilink chip styling for TiptapEditor */
+.wikilink-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-0-5, 2px) var(--ng-space-2, 8px);
+  margin: 0 var(--ng-space-0-5, 2px);
+  background: var(--ng-accent-link-bg, rgba(52, 211, 153, 0.1));
+  border: 1px solid var(--ng-accent-link-border, rgba(52, 211, 153, 0.3));
+  border-radius: var(--ng-radius-full, 9999px);
+  color: var(--ng-accent-link, #34d399);
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: var(--ng-font-medium, 500);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  vertical-align: baseline;
+}
+
+.wikilink-chip:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: var(--ng-accent-link, #34d399);
+  box-shadow: 0 0 12px var(--ng-accent-link-glow, rgba(52, 211, 153, 0.3));
+  transform: translateY(-1px);
+}
+
+/* Hashtag chip styling for TiptapEditor */
+.hashtag-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ng-space-0-5, 2px) var(--ng-space-2, 8px);
+  margin: 0 var(--ng-space-0-5, 2px);
+  background: var(--ng-accent-note-bg, rgba(251, 191, 36, 0.1));
+  border: 1px solid var(--ng-accent-note-border, rgba(251, 191, 36, 0.3));
+  border-radius: var(--ng-radius-full, 9999px);
+  color: var(--ng-accent-note, #fbbf24);
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: var(--ng-font-medium, 500);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  vertical-align: baseline;
+}
+
+.hashtag-chip:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: var(--ng-accent-note, #fbbf24);
+  box-shadow: 0 0 12px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.3));
+  transform: translateY(-1px);
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ng-note-link,
+  .ng-note-link-inline,
+  .wikilink-chip,
+  .hashtag-chip {
+    transition: none;
+  }
+
+  .ng-note-link:hover,
+  .wikilink-chip:hover,
+  .hashtag-chip:hover {
+    transform: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .ng-note-link:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ng-white, #ffffff),
+    0 0 0 4px var(--ng-accent-link, #34d399);
+}
+
+[data-theme="light"] .ng-note-link.not-found {
+  background: var(--ng-slate-100, #f1f5f9);
+}

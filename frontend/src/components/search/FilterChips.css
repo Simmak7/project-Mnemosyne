@@ -1,0 +1,149 @@
+/* Filter Chips Container */
+.filter-chips-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  flex-wrap: wrap;
+}
+
+.filter-chips-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Filter Chips List */
+.filter-chips-list {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* Filter Chip */
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #E8F4FD;
+  border: none;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #2C5AA0;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-chip:hover {
+  background: #D0E8FA;
+}
+
+.filter-chip:active {
+  transform: scale(0.95);
+}
+
+.filter-chip-label {
+  line-height: 1;
+}
+
+.filter-chip-remove {
+  font-size: 14px;
+  color: #2C5AA0;
+  transition: color 0.15s;
+}
+
+.filter-chip:hover .filter-chip-remove {
+  color: #1A4B8F;
+}
+
+/* Clear All Chip */
+.filter-chip.clear-all {
+  background: #FEE;
+  color: #C33;
+}
+
+.filter-chip.clear-all:hover {
+  background: #FDD;
+}
+
+.filter-chip.clear-all .filter-chip-remove {
+  color: #C33;
+}
+
+.filter-chip.clear-all:hover .filter-chip-remove {
+  color: #A22;
+}
+
+/* Dark Mode */
+[data-theme='dark'] .filter-chips-container {
+  background: #2d2d2d;
+  border-bottom-color: #444;
+}
+
+[data-theme='dark'] .filter-chips-label {
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .filter-chip {
+  background: #1A3A5A;
+  color: #66B3FF;
+}
+
+[data-theme='dark'] .filter-chip:hover {
+  background: #2A4A6A;
+}
+
+[data-theme='dark'] .filter-chip-remove {
+  color: #66B3FF;
+}
+
+[data-theme='dark'] .filter-chip:hover .filter-chip-remove {
+  color: #88C5FF;
+}
+
+[data-theme='dark'] .filter-chip.clear-all {
+  background: #4A1A1A;
+  color: #FF6666;
+}
+
+[data-theme='dark'] .filter-chip.clear-all:hover {
+  background: #5A2A2A;
+}
+
+[data-theme='dark'] .filter-chip.clear-all .filter-chip-remove {
+  color: #FF6666;
+}
+
+[data-theme='dark'] .filter-chip.clear-all:hover .filter-chip-remove {
+  color: #FF8888;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .filter-chips-container {
+    padding: 8px 16px;
+    gap: 8px;
+  }
+
+  .filter-chips-label {
+    font-size: 11px;
+    width: 100%;
+  }
+
+  .filter-chips-list {
+    gap: 4px;
+  }
+
+  .filter-chip {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+}

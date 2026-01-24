@@ -1,0 +1,66 @@
+/* ============================================
+   GlassPanel Component Styles
+   Padding utilities and component-specific overrides
+   ============================================ */
+
+/* Base panel reset */
+.glass-panel {
+  position: relative;
+  display: block;
+}
+
+/* ----------------------------------------
+   Padding Utilities
+   ---------------------------------------- */
+
+.ng-panel-p-none {
+  padding: 0;
+}
+
+.ng-panel-p-xs {
+  padding: var(--ng-space-1);
+}
+
+.ng-panel-p-sm {
+  padding: var(--ng-space-2);
+}
+
+.ng-panel-p-md {
+  padding: var(--ng-space-4);
+}
+
+.ng-panel-p-lg {
+  padding: var(--ng-space-6);
+}
+
+.ng-panel-p-xl {
+  padding: var(--ng-space-8);
+}
+
+/* ----------------------------------------
+   Interactive Enhancement
+   ---------------------------------------- */
+
+.glass-panel[role="button"] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.glass-panel[role="button"]:focus-visible {
+  outline: 2px solid var(--ng-accent-ai);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Add subtle shadow to panels in light mode */
+[data-theme="light"] .glass-panel.ng-glass,
+[data-theme="light"] .glass-panel.ng-glass-elevated {
+  box-shadow: var(--ng-shadow-md);
+}
+
+[data-theme="light"] .glass-panel.ng-glass-inset {
+  box-shadow: var(--ng-shadow-inner);
+}

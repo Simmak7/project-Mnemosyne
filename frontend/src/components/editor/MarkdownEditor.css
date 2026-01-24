@@ -1,0 +1,231 @@
+/* Markdown Editor Container */
+.markdown-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 120px);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Header */
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.editor-title-input {
+  flex: 1;
+  font-size: 24px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  outline: none;
+  color: #333;
+}
+
+.editor-title-input::placeholder {
+  color: #999;
+}
+
+.editor-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.save-status {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.manual-save-button,
+.close-button {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+
+.manual-save-button:hover:not(:disabled),
+.close-button:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.manual-save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-button:hover {
+  background: #fee;
+  color: #c33;
+}
+
+/* Tags Section */
+.editor-tags-section {
+  padding: 12px 20px;
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+/* Editor Content */
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+}
+
+/* Override MDEditor styles */
+.editor-content .w-md-editor {
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.editor-content .w-md-editor-toolbar {
+  display: none !important; /* Hide default toolbar, we have custom one */
+}
+
+.editor-content .w-md-editor-content {
+  height: 100% !important;
+}
+
+.editor-content .w-md-editor-text-pre,
+.editor-content .w-md-editor-text-input {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace !important;
+  font-size: 14px !important;
+  line-height: 1.6 !important;
+}
+
+/* Footer */
+.editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.editor-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.editor-shortcuts {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.shortcut-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.shortcut-hint svg {
+  font-size: 14px;
+}
+
+/* Dark Mode */
+[data-theme='dark'] .markdown-editor-container {
+  background: #2d2d2d;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .editor-header {
+  background: #1e1e1e;
+  border-bottom-color: #444;
+}
+
+[data-theme='dark'] .editor-title-input {
+  color: #e0e0e0;
+  background: transparent;
+}
+
+[data-theme='dark'] .editor-title-input::placeholder {
+  color: #666;
+}
+
+[data-theme='dark'] .save-status {
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .manual-save-button,
+[data-theme='dark'] .close-button {
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .manual-save-button:hover:not(:disabled),
+[data-theme='dark'] .close-button:hover {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .editor-tags-section {
+  background: #2d2d2d;
+  border-bottom-color: #444;
+}
+
+[data-theme='dark'] .editor-footer {
+  background: #1e1e1e;
+  border-top-color: #444;
+}
+
+[data-theme='dark'] .editor-stats,
+[data-theme='dark'] .shortcut-hint {
+  color: #888;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .markdown-editor-container {
+    height: calc(100vh - 100px);
+  }
+
+  .editor-header {
+    padding: 12px 16px;
+  }
+
+  .editor-title-input {
+    font-size: 20px;
+  }
+
+  .editor-tags-section {
+    padding: 8px 16px;
+  }
+
+  .editor-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 16px;
+  }
+
+  .editor-shortcuts {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

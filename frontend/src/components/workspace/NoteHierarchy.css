@@ -1,0 +1,593 @@
+/* NoteHierarchy.css - Styles for the note hierarchy/bucket view */
+/* Version: 3.0 - Neural Glass Design System */
+
+/* Parent container must have explicit height for scrolling to work */
+.workspace-left-pane {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-hierarchy {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* Critical for flex child to allow shrinking */
+  background: transparent; /* Inside glass panel */
+  overflow: hidden;
+}
+
+.hierarchy-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-4, 16px) var(--ng-space-5, 20px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+}
+
+.hierarchy-header h3 {
+  margin: 0;
+  font-size: var(--ng-text-lg, 18px);
+  font-weight: var(--ng-font-semibold, 600);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+/* Journal Button - Neural Glass Interactive */
+.journal-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-3, 12px);
+  font-size: var(--ng-text-xs, 12px);
+  font-weight: var(--ng-font-medium, 500);
+  color: var(--ng-text-primary, #f9fafb);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(var(--ng-blur-sm, 8px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-sm, 8px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.journal-btn:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  border-color: var(--ng-glass-border-hover, rgba(255, 255, 255, 0.1));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.journal-btn:active {
+  transform: translateY(0);
+  background: var(--ng-glass-bg-active, rgba(255, 255, 255, 0.05));
+}
+
+.journal-btn svg {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.hierarchy-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-10, 40px) var(--ng-space-5, 20px);
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: ng-spin 0.8s linear infinite;
+  margin-bottom: var(--ng-space-3, 12px);
+}
+
+@keyframes ng-spin {
+  to { transform: rotate(360deg); }
+}
+
+.hierarchy-scroll-container {
+  flex: 1;
+  min-height: 0; /* Critical for flex child scrolling */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Bucket header */
+.bucket-header {
+  display: flex;
+  align-items: center;
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  cursor: pointer;
+  user-select: none;
+  gap: var(--ng-space-2, 8px);
+  background: transparent;
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.bucket-header:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+.bucket-header:active {
+  background: var(--ng-glass-bg-active, rgba(255, 255, 255, 0.05));
+}
+
+.bucket-header.placeholder {
+  opacity: 0.6;
+}
+
+.bucket-toggle {
+  display: flex;
+  align-items: center;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.bucket-icon {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.bucket-name {
+  flex: 1;
+  font-weight: var(--ng-font-semibold, 600);
+  font-size: var(--ng-text-sm, 14px);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.bucket-count {
+  font-size: var(--ng-text-xs, 12px);
+  color: var(--ng-text-secondary, #d1d5db);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  padding: 2px var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-full, 9999px);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Hierarchy item container - clip to prevent overlap */
+.hierarchy-item {
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Note item - Two-line compact layout */
+.note-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px 6px 36px;
+  cursor: pointer;
+  user-select: none;
+  gap: 8px;
+  background: transparent;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  border-radius: var(--ng-radius-md, 6px);
+  margin: 0 4px;
+  width: calc(100% - 8px);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.note-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+/* Selected state uses inset box-shadow to avoid affecting layout */
+.hierarchy-item.selected .note-item {
+  background: var(--ng-accent-note-bg, rgba(251, 191, 36, 0.1));
+  box-shadow: inset 3px 0 0 var(--ng-accent-note, #fbbf24);
+}
+
+.hierarchy-item.selected .cluster-note-item {
+  background: var(--ng-accent-note-bg, rgba(251, 191, 36, 0.1));
+  box-shadow: inset 3px 0 0 var(--ng-accent-note, #fbbf24);
+}
+
+.note-hierarchy .note-icon {
+  color: var(--ng-text-tertiary, #9ca3af);
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0.7;
+}
+
+/* Scope note-content to note-hierarchy to avoid conflicts with CenterPane */
+.note-hierarchy .note-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-hierarchy .note-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ng-text-primary, #f9fafb);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Date shown inline next to title */
+.note-hierarchy .note-date {
+  font-size: 11px;
+  flex-shrink: 0;
+  color: var(--ng-text-tertiary, #9ca3af);
+  white-space: nowrap;
+  line-height: 1;
+}
+
+/* Cluster header (sub-item under AI Clusters bucket) */
+.cluster-header {
+  display: flex;
+  align-items: center;
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px) var(--ng-space-2, 8px) var(--ng-space-10, 40px);
+  cursor: pointer;
+  user-select: none;
+  gap: var(--ng-space-2, 8px);
+  background: transparent;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  border-left: 3px solid transparent;
+  border-radius: 0 var(--ng-radius-md, 6px) var(--ng-radius-md, 6px) 0;
+  margin-right: var(--ng-space-1, 4px);
+}
+
+.cluster-header:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  transform: translateX(2px);
+}
+
+.cluster-emoji {
+  font-size: 18px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.cluster-label {
+  flex: 1;
+  font-size: var(--ng-text-sm, 13px);
+  font-weight: var(--ng-font-semibold, 600);
+  color: var(--ng-text-primary, #f9fafb);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cluster-count {
+  font-size: 11px;
+  font-weight: var(--ng-font-semibold, 600);
+  color: var(--ng-void, #0a0a0a);
+  padding: 3px var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-full, 9999px);
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Cluster color themes - Using Neural Glass semantic colors */
+/* Violet (AI) clusters */
+.cluster-header[data-cluster-id="0"] {
+  border-left-color: var(--ng-accent-ai, #818cf8);
+}
+.cluster-header[data-cluster-id="0"] .cluster-count {
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+.cluster-header[data-cluster-id="1"] {
+  border-left-color: var(--ng-accent-ai-light, #a5b4fc);
+}
+.cluster-header[data-cluster-id="1"] .cluster-count {
+  background: var(--ng-accent-ai-light, #a5b4fc);
+}
+
+/* Amber (Note) clusters */
+.cluster-header[data-cluster-id="2"] {
+  border-left-color: var(--ng-accent-note, #fbbf24);
+}
+.cluster-header[data-cluster-id="2"] .cluster-count {
+  background: var(--ng-accent-note, #fbbf24);
+}
+
+.cluster-header[data-cluster-id="3"] {
+  border-left-color: var(--ng-accent-note-light, #fcd34d);
+}
+.cluster-header[data-cluster-id="3"] .cluster-count {
+  background: var(--ng-accent-note-light, #fcd34d);
+}
+
+/* Emerald (Link) clusters */
+.cluster-header[data-cluster-id="4"] {
+  border-left-color: var(--ng-accent-link, #34d399);
+}
+.cluster-header[data-cluster-id="4"] .cluster-count {
+  background: var(--ng-accent-link, #34d399);
+}
+
+/* Cyan (Image) clusters */
+.cluster-header[data-cluster-id="5"] {
+  border-left-color: var(--ng-accent-image, #22d3ee);
+}
+.cluster-header[data-cluster-id="5"] .cluster-count {
+  background: var(--ng-accent-image, #22d3ee);
+}
+
+/* Status colors */
+.cluster-header[data-cluster-id="6"] {
+  border-left-color: var(--ng-error, #ef4444);
+}
+.cluster-header[data-cluster-id="6"] .cluster-count {
+  background: var(--ng-error, #ef4444);
+}
+
+.cluster-header[data-cluster-id="7"] {
+  border-left-color: var(--ng-accent-link-dark, #10b981);
+}
+.cluster-header[data-cluster-id="7"] .cluster-count {
+  background: var(--ng-accent-link-dark, #10b981);
+}
+
+.cluster-header[data-cluster-id="8"] {
+  border-left-color: var(--ng-warning, #f59e0b);
+}
+.cluster-header[data-cluster-id="8"] .cluster-count {
+  background: var(--ng-warning, #f59e0b);
+}
+
+.cluster-header[data-cluster-id="9"] {
+  border-left-color: var(--ng-accent-ai-dark, #6366f1);
+}
+.cluster-header[data-cluster-id="9"] .cluster-count {
+  background: var(--ng-accent-ai-dark, #6366f1);
+}
+
+/* Cluster note item (note within a cluster) */
+.cluster-note-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px 6px 56px;
+  cursor: pointer;
+  user-select: none;
+  gap: 6px;
+  background: transparent;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  border-radius: var(--ng-radius-md, 6px);
+  margin: 0 4px;
+  width: calc(100% - 8px);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.cluster-note-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+.cluster-note-item .note-icon {
+  color: var(--ng-text-tertiary, #9ca3af);
+  flex-shrink: 0;
+  margin-top: 3px;
+  opacity: 0.7;
+}
+
+.cluster-note-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.cluster-note-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ng-text-primary, #f9fafb);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.cluster-note-date {
+  font-size: 10px;
+  flex-shrink: 0;
+  color: var(--ng-text-tertiary, #9ca3af);
+  line-height: 1;
+}
+
+/* Placeholder message */
+.placeholder-message {
+  display: flex;
+  align-items: center;
+  padding: 6px 16px 6px 40px;
+  font-size: 12px;
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-style: italic;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.placeholder-message.error {
+  color: var(--ng-error, #ef4444);
+}
+
+/* Show more/less button */
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 16px 6px 64px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ng-accent-ai, #818cf8);
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.show-more-btn:hover {
+  color: var(--ng-accent-ai-light, #a5b4fc);
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+/* Focus styles for accessibility - Neural Glass style */
+.bucket-header:focus,
+.note-item:focus {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-void, #0a0a0a),
+    0 0 0 4px var(--ng-accent-ai, #818cf8);
+}
+
+.bucket-header:focus-visible,
+.note-item:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-void, #0a0a0a),
+    0 0 0 4px var(--ng-accent-ai, #818cf8);
+}
+
+/* Scrollbar styles - Neural Glass */
+.hierarchy-scroll-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hierarchy-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hierarchy-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-500, #3d3d3d);
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+.hierarchy-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-400, #525252);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .hierarchy-header {
+    padding: 12px 16px;
+  }
+
+  .hierarchy-header h3 {
+    font-size: 16px;
+  }
+
+  .bucket-header {
+    padding: 10px 12px;
+  }
+
+  .note-item {
+    padding: 6px 12px 6px 32px;
+  }
+
+  .hierarchy-item.selected .note-item {
+    padding-left: 29px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .journal-btn,
+  .bucket-header,
+  .note-item,
+  .cluster-header,
+  .cluster-note-item,
+  .loading-spinner {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Hierarchy header */
+[data-theme="light"] .hierarchy-header {
+  background: var(--ng-glass-bg-light);
+}
+
+/* Journal button - lighter glass */
+[data-theme="light"] .journal-btn {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .journal-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Loading spinner */
+[data-theme="light"] .loading-spinner {
+  border-color: var(--ng-charcoal-700);
+  border-top-color: var(--ng-accent-ai);
+}
+
+/* Bucket header hover */
+[data-theme="light"] .bucket-header:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .bucket-header:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Bucket count - lighter glass */
+[data-theme="light"] .bucket-count {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Note item hover */
+[data-theme="light"] .note-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Cluster header hover */
+[data-theme="light"] .cluster-header:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Cluster note item hover */
+[data-theme="light"] .cluster-note-item:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Cluster count - white text on colored backgrounds */
+[data-theme="light"] .cluster-count {
+  color: #ffffff;
+}
+
+/* Focus rings */
+[data-theme="light"] .bucket-header:focus,
+[data-theme="light"] .note-item:focus,
+[data-theme="light"] .bucket-header:focus-visible,
+[data-theme="light"] .note-item:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ng-void),
+    0 0 0 4px var(--ng-accent-ai);
+}
+
+/* Scrollbar */
+[data-theme="light"] .hierarchy-scroll-container::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .hierarchy-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-300);
+}

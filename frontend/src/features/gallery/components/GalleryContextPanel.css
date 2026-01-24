@@ -1,0 +1,377 @@
+/* GalleryContextPanel.css - Right panel (tags, sort, options) */
+/* Neural Glass Design */
+
+.gallery-context-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--ng-space-4, 16px);
+  overflow-y: auto;
+}
+
+/* Custom scrollbar */
+.gallery-context-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.gallery-context-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gallery-context-panel::-webkit-scrollbar-thumb {
+  background: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+/* Section */
+.context-section {
+  margin-bottom: var(--ng-space-6, 24px);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  margin-bottom: var(--ng-space-3, 12px);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.section-header svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+/* Sort Options */
+.sort-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 4px);
+}
+
+.sort-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  color: var(--ng-text-primary, #ffffff);
+  font-size: var(--ng-text-sm, 0.875rem);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  width: 100%;
+  text-align: left;
+}
+
+.sort-option:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.sort-option.active {
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.1));
+  border-color: var(--ng-accent-image-border, rgba(34, 211, 238, 0.2));
+}
+
+.sort-option svg:first-child {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.sort-option.active svg:first-child {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.sort-option span {
+  flex: 1;
+}
+
+.sort-direction {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+/* View Options */
+.view-options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 12px);
+}
+
+.option-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 8px);
+}
+
+.option-row label {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+}
+
+.slider-value {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-accent-image, #22d3ee);
+  min-width: 45px;
+}
+
+.slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  border-radius: var(--ng-radius-full, 9999px);
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--ng-accent-image, #22d3ee);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform var(--ng-transition-fast, 100ms ease-out);
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--ng-accent-image, #22d3ee);
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* Toggle options */
+.toggle-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-sm, 0.875rem);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  width: 100%;
+  text-align: left;
+}
+
+.toggle-option:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+}
+
+.toggle-option.active {
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.1));
+  border-color: var(--ng-accent-image-border, rgba(34, 211, 238, 0.2));
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.toggle-option.active svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+/* Tags Section */
+.tags-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.clear-tags-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  font-size: var(--ng-text-xs, 0.75rem);
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.clear-tags-btn:hover {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-2, 8px);
+  overflow-y: auto;
+  padding-right: var(--ng-space-2, 8px);
+}
+
+.tags-loading,
+.tags-empty {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  padding: var(--ng-space-4, 16px);
+  text-align: center;
+}
+
+/* Tag Pills */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--ng-accent-note-border, rgba(251, 191, 36, 0.2));
+  border-radius: var(--ng-radius-full, 9999px);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.tag-pill:hover {
+  transform: translateY(-1px);
+  background: var(--ng-accent-note-subtle, rgba(251, 191, 36, 0.1));
+  box-shadow: 0 2px 8px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.2));
+}
+
+.tag-pill.active {
+  background: var(--ng-accent-note-subtle, rgba(251, 191, 36, 0.15));
+  border-color: var(--ng-accent-note, #fbbf24);
+}
+
+.tag-name {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.tag-count {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  padding: 2px 6px;
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+.tag-pill.active .tag-count {
+  background: var(--ng-accent-note, #fbbf24);
+  color: #000;
+}
+
+/* Unused tags (0 count) - dimmed appearance */
+.tag-pill.unused {
+  opacity: 0.5;
+  border-color: var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+}
+
+.tag-pill.unused .tag-name {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.tag-pill.unused:hover {
+  opacity: 0.7;
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  box-shadow: none;
+}
+
+/* Tag Search Input */
+.tag-search-container {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 6px);
+  margin-bottom: var(--ng-space-3, 12px);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.tag-search-container:focus-within {
+  border-color: var(--ng-accent-note-border, rgba(251, 191, 36, 0.4));
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+}
+
+.tag-search-icon {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  flex-shrink: 0;
+}
+
+.tag-search-container:focus-within .tag-search-icon {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.tag-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ng-text-primary, #ffffff);
+  font-size: var(--ng-text-sm, 0.875rem);
+  min-width: 0;
+}
+
+.tag-search-input::placeholder {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.tag-search-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-1, 4px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.tag-search-clear:hover {
+  color: var(--ng-accent-note, #fbbf24);
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .gallery-context-panel::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .sort-option:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .toggle-option:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .tag-pill:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .tag-pill.active .tag-count {
+  color: #ffffff;
+}
+
+[data-theme="light"] .tag-search-clear:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

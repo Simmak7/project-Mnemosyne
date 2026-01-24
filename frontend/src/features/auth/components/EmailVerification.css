@@ -1,0 +1,84 @@
+.email-verification-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.email-verification-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+}
+
+.email-verification-icon {
+  margin-bottom: 24px;
+}
+
+.email-verification-icon .spinning {
+  animation: spin 1s linear infinite;
+  color: #667eea;
+}
+
+.email-verification-icon .success-icon {
+  color: #10b981;
+}
+
+.email-verification-icon .error-icon {
+  color: #ef4444;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.email-verification-card h1 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.email-verification-card .message {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 32px;
+}
+
+.email-verification-card .message.success {
+  color: #059669;
+}
+
+.email-verification-card .message.error {
+  color: #dc2626;
+}
+
+.continue-button {
+  width: 100%;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.continue-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}

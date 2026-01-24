@@ -1,0 +1,251 @@
+/* NoteLayout.css - 3-column notes layout */
+/* Neural Glass Design System Integration */
+
+.note-layout {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-panel-group {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Panel base styles */
+.note-panel {
+  height: 100%;
+  overflow: hidden;
+  margin: var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-xl, 12px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+/* Sidebar panel - slightly darker */
+.note-sidebar-panel {
+  background: var(--ng-glass-bg-heavy, rgba(0, 0, 0, 0.5));
+}
+
+/* List panel - medium glass for content */
+.note-list-panel {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Detail panel - lighter for content focus */
+.note-detail-panel {
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.3));
+}
+
+/* Resize handles - Note accent color (amber) */
+.note-resize-handle {
+  position: relative;
+  width: 6px;
+  background: transparent;
+  cursor: col-resize;
+  transition: background-color var(--ng-transition-fast, 100ms ease-out),
+              box-shadow var(--ng-transition-fast, 100ms ease-out);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.note-resize-handle:hover {
+  background: var(--ng-accent-note, #fbbf24);
+  opacity: 0.3;
+}
+
+.note-resize-handle:active,
+.note-resize-handle[data-resize-handle-active] {
+  background: var(--ng-accent-note, #fbbf24);
+  opacity: 0.5;
+  box-shadow: 0 0 12px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.3));
+}
+
+/* Visual grip indicator */
+.note-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 48px;
+  background: transparent;
+  border-radius: var(--ng-radius-full, 9999px);
+  pointer-events: none;
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.note-resize-handle:hover::after {
+  background: var(--ng-accent-note, #fbbf24);
+  opacity: 0.5;
+}
+
+/* Extended hit area */
+.note-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+/* Collapsed panel state */
+.note-panel[data-panel-size="0"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Floating expand button for collapsed sidebar */
+.sidebar-expand-floating {
+  position: absolute;
+  left: var(--ng-space-2, 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 56px;
+  background: var(--ng-glass-bg-heavy, rgba(0, 0, 0, 0.6));
+  backdrop-filter: blur(var(--ng-blur-md, 12px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-md, 12px));
+  border: 1px solid var(--ng-accent-note, #fbbf24);
+  border-left: none;
+  border-radius: 0 var(--ng-radius-lg, 8px) var(--ng-radius-lg, 8px) 0;
+  color: var(--ng-accent-note, #fbbf24);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  animation: pulseExpand 2s ease-in-out infinite;
+}
+
+@keyframes pulseExpand {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.3));
+  }
+  50% {
+    box-shadow: 0 0 16px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.5));
+  }
+}
+
+.sidebar-expand-floating:hover {
+  width: 36px;
+  background: var(--ng-accent-note, #fbbf24);
+  color: var(--ng-void, #050505);
+  box-shadow: 0 0 20px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.4));
+  animation: none;
+}
+
+/* Focus management */
+.note-panel:focus-within {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.3));
+}
+
+/* Smooth transitions */
+.note-panel {
+  transition: opacity 0.1s ease,
+              flex-basis var(--ng-duration-normal, 200ms) var(--ng-ease-out, ease-out);
+}
+
+/* Placeholder styles for Phase 1 */
+.note-list-placeholder,
+.note-detail-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-6, 24px);
+}
+
+.placeholder-content {
+  text-align: center;
+  color: var(--ng-text-tertiary, rgba(255, 255, 255, 0.4));
+}
+
+.placeholder-icon {
+  font-size: 3rem;
+  margin-bottom: var(--ng-space-4, 16px);
+  display: block;
+  opacity: 0.5;
+}
+
+.placeholder-content h3 {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 var(--ng-space-2, 8px) 0;
+}
+
+.placeholder-content p {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.875rem;
+  margin: 0;
+  opacity: 0.7;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .note-panel-group {
+    flex-direction: column;
+  }
+
+  .note-resize-handle {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+  }
+
+  .note-resize-handle::after {
+    width: 48px;
+    height: 4px;
+  }
+
+  .note-panel {
+    margin: var(--ng-space-1, 4px);
+  }
+
+  .note-list-panel {
+    margin: var(--ng-space-1, 4px);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .note-panel,
+  .note-resize-handle,
+  .note-resize-handle::after {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .note-panel {
+  box-shadow: var(--ng-shadow-md);
+}
+
+[data-theme="light"] .note-resize-handle:hover {
+  opacity: 0.5;
+}
+
+[data-theme="light"] .note-resize-handle:active,
+[data-theme="light"] .note-resize-handle[data-resize-handle-active] {
+  opacity: 0.7;
+}
+
+[data-theme="light"] .sidebar-expand-floating:hover {
+  color: #ffffff;
+}

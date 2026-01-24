@@ -1,0 +1,277 @@
+/* ============================================
+   FloatingSidebar Component Styles
+   Collapsible glass overlay sidebar
+   ============================================ */
+
+/* ----------------------------------------
+   Base Sidebar Container
+   ---------------------------------------- */
+
+.floating-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: var(--ng-z-sticky);
+  display: flex;
+  flex-direction: column;
+  width: var(--sidebar-width);
+  transition:
+    width var(--ng-duration-normal) var(--ng-ease-out),
+    transform var(--ng-duration-normal) var(--ng-ease-out);
+  will-change: width, transform;
+}
+
+.floating-sidebar.left {
+  left: 0;
+  border-right: 1px solid var(--ng-glass-border);
+}
+
+.floating-sidebar.right {
+  right: 0;
+  border-left: 1px solid var(--ng-glass-border);
+}
+
+/* ----------------------------------------
+   Glass Background
+   ---------------------------------------- */
+
+.sidebar-glass-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--ng-glass-bg-heavy);
+  backdrop-filter: blur(var(--ng-blur-xl));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl));
+  z-index: -1;
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  .sidebar-glass-bg {
+    background: var(--ng-void);
+  }
+}
+
+/* ----------------------------------------
+   Toggle Button
+   ---------------------------------------- */
+
+.sidebar-toggle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ng-radius-md);
+  color: var(--ng-text-secondary);
+  z-index: 10;
+  opacity: 0;
+  transition:
+    opacity var(--ng-transition-fast),
+    background-color var(--ng-transition-fast),
+    color var(--ng-transition-fast);
+}
+
+.floating-sidebar.left .sidebar-toggle {
+  right: -12px;
+}
+
+.floating-sidebar.right .sidebar-toggle {
+  left: -12px;
+}
+
+.floating-sidebar:hover .sidebar-toggle,
+.floating-sidebar:focus-within .sidebar-toggle {
+  opacity: 1;
+}
+
+.sidebar-toggle:hover {
+  color: var(--ng-text-primary);
+  background: var(--ng-glass-bg-hover);
+}
+
+.sidebar-toggle:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--ng-accent-ai);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------
+   Header Section
+   ---------------------------------------- */
+
+.sidebar-header {
+  flex-shrink: 0;
+  padding: var(--ng-space-4);
+  border-bottom: 1px solid var(--ng-glass-border);
+  overflow: hidden;
+  transition: opacity var(--ng-transition-fast);
+}
+
+.sidebar-header.show-icon {
+  opacity: 0.7;
+}
+
+.sidebar-header.show-full {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   Main Content
+   ---------------------------------------- */
+
+.sidebar-content {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--ng-space-2);
+}
+
+.sidebar-content-inner {
+  transition: opacity var(--ng-transition-fast);
+}
+
+.sidebar-content-inner.collapsed {
+  opacity: 0.5;
+}
+
+.sidebar-content-inner.expanded {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   Footer Section
+   ---------------------------------------- */
+
+.sidebar-footer {
+  flex-shrink: 0;
+  padding: var(--ng-space-4);
+  border-top: 1px solid var(--ng-glass-border);
+  overflow: hidden;
+  transition: opacity var(--ng-transition-fast);
+}
+
+.sidebar-footer.show-icon {
+  opacity: 0.7;
+}
+
+.sidebar-footer.show-full {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   Collapsed State
+   ---------------------------------------- */
+
+.floating-sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
+}
+
+.floating-sidebar.collapsed .sidebar-content {
+  padding: var(--ng-space-1);
+}
+
+/* ----------------------------------------
+   Hover Expand (when collapsed)
+   ---------------------------------------- */
+
+.floating-sidebar.collapsed.hover-expanded {
+  width: var(--sidebar-expanded-width);
+  box-shadow: var(--ng-shadow-xl);
+}
+
+.floating-sidebar.collapsed.hover-expanded .sidebar-content-inner {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   Mobile Responsive
+   ---------------------------------------- */
+
+@media (max-width: 768px) {
+  .floating-sidebar {
+    width: var(--sidebar-expanded-width);
+    transform: translateX(-100%);
+  }
+
+  .floating-sidebar.left.expanded,
+  .floating-sidebar.left.hover-expanded {
+    transform: translateX(0);
+  }
+
+  .floating-sidebar.right {
+    transform: translateX(100%);
+  }
+
+  .floating-sidebar.right.expanded,
+  .floating-sidebar.right.hover-expanded {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    opacity: 1;
+    position: fixed;
+    top: var(--ng-space-4);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--ng-radius-lg);
+    box-shadow: var(--ng-shadow-lg);
+  }
+
+  .floating-sidebar.left .sidebar-toggle {
+    left: var(--ng-space-4);
+    right: auto;
+  }
+
+  .floating-sidebar.left.expanded .sidebar-toggle,
+  .floating-sidebar.left.hover-expanded .sidebar-toggle {
+    left: calc(var(--sidebar-expanded-width) - var(--ng-space-4) - 40px);
+  }
+}
+
+/* ----------------------------------------
+   Reduced Motion
+   ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .floating-sidebar,
+  .sidebar-toggle,
+  .sidebar-header,
+  .sidebar-footer,
+  .sidebar-content-inner {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Add subtle shadow to sidebar in light mode */
+[data-theme="light"] .floating-sidebar.left {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .floating-sidebar.right {
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Toggle button hover - subtle dark overlay */
+[data-theme="light"] .sidebar-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Hover expanded shadow */
+[data-theme="light"] .floating-sidebar.collapsed.hover-expanded {
+  box-shadow: var(--ng-shadow-xl);
+}
+
+/* Mobile toggle button */
+@media (max-width: 768px) {
+  [data-theme="light"] .sidebar-toggle {
+    background: var(--ng-glass-bg);
+    box-shadow: var(--ng-shadow-lg);
+  }
+}

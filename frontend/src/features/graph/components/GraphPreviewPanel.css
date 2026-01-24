@@ -1,0 +1,184 @@
+/* GraphPreviewPanel.css - Mini force-directed graph styles */
+/* Version: 2.0 - Neural Glass Design System */
+
+.graph-preview-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: transparent; /* Inside glass panel */
+}
+
+/* Live indicator header */
+.graph-live-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: var(--ng-text-xs, 12px);
+}
+
+.graph-live-indicator .live-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--ng-space-1-5, 6px);
+  background: var(--ng-accent-link, #34d399);
+  color: var(--ng-void, #0a0a0a);
+  border-radius: var(--ng-radius-sm, 4px);
+  font-size: 10px;
+  font-weight: var(--ng-font-semibold, 600);
+  text-transform: uppercase;
+  box-shadow: 0 0 8px var(--ng-accent-link-glow, rgba(52, 211, 153, 0.3));
+}
+
+.graph-live-indicator .live-text {
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Graph canvas container */
+.graph-preview-container {
+  flex: 1;
+  position: relative;
+  background: var(--ng-void, #0a0a0a);
+  overflow: hidden;
+}
+
+.graph-preview-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Legend bar */
+.graph-preview-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: 11px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.graph-preview-panel .legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+}
+
+.graph-preview-panel .legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  box-shadow: 0 0 4px currentColor;
+}
+
+/* Semantic legend colors */
+.graph-preview-panel .legend-dot.note-dot {
+  background: var(--ng-accent-note, #fbbf24);
+}
+
+.graph-preview-panel .legend-dot.tag-dot {
+  background: var(--ng-accent-link, #34d399);
+}
+
+.graph-preview-panel .legend-dot.image-dot {
+  background: var(--ng-accent-image, #22d3ee);
+}
+
+.graph-preview-panel .legend-dot.entity-dot {
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+/* Hint footer */
+.graph-preview-hint {
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-3, 12px);
+  text-align: center;
+  font-size: 11px;
+  color: var(--ng-text-tertiary, #9ca3af);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+/* Empty and loading states */
+.graph-preview-panel .panel-empty,
+.graph-preview-panel .panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--ng-space-8, 32px);
+  text-align: center;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.graph-preview-panel .panel-empty .empty-icon,
+.graph-preview-panel .panel-loading .loading-spinner {
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.5;
+}
+
+.graph-preview-panel .panel-empty p,
+.graph-preview-panel .panel-loading p {
+  margin: 0;
+  font-size: var(--ng-text-sm, 14px);
+}
+
+.graph-preview-panel .empty-subtitle {
+  display: block;
+  margin-top: var(--ng-space-2, 8px);
+  font-size: var(--ng-text-xs, 12px);
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.graph-preview-panel .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-charcoal-600, rgba(129, 140, 248, 0.2));
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: ng-spin 0.8s linear infinite;
+}
+
+@keyframes ng-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .graph-live-indicator .live-badge {
+    box-shadow: none;
+  }
+
+  .graph-preview-panel .loading-spinner {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .graph-live-indicator {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .graph-live-indicator .live-badge {
+  color: #ffffff;
+}
+
+[data-theme="light"] .graph-preview-container {
+  background: var(--ng-slate-50, #f8fafc);
+}
+
+[data-theme="light"] .graph-preview-legend {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .graph-preview-hint {
+  background: var(--ng-slate-100, #f1f5f9);
+}

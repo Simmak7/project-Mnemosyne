@@ -1,0 +1,171 @@
+/* GallerySearchBar.css - Immich-style search bar */
+/* Neural Glass Design */
+
+.gallery-search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-2, 8px) var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-lg, 8px);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.gallery-search-bar.focused {
+  border-color: var(--ng-accent-image-border, rgba(34, 211, 238, 0.4));
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+  box-shadow: 0 0 0 2px var(--ng-accent-image-glow, rgba(34, 211, 238, 0.1));
+}
+
+/* Search Input Container */
+.search-input-container {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-icon {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  flex-shrink: 0;
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.gallery-search-bar.focused .search-icon {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ng-text-primary, #ffffff);
+  font-size: var(--ng-text-base, 1rem);
+  min-width: 0;
+}
+
+.search-input::placeholder {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+/* Search Spinner */
+.search-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-top-color: var(--ng-accent-image, #22d3ee);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Clear Button */
+.search-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-1, 4px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.search-clear-btn:hover {
+  color: var(--ng-text-primary, #ffffff);
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.1));
+}
+
+/* Search Type Toggle */
+.search-type-toggle {
+  display: flex;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  border-radius: var(--ng-radius-md, 6px);
+}
+
+.search-type-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 500;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  white-space: nowrap;
+}
+
+.search-type-btn:hover {
+  color: var(--ng-text-primary, #ffffff);
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.search-type-btn.active {
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.15));
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.search-type-btn svg {
+  flex-shrink: 0;
+}
+
+/* Result Count */
+.search-result-count {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  white-space: nowrap;
+  padding-left: var(--ng-space-3, 12px);
+  border-left: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gallery-search-bar {
+    flex-wrap: wrap;
+  }
+
+  .search-input-container {
+    flex: 1 1 100%;
+    order: 1;
+  }
+
+  .search-type-toggle {
+    order: 2;
+  }
+
+  .search-result-count {
+    order: 3;
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .gallery-search-bar {
+  box-shadow: var(--ng-shadow-sm);
+}
+
+[data-theme="light"] .search-clear-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .search-type-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

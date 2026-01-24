@@ -1,0 +1,381 @@
+/* CenterPane.css - Styles for the center editor pane */
+/* Version: 2.0 - Neural Glass Design System */
+
+.center-pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent; /* Inside glass panel */
+  overflow: hidden;
+}
+
+/* Empty/loading states */
+.center-pane-empty,
+.center-pane-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--ng-space-10, 40px);
+  text-align: center;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.empty-icon {
+  opacity: 0.3;
+  margin-bottom: var(--ng-space-5, 20px);
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.center-pane-empty h2 {
+  font-size: var(--ng-text-2xl, 24px);
+  font-weight: var(--ng-font-semibold, 600);
+  color: var(--ng-text-primary, #f9fafb);
+  margin-bottom: var(--ng-space-2, 8px);
+}
+
+.center-pane-empty p {
+  font-size: var(--ng-text-base, 16px);
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.center-pane-loading .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--ng-charcoal-600, #2e2e2e);
+  border-top-color: var(--ng-accent-ai, #818cf8);
+  border-radius: 50%;
+  animation: ng-spin 0.8s linear infinite;
+  margin-bottom: var(--ng-space-4, 16px);
+}
+
+@keyframes ng-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Phase notice banner */
+.phase-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-3, 12px) var(--ng-space-6, 24px);
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: var(--ng-text-sm, 13px);
+  border-bottom: 1px solid var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+}
+
+.edit-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  margin-left: auto;
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-3, 12px);
+  background: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-void, #0a0a0a);
+  border: none;
+  border-radius: var(--ng-radius-md, 6px);
+  font-size: var(--ng-text-sm, 13px);
+  font-weight: var(--ng-font-medium, 500);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.edit-mode-btn:hover {
+  background: var(--ng-accent-ai-light, #a5b4fc);
+  transform: translateY(-1px);
+}
+
+.edit-mode-btn:active {
+  transform: translateY(0);
+}
+
+.center-pane-edit {
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+}
+
+/* Note header */
+.note-header {
+  padding: var(--ng-space-8, 32px) var(--ng-space-12, 48px) var(--ng-space-6, 24px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+}
+
+.note-title {
+  font-size: var(--ng-text-4xl, 32px);
+  font-weight: var(--ng-font-bold, 700);
+  font-family: var(--ng-font-reading, 'Merriweather', Georgia, serif);
+  color: var(--ng-text-primary, #f9fafb);
+  margin: 0 0 var(--ng-space-4, 16px) 0;
+  line-height: 1.3;
+}
+
+/* Scope to center pane only to avoid conflict with NoteHierarchy */
+.center-pane .note-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-4, 16px);
+  margin-bottom: var(--ng-space-3, 12px);
+}
+
+.metadata-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  font-size: var(--ng-text-sm, 14px);
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.metadata-item svg {
+  opacity: 0.7;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+/* Tags */
+.note-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-2, 8px);
+  margin-top: var(--ng-space-4, 16px);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ng-space-1, 4px) var(--ng-space-3, 12px);
+  background: var(--ng-accent-note-bg, rgba(251, 191, 36, 0.1));
+  color: var(--ng-accent-note, #fbbf24);
+  border-radius: var(--ng-radius-full, 9999px);
+  font-size: var(--ng-text-sm, 13px);
+  font-weight: var(--ng-font-medium, 500);
+  border: 1px solid var(--ng-accent-note-border, rgba(251, 191, 36, 0.3));
+}
+
+/* Note content */
+.note-content-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ng-space-8, 32px) var(--ng-space-12, 48px);
+}
+
+.note-content {
+  max-width: var(--ng-editor-max-width, 800px);
+  margin: 0 auto;
+  line-height: var(--ng-leading-relaxed, 1.7);
+  color: var(--ng-text-primary, #f9fafb);
+  font-size: var(--ng-text-base, 16px);
+  font-family: var(--ng-font-reading, 'Merriweather', Georgia, serif);
+}
+
+/* Markdown styles */
+.note-content h1,
+.note-content h2,
+.note-content h3,
+.note-content h4,
+.note-content h5,
+.note-content h6 {
+  margin-top: var(--ng-space-6, 24px);
+  margin-bottom: var(--ng-space-4, 16px);
+  font-weight: var(--ng-font-semibold, 600);
+  line-height: var(--ng-leading-tight, 1.3);
+  font-family: var(--ng-font-reading, 'Merriweather', Georgia, serif);
+}
+
+.note-content h1 { font-size: var(--ng-text-3xl, 28px); }
+.note-content h2 { font-size: var(--ng-text-2xl, 24px); }
+.note-content h3 { font-size: var(--ng-text-xl, 20px); }
+.note-content h4 { font-size: var(--ng-text-lg, 18px); }
+
+.note-content p {
+  margin-bottom: var(--ng-space-4, 16px);
+}
+
+.note-content ul,
+.note-content ol {
+  margin-bottom: var(--ng-space-4, 16px);
+  padding-left: var(--ng-space-6, 24px);
+}
+
+.note-content li {
+  margin-bottom: var(--ng-space-2, 8px);
+}
+
+.note-content code {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  padding: 2px var(--ng-space-1-5, 6px);
+  border-radius: var(--ng-radius-sm, 4px);
+  font-family: var(--ng-font-mono, 'JetBrains Mono', monospace);
+  font-size: var(--ng-text-sm, 14px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.note-content pre {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  padding: var(--ng-space-4, 16px);
+  border-radius: var(--ng-radius-lg, 8px);
+  overflow-x: auto;
+  margin-bottom: var(--ng-space-4, 16px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.note-content pre code {
+  background: none;
+  padding: 0;
+  border: none;
+}
+
+.note-content blockquote {
+  border-left: 4px solid var(--ng-accent-note, #fbbf24);
+  padding-left: var(--ng-space-4, 16px);
+  margin: var(--ng-space-4, 16px) 0;
+  color: var(--ng-text-secondary, #d1d5db);
+  font-style: italic;
+}
+
+.note-content a {
+  color: var(--ng-accent-link, #34d399);
+  text-decoration: none;
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.note-content a:hover {
+  text-decoration: underline;
+  color: var(--ng-accent-link-light, #6ee7b7);
+}
+
+/* Wikilink styles */
+.note-content .wikilink {
+  color: var(--ng-accent-link, #34d399);
+  font-weight: var(--ng-font-medium, 500);
+  cursor: pointer;
+  padding: 2px var(--ng-space-1, 4px);
+  border-radius: var(--ng-radius-sm, 4px);
+  background: var(--ng-accent-link-bg, rgba(52, 211, 153, 0.1));
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.note-content .wikilink:hover {
+  background: rgba(52, 211, 153, 0.2);
+  text-decoration: none;
+}
+
+/* Scrollbar styles - Neural Glass */
+.note-content-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.note-content-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-content-container::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-500, #3d3d3d);
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+.note-content-container::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-400, #525252);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .note-header {
+    padding: var(--ng-space-6, 24px) var(--ng-space-5, 20px) var(--ng-space-4, 16px);
+  }
+
+  .note-title {
+    font-size: var(--ng-text-2xl, 24px);
+  }
+
+  .note-content-container {
+    padding: var(--ng-space-6, 24px) var(--ng-space-5, 20px);
+  }
+
+  .note-content {
+    font-size: 15px;
+  }
+
+  .note-content h1 { font-size: var(--ng-text-2xl, 24px); }
+  .note-content h2 { font-size: var(--ng-text-xl, 20px); }
+  .note-content h3 { font-size: var(--ng-text-lg, 18px); }
+  .note-content h4 { font-size: var(--ng-text-base, 16px); }
+}
+
+/* ============================================
+   Daily View Mode (Phase 3)
+   ============================================ */
+
+.center-pane-daily {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Neural Glass theme override for daily view */
+.ng-theme .center-pane-daily {
+  background: transparent;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .center-pane-loading .loading-spinner,
+  .edit-mode-btn,
+  .note-content a,
+  .note-content .wikilink {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Loading spinner - lighter track */
+[data-theme="light"] .center-pane-loading .loading-spinner {
+  border-color: var(--ng-charcoal-700);
+  border-top-color: var(--ng-accent-ai);
+}
+
+/* Edit mode button - ensure contrast on light */
+[data-theme="light"] .edit-mode-btn {
+  background: #818cf8; /* Explicit purple background */
+  color: #ffffff; /* White text/icon on purple */
+  box-shadow: 0 2px 8px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme="light"] .edit-mode-btn:hover {
+  background: #6366f1; /* Slightly darker purple on hover */
+}
+
+/* Note header - softer background */
+[data-theme="light"] .note-header {
+  background: var(--ng-glass-bg-light);
+}
+
+/* Code blocks - lighter styling */
+[data-theme="light"] .note-content code {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .note-content pre {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Wikilink hover - darker for light bg */
+[data-theme="light"] .note-content .wikilink:hover {
+  background: rgba(5, 150, 105, 0.15);
+}
+
+/* Scrollbar - darker thumb for light mode */
+[data-theme="light"] .note-content-container::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .note-content-container::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-300);
+}

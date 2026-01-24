@@ -1,0 +1,219 @@
+/* ============================================
+   Slash Command Menu - Neural Glass Style
+   Floating command palette for block insertion
+   ============================================ */
+
+.slash-command-menu {
+  background: var(--ng-glass-bg-solid, rgba(10, 10, 10, 0.95));
+  backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-xl, 12px);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  min-width: 280px;
+  max-width: 320px;
+  max-height: 360px;
+  overflow: hidden;
+  z-index: var(--ng-z-popover, 1500);
+}
+
+.slash-command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.slash-command-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+}
+
+.slash-command-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 var(--ng-space-1, 4px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-sm, 4px);
+  font-family: var(--ng-font-mono, monospace);
+  font-size: 10px;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.slash-command-list {
+  overflow-y: auto;
+  max-height: 300px;
+  padding: var(--ng-space-2, 8px);
+}
+
+.slash-command-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  width: 100%;
+  padding: var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-lg, 8px);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.slash-command-item:hover,
+.slash-command-item.selected {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+.slash-command-item.selected {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  box-shadow: 0 0 0 1px var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+}
+
+.slash-command-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-md, 6px);
+  color: var(--ng-text-secondary, #d1d5db);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.slash-command-item.selected .slash-command-icon {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.slash-command-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-0-5, 2px);
+  flex: 1;
+  min-width: 0;
+}
+
+.slash-command-title {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: var(--ng-font-medium, 500);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.slash-command-description {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slash-command-empty {
+  padding: var(--ng-space-6, 24px);
+  text-align: center;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, #6b7280);
+}
+
+/* Scrollbar styling */
+.slash-command-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.slash-command-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.slash-command-list::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-500, #3d3d3d);
+  border-radius: 3px;
+}
+
+.slash-command-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-400, #525252);
+}
+
+/* Animation for menu appearance */
+@keyframes slash-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.slash-command-menu {
+  animation: slash-menu-in 150ms var(--ng-ease-out, cubic-bezier(0, 0, 0.2, 1));
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .slash-command-menu {
+    animation: none;
+  }
+
+  .slash-command-item,
+  .slash-command-icon {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .slash-command-menu {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05) inset;
+}
+
+[data-theme="light"] .slash-command-hint kbd {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .slash-command-item:hover,
+[data-theme="light"] .slash-command-item.selected {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .slash-command-item.selected {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="light"] .slash-command-icon {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .slash-command-item.selected .slash-command-icon {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="light"] .slash-command-list::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .slash-command-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ng-charcoal-500);
+}

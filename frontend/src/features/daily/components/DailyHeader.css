@@ -1,0 +1,146 @@
+/* ============================================
+   DailyHeader Component Styles
+   Greeting and date navigation
+   ============================================ */
+
+.daily-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-6);
+  border-bottom: 1px solid var(--ng-glass-border);
+  gap: var(--ng-space-4);
+  flex-wrap: wrap;
+}
+
+/* ----------------------------------------
+   Greeting Section
+   ---------------------------------------- */
+
+.daily-greeting {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-4);
+}
+
+.greeting-icon {
+  color: var(--ng-accent-note);
+  flex-shrink: 0;
+}
+
+.greeting-text h1 {
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-2xl);
+  font-weight: var(--ng-font-semibold);
+  color: var(--ng-text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.greeting-text .username {
+  color: var(--ng-accent-ai);
+}
+
+.greeting-subtitle {
+  font-size: var(--ng-text-sm);
+  color: var(--ng-text-tertiary);
+  margin: var(--ng-space-1) 0 0;
+}
+
+/* ----------------------------------------
+   Date Navigation
+   ---------------------------------------- */
+
+.daily-date-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2);
+}
+
+.date-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--ng-radius-lg);
+  color: var(--ng-text-secondary);
+  transition: all var(--ng-transition-fast);
+}
+
+.date-nav-btn:hover:not(:disabled) {
+  color: var(--ng-text-primary);
+}
+
+.date-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.date-display {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2);
+  padding: var(--ng-space-2) var(--ng-space-4);
+  border-radius: var(--ng-radius-lg);
+  color: var(--ng-text-secondary);
+  font-size: var(--ng-text-sm);
+  font-weight: var(--ng-font-medium);
+}
+
+.date-display:hover {
+  color: var(--ng-text-primary);
+}
+
+.date-text {
+  white-space: nowrap;
+}
+
+.today-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--ng-accent-note-bg);
+  border: 1px solid var(--ng-accent-note-border);
+  border-radius: var(--ng-radius-full);
+  color: var(--ng-accent-note);
+  font-size: var(--ng-text-xs);
+  font-weight: var(--ng-font-semibold);
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+
+@media (max-width: 640px) {
+  .daily-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ng-space-4);
+  }
+
+  .daily-date-nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .greeting-text h1 {
+    font-size: var(--ng-text-xl);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .date-nav-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .date-display:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .today-badge {
+  background: rgba(249, 115, 22, 0.1);
+}

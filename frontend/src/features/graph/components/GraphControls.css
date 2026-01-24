@@ -1,0 +1,363 @@
+/* Graph Controls Panel */
+.graph-controls {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 10;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Left Side Controls */
+.graph-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Right Side Stats */
+.graph-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Search Bar */
+.graph-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 400px;
+}
+
+.graph-search .search-icon {
+  position: absolute;
+  left: 12px;
+  color: #999;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.graph-search .search-input {
+  width: 100%;
+  padding: 8px 36px 8px 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.graph-search .search-input:focus {
+  border-color: #4A90E2;
+}
+
+.graph-search .clear-search {
+  position: absolute;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #f0f0f0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.graph-search .clear-search:hover {
+  background: #e0e0e0;
+}
+
+/* Filter Toggle Button */
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-toggle:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+}
+
+.filter-toggle.active {
+  background: #4A90E2;
+  color: white;
+  border-color: #4A90E2;
+}
+
+/* Refresh Button */
+.refresh-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.refresh-button:hover {
+  background: #f5f5f5;
+  border-color: #ccc;
+  color: #333;
+}
+
+.refresh-button:active {
+  transform: rotate(180deg);
+}
+
+/* Graph Stats */
+.graph-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+  background: #f5f5f5;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.graph-stats .stat {
+  color: #333;
+}
+
+.graph-stats .stat strong {
+  font-weight: 600;
+  color: #4A90E2;
+}
+
+.graph-stats .stat-divider {
+  color: #ccc;
+}
+
+/* Filter Panel */
+.filter-panel {
+  position: absolute;
+  top: 130px;
+  left: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 16px;
+  min-width: 240px;
+  z-index: 20;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-section {
+  margin-bottom: 16px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-section h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Filter Checkboxes */
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  cursor: pointer;
+  user-select: none;
+}
+
+.filter-checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #4A90E2;
+}
+
+.filter-checkbox .filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Node/Link Indicators */
+.node-indicator,
+.link-indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.node-indicator.note {
+  background: #4A90E2;
+}
+
+.node-indicator.tag {
+  background: #F5A623;
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+}
+
+.node-indicator.image {
+  background: #7ED321;
+}
+
+.link-indicator {
+  width: 24px;
+  height: 2px;
+  border-radius: 0;
+}
+
+.link-indicator.wikilink {
+  background: #999;
+}
+
+.link-indicator.tag-link {
+  background: linear-gradient(to right, #f59e0b 50%, transparent 50%);
+  background-size: 8px 2px;
+}
+
+.link-indicator.image-link {
+  background: linear-gradient(to right, #10b981 33%, transparent 33%);
+  background-size: 4px 2px;
+}
+
+/* Dark Mode */
+[data-theme='dark'] .graph-controls {
+  background: #2d2d2d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .graph-search .search-input {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .graph-search .search-input:focus {
+  border-color: #4A90E2;
+}
+
+[data-theme='dark'] .graph-search .search-icon {
+  color: #666;
+}
+
+[data-theme='dark'] .filter-toggle {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .filter-toggle:hover {
+  background: #333;
+}
+
+[data-theme='dark'] .refresh-button {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .refresh-button:hover {
+  background: #333;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .graph-stats {
+  background: #1e1e1e;
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .graph-stats .stat {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .filter-panel {
+  background: #2d2d2d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .filter-section h4 {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .filter-checkbox .filter-label {
+  color: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .graph-controls {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .graph-controls-left,
+  .graph-controls-right {
+    width: 100%;
+  }
+
+  .graph-search {
+    max-width: 100%;
+  }
+
+  .graph-stats {
+    justify-content: center;
+  }
+
+  .filter-panel {
+    left: 12px;
+    right: 12px;
+    top: 140px;
+  }
+}

@@ -1,0 +1,333 @@
+/* ============================================
+   AIToolsPanel Styles
+   AI enhancement tools for notes
+   ============================================ */
+
+.ai-tools-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Section styling */
+.ai-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ai-section .section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-accent-ai, #818cf8);
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(129, 140, 248, 0.2);
+}
+
+/* AI Tool item */
+.ai-tool {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* AI Tool button */
+.ai-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 8px;
+  color: var(--ng-text-primary, #e5e5e5);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.ai-tool-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.15);
+  border-color: var(--ng-accent-ai, #818cf8);
+  transform: translateY(-1px);
+}
+
+.ai-tool-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ai-tool-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-tool-btn.secondary {
+  background: transparent;
+  border-style: dashed;
+}
+
+.ai-tool-btn .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* AI Result */
+.ai-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.2);
+  border-radius: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-result.success {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #22c55e;
+}
+
+.ai-result.empty {
+  color: var(--ng-text-secondary, #a3a3a3);
+  font-size: 0.8125rem;
+}
+
+.result-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.result-content.summary {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--ng-text-primary, #e5e5e5);
+}
+
+.result-content.summary p {
+  margin: 0;
+}
+
+.result-label {
+  font-size: 0.75rem;
+  color: var(--ng-text-secondary, #a3a3a3);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.result-value {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--ng-text-primary, #e5e5e5);
+}
+
+.result-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  color: var(--ng-text-secondary, #a3a3a3);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #e5e5e5);
+}
+
+.action-btn.apply {
+  background: var(--ng-accent-ai, #818cf8);
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: white;
+}
+
+.action-btn.apply:hover {
+  filter: brightness(1.1);
+}
+
+/* Wikilink suggestions */
+.ai-result.wikilinks {
+  gap: 0.75rem;
+}
+
+.wikilink-suggestions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.wikilink-suggestions li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.wikilink-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 6px;
+  color: var(--ng-text-primary, #e5e5e5);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.wikilink-btn:hover:not(:disabled) {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: var(--ng-accent-link, #34d399);
+}
+
+.wikilink-btn:disabled {
+  cursor: default;
+}
+
+.wikilink-btn.added {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.wikilink-btn.added .wikilink-title {
+  color: #22c55e;
+}
+
+.add-label {
+  font-size: 0.6875rem;
+  color: var(--ng-accent-link, #34d399);
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.added-label {
+  font-size: 0.6875rem;
+  color: #22c55e;
+  margin-left: auto;
+  font-weight: 500;
+}
+
+.wikilink-title {
+  flex: 1;
+  color: var(--ng-accent-link, #34d399);
+  font-family: var(--ng-font-mono, monospace);
+}
+
+.wikilink-reason {
+  font-size: 0.75rem;
+  color: var(--ng-text-tertiary, #737373);
+  padding-left: 1.75rem;
+  line-height: 1.4;
+}
+
+/* Error state */
+.ai-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+  color: #ef4444;
+  font-size: 0.8125rem;
+}
+
+/* Vision Analysis section */
+.vision-info {
+  font-size: 0.8125rem;
+  color: var(--ng-text-secondary, #a3a3a3);
+  line-height: 1.5;
+  padding: 0.5rem 0;
+}
+
+.vision-info p {
+  margin: 0;
+}
+
+.coming-soon {
+  font-size: 0.6875rem;
+  color: var(--ng-text-tertiary, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-left: 0.5rem;
+}
+
+/* Footer */
+.ai-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  margin-top: auto;
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  font-size: 0.6875rem;
+  color: var(--ng-text-tertiary, #737373);
+}
+
+.ai-footer svg {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .ai-tool-btn:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="light"] .action-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .action-btn.apply {
+  color: #ffffff;
+}
+
+[data-theme="light"] .wikilink-btn:hover:not(:disabled) {
+  background: rgba(52, 211, 153, 0.1);
+}

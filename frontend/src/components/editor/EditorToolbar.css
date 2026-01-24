@@ -1,0 +1,147 @@
+/* Editor Toolbar */
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  flex-wrap: wrap;
+}
+
+/* Toolbar Button */
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: #666;
+  cursor: pointer;
+  border-radius: 6px;
+  font-size: 18px;
+  transition: all 0.15s;
+}
+
+.toolbar-button:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.toolbar-button:active {
+  transform: scale(0.95);
+}
+
+.toolbar-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Toolbar Divider */
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: #ddd;
+  margin: 0 4px;
+}
+
+/* Toolbar Spacer */
+.toolbar-spacer {
+  flex: 1;
+}
+
+/* Toolbar Help */
+.toolbar-help {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-help-text {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Dark Mode */
+[data-theme='dark'] .editor-toolbar {
+  background: #2d2d2d;
+  border-bottom-color: #444;
+}
+
+[data-theme='dark'] .toolbar-button {
+  color: #b0b0b0;
+}
+
+[data-theme='dark'] .toolbar-button:hover {
+  background: #3a3a3a;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .toolbar-divider {
+  background: #555;
+}
+
+[data-theme='dark'] .toolbar-help-text {
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .editor-toolbar {
+    padding: 6px 12px;
+    gap: 2px;
+  }
+
+  .toolbar-button {
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+  }
+
+  .toolbar-button svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .toolbar-divider {
+    height: 20px;
+    margin: 0 2px;
+  }
+
+  .toolbar-help {
+    width: 100%;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .toolbar-help-text {
+    font-size: 11px;
+  }
+}
+
+/* Tooltip on hover (optional enhancement) */
+.toolbar-button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: #333;
+  color: white;
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  animation: fadeInTooltip 0.2s 0.5s forwards;
+}
+
+@keyframes fadeInTooltip {
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,161 @@
+/* ============================================
+   GlassResizeHandle Component Styles
+   Glass-styled resize handles for panels
+   ============================================ */
+
+/* ----------------------------------------
+   Base Handle
+   ---------------------------------------- */
+
+.glass-resize-handle {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  transition:
+    background-color var(--ng-transition-fast),
+    box-shadow var(--ng-transition-fast);
+  cursor: col-resize;
+}
+
+/* Horizontal handle (between left-right panels) */
+.glass-resize-handle.horizontal {
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+}
+
+/* Vertical handle (between top-bottom panels) */
+.glass-resize-handle.vertical {
+  width: 100%;
+  height: 6px;
+  cursor: row-resize;
+}
+
+/* ----------------------------------------
+   Glow Effect
+   ---------------------------------------- */
+
+.resize-handle-glow {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  transition:
+    background-color var(--ng-transition-fast),
+    box-shadow var(--ng-transition-fast);
+  pointer-events: none;
+}
+
+/* Hover state */
+.glass-resize-handle:hover .resize-handle-glow {
+  background: var(--ng-accent-ai);
+  opacity: 0.3;
+}
+
+/* Active state */
+.glass-resize-handle:active .resize-handle-glow,
+.glass-resize-handle[data-resize-handle-active] .resize-handle-glow {
+  background: var(--ng-accent-ai);
+  opacity: 0.5;
+  box-shadow: 0 0 12px var(--ng-accent-ai-glow);
+}
+
+/* ----------------------------------------
+   Grip Indicator
+   ---------------------------------------- */
+
+.resize-handle-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ng-text-muted);
+  opacity: 0;
+  transition: opacity var(--ng-transition-fast);
+  pointer-events: none;
+}
+
+.glass-resize-handle:hover .resize-handle-grip,
+.glass-resize-handle:focus-visible .resize-handle-grip {
+  opacity: 1;
+  color: var(--ng-text-secondary);
+}
+
+.glass-resize-handle:active .resize-handle-grip,
+.glass-resize-handle[data-resize-handle-active] .resize-handle-grip {
+  opacity: 1;
+  color: var(--ng-accent-ai);
+}
+
+/* ----------------------------------------
+   Hit Area Extension
+   Makes it easier to grab the handle
+   ---------------------------------------- */
+
+.glass-resize-handle::before {
+  content: '';
+  position: absolute;
+}
+
+.glass-resize-handle.horizontal::before {
+  left: -4px;
+  right: -4px;
+  top: 0;
+  bottom: 0;
+}
+
+.glass-resize-handle.vertical::before {
+  top: -4px;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+}
+
+/* ----------------------------------------
+   Focus State (for keyboard users)
+   ---------------------------------------- */
+
+.glass-resize-handle:focus-visible {
+  outline: 2px solid var(--ng-accent-ai);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------
+   Integration with react-resizable-panels
+   ---------------------------------------- */
+
+[data-panel-resize-handle-enabled="true"] .glass-resize-handle {
+  pointer-events: auto;
+}
+
+[data-panel-resize-handle-enabled="false"] .glass-resize-handle {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ----------------------------------------
+   Reduced Motion
+   ---------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-resize-handle,
+  .resize-handle-glow,
+  .resize-handle-grip {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Increase glow opacity for visibility on light backgrounds */
+[data-theme="light"] .glass-resize-handle:hover .resize-handle-glow {
+  opacity: 0.4;
+}
+
+[data-theme="light"] .glass-resize-handle:active .resize-handle-glow,
+[data-theme="light"] .glass-resize-handle[data-resize-handle-active] .resize-handle-glow {
+  opacity: 0.6;
+}

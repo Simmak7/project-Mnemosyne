@@ -1,0 +1,255 @@
+/* NoteList.css - Note list panel styles */
+/* Neural Glass Design System */
+
+.note-list {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Category Header */
+.note-list-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-4, 16px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.category-icon {
+  flex-shrink: 0;
+  color: var(--ng-accent-note, #fbbf24);
+  margin-top: 2px;
+}
+
+.category-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.category-title {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  margin: 0 0 var(--ng-space-1, 4px) 0;
+}
+
+.category-description {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.75rem;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+  margin: 0;
+}
+
+/* Notes Content Container */
+.note-list-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ng-space-3, 12px);
+
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--ng-charcoal-500, #404040) transparent;
+}
+
+.note-list-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.note-list-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.note-list-content::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-500, #404040);
+  border-radius: var(--ng-radius-full, 9999px);
+}
+
+/* List View */
+.note-list-content.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 8px);
+}
+
+/* Grid View */
+.note-list-content.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--ng-space-3, 12px);
+  align-content: start;
+}
+
+.note-list-content.grid .note-card {
+  min-height: 160px;
+}
+
+/* Empty State */
+.note-list-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-8, 32px);
+  text-align: center;
+}
+
+.note-list-empty .empty-icon {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.5;
+}
+
+.note-list-empty h3 {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  margin: 0 0 var(--ng-space-2, 8px) 0;
+}
+
+.note-list-empty p {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.875rem;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+  margin: 0;
+  max-width: 240px;
+}
+
+/* Error State */
+.note-list-error {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-8, 32px);
+  text-align: center;
+  color: var(--ng-error, #ef4444);
+}
+
+.note-list-error h3 {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: var(--ng-space-4, 16px) 0 var(--ng-space-2, 8px) 0;
+}
+
+.note-list-error p {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.875rem;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  margin: 0;
+}
+
+/* Loading Skeleton */
+.note-card-skeleton {
+  padding: var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.25));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 8px);
+}
+
+.skeleton-line {
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    var(--ng-glass-bg, rgba(255, 255, 255, 0.05)) 25%,
+    var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.1)) 50%,
+    var(--ng-glass-bg, rgba(255, 255, 255, 0.05)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--ng-radius-sm, 4px);
+}
+
+.skeleton-line.title {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-line.excerpt {
+  width: 100%;
+}
+
+.skeleton-line.excerpt.short {
+  width: 60%;
+}
+
+.skeleton-tags {
+  display: flex;
+  gap: var(--ng-space-1, 4px);
+  margin-top: var(--ng-space-1, 4px);
+}
+
+.skeleton-tag {
+  width: 48px;
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    var(--ng-glass-bg, rgba(255, 255, 255, 0.05)) 25%,
+    var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.1)) 50%,
+    var(--ng-glass-bg, rgba(255, 255, 255, 0.05)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--ng-radius-sm, 4px);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .note-list-header {
+    padding: var(--ng-space-3, 12px);
+  }
+
+  .category-title {
+    font-size: 1rem;
+  }
+
+  .note-list-content {
+    padding: var(--ng-space-2, 8px);
+  }
+
+  .note-list-content.grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-line,
+  .skeleton-tag {
+    animation: none;
+    background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.08));
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .note-list-content::-webkit-scrollbar-thumb {
+  background: var(--ng-charcoal-400);
+}
+
+[data-theme="light"] .skeleton-line,
+[data-theme="light"] .skeleton-tag {
+  background: linear-gradient(
+    90deg,
+    var(--ng-glass-bg) 25%,
+    var(--ng-glass-bg-hover) 50%,
+    var(--ng-glass-bg) 75%
+  );
+  background-size: 200% 100%;
+}

@@ -1,0 +1,386 @@
+/* ============================================
+   Neural Glass Design System - Utilities
+   Helper classes for common patterns
+   ============================================ */
+
+/* ----------------------------------------
+   Display
+   ---------------------------------------- */
+
+.ng-hidden {
+  display: none !important;
+}
+
+.ng-block {
+  display: block;
+}
+
+.ng-inline-block {
+  display: inline-block;
+}
+
+.ng-inline {
+  display: inline;
+}
+
+.ng-flex {
+  display: flex;
+}
+
+.ng-inline-flex {
+  display: inline-flex;
+}
+
+.ng-grid {
+  display: grid;
+}
+
+/* ----------------------------------------
+   Flexbox
+   ---------------------------------------- */
+
+.ng-flex-row {
+  flex-direction: row;
+}
+
+.ng-flex-col {
+  flex-direction: column;
+}
+
+.ng-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.ng-flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.ng-items-start {
+  align-items: flex-start;
+}
+
+.ng-items-center {
+  align-items: center;
+}
+
+.ng-items-end {
+  align-items: flex-end;
+}
+
+.ng-items-stretch {
+  align-items: stretch;
+}
+
+.ng-justify-start {
+  justify-content: flex-start;
+}
+
+.ng-justify-center {
+  justify-content: center;
+}
+
+.ng-justify-end {
+  justify-content: flex-end;
+}
+
+.ng-justify-between {
+  justify-content: space-between;
+}
+
+.ng-justify-around {
+  justify-content: space-around;
+}
+
+.ng-flex-1 {
+  flex: 1 1 0%;
+}
+
+.ng-flex-auto {
+  flex: 1 1 auto;
+}
+
+.ng-flex-none {
+  flex: none;
+}
+
+.ng-flex-grow {
+  flex-grow: 1;
+}
+
+.ng-flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------
+   Gap (Flexbox/Grid)
+   ---------------------------------------- */
+
+.ng-gap-0 { gap: 0; }
+.ng-gap-1 { gap: var(--ng-space-1); }
+.ng-gap-2 { gap: var(--ng-space-2); }
+.ng-gap-3 { gap: var(--ng-space-3); }
+.ng-gap-4 { gap: var(--ng-space-4); }
+.ng-gap-5 { gap: var(--ng-space-5); }
+.ng-gap-6 { gap: var(--ng-space-6); }
+.ng-gap-8 { gap: var(--ng-space-8); }
+
+/* ----------------------------------------
+   Spacing (Margin & Padding)
+   ---------------------------------------- */
+
+/* Margin */
+.ng-m-0 { margin: 0; }
+.ng-m-1 { margin: var(--ng-space-1); }
+.ng-m-2 { margin: var(--ng-space-2); }
+.ng-m-3 { margin: var(--ng-space-3); }
+.ng-m-4 { margin: var(--ng-space-4); }
+.ng-m-6 { margin: var(--ng-space-6); }
+.ng-m-8 { margin: var(--ng-space-8); }
+.ng-m-auto { margin: auto; }
+
+.ng-mx-auto { margin-left: auto; margin-right: auto; }
+.ng-my-auto { margin-top: auto; margin-bottom: auto; }
+
+.ng-mt-0 { margin-top: 0; }
+.ng-mt-1 { margin-top: var(--ng-space-1); }
+.ng-mt-2 { margin-top: var(--ng-space-2); }
+.ng-mt-3 { margin-top: var(--ng-space-3); }
+.ng-mt-4 { margin-top: var(--ng-space-4); }
+.ng-mt-6 { margin-top: var(--ng-space-6); }
+.ng-mt-8 { margin-top: var(--ng-space-8); }
+
+.ng-mb-0 { margin-bottom: 0; }
+.ng-mb-1 { margin-bottom: var(--ng-space-1); }
+.ng-mb-2 { margin-bottom: var(--ng-space-2); }
+.ng-mb-3 { margin-bottom: var(--ng-space-3); }
+.ng-mb-4 { margin-bottom: var(--ng-space-4); }
+.ng-mb-6 { margin-bottom: var(--ng-space-6); }
+.ng-mb-8 { margin-bottom: var(--ng-space-8); }
+
+.ng-ml-auto { margin-left: auto; }
+.ng-mr-auto { margin-right: auto; }
+
+/* Padding */
+.ng-p-0 { padding: 0; }
+.ng-p-1 { padding: var(--ng-space-1); }
+.ng-p-2 { padding: var(--ng-space-2); }
+.ng-p-3 { padding: var(--ng-space-3); }
+.ng-p-4 { padding: var(--ng-space-4); }
+.ng-p-5 { padding: var(--ng-space-5); }
+.ng-p-6 { padding: var(--ng-space-6); }
+.ng-p-8 { padding: var(--ng-space-8); }
+
+.ng-px-2 { padding-left: var(--ng-space-2); padding-right: var(--ng-space-2); }
+.ng-px-3 { padding-left: var(--ng-space-3); padding-right: var(--ng-space-3); }
+.ng-px-4 { padding-left: var(--ng-space-4); padding-right: var(--ng-space-4); }
+.ng-px-6 { padding-left: var(--ng-space-6); padding-right: var(--ng-space-6); }
+
+.ng-py-1 { padding-top: var(--ng-space-1); padding-bottom: var(--ng-space-1); }
+.ng-py-2 { padding-top: var(--ng-space-2); padding-bottom: var(--ng-space-2); }
+.ng-py-3 { padding-top: var(--ng-space-3); padding-bottom: var(--ng-space-3); }
+.ng-py-4 { padding-top: var(--ng-space-4); padding-bottom: var(--ng-space-4); }
+
+/* ----------------------------------------
+   Sizing
+   ---------------------------------------- */
+
+.ng-w-full { width: 100%; }
+.ng-w-auto { width: auto; }
+.ng-w-fit { width: fit-content; }
+.ng-w-screen { width: 100vw; }
+
+.ng-h-full { height: 100%; }
+.ng-h-auto { height: auto; }
+.ng-h-fit { height: fit-content; }
+.ng-h-screen { height: 100vh; }
+
+.ng-min-h-0 { min-height: 0; }
+.ng-min-h-full { min-height: 100%; }
+.ng-min-h-screen { min-height: 100vh; }
+
+.ng-max-w-none { max-width: none; }
+.ng-max-w-full { max-width: 100%; }
+.ng-max-w-prose { max-width: 65ch; }
+.ng-max-w-content { max-width: var(--ng-content-max-width); }
+.ng-max-w-editor { max-width: var(--ng-editor-max-width); }
+
+/* ----------------------------------------
+   Positioning
+   ---------------------------------------- */
+
+.ng-relative { position: relative; }
+.ng-absolute { position: absolute; }
+.ng-fixed { position: fixed; }
+.ng-sticky { position: sticky; }
+
+.ng-inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.ng-top-0 { top: 0; }
+.ng-right-0 { right: 0; }
+.ng-bottom-0 { bottom: 0; }
+.ng-left-0 { left: 0; }
+
+/* ----------------------------------------
+   Overflow
+   ---------------------------------------- */
+
+.ng-overflow-auto { overflow: auto; }
+.ng-overflow-hidden { overflow: hidden; }
+.ng-overflow-visible { overflow: visible; }
+.ng-overflow-scroll { overflow: scroll; }
+.ng-overflow-x-auto { overflow-x: auto; }
+.ng-overflow-y-auto { overflow-y: auto; }
+.ng-overflow-x-hidden { overflow-x: hidden; }
+.ng-overflow-y-hidden { overflow-y: hidden; }
+
+/* ----------------------------------------
+   Text Alignment
+   ---------------------------------------- */
+
+.ng-text-left { text-align: left; }
+.ng-text-center { text-align: center; }
+.ng-text-right { text-align: right; }
+
+/* ----------------------------------------
+   Text Colors (Quick Access)
+   ---------------------------------------- */
+
+.ng-text-primary { color: var(--ng-text-primary); }
+.ng-text-secondary { color: var(--ng-text-secondary); }
+.ng-text-tertiary { color: var(--ng-text-tertiary); }
+.ng-text-muted { color: var(--ng-text-muted); }
+
+.ng-text-ai { color: var(--ng-accent-ai); }
+.ng-text-image { color: var(--ng-accent-image); }
+.ng-text-note { color: var(--ng-accent-note); }
+.ng-text-link { color: var(--ng-accent-link); }
+
+.ng-text-success { color: var(--ng-success); }
+.ng-text-warning { color: var(--ng-warning); }
+.ng-text-error { color: var(--ng-error); }
+.ng-text-info { color: var(--ng-info); }
+
+/* ----------------------------------------
+   Background Colors (Quick Access)
+   ---------------------------------------- */
+
+.ng-bg-void { background-color: var(--ng-void); }
+.ng-bg-void-deep { background-color: var(--ng-void-deep); }
+.ng-bg-transparent { background-color: transparent; }
+
+.ng-bg-ai { background-color: var(--ng-accent-ai-bg); }
+.ng-bg-image { background-color: var(--ng-accent-image-bg); }
+.ng-bg-note { background-color: var(--ng-accent-note-bg); }
+.ng-bg-link { background-color: var(--ng-accent-link-bg); }
+
+/* ----------------------------------------
+   Border Radius
+   ---------------------------------------- */
+
+.ng-rounded-none { border-radius: 0; }
+.ng-rounded-sm { border-radius: var(--ng-radius-sm); }
+.ng-rounded { border-radius: var(--ng-radius-md); }
+.ng-rounded-lg { border-radius: var(--ng-radius-lg); }
+.ng-rounded-xl { border-radius: var(--ng-radius-xl); }
+.ng-rounded-2xl { border-radius: var(--ng-radius-2xl); }
+.ng-rounded-full { border-radius: var(--ng-radius-full); }
+
+/* ----------------------------------------
+   Cursor
+   ---------------------------------------- */
+
+.ng-cursor-pointer { cursor: pointer; }
+.ng-cursor-default { cursor: default; }
+.ng-cursor-not-allowed { cursor: not-allowed; }
+.ng-cursor-grab { cursor: grab; }
+.ng-cursor-grabbing { cursor: grabbing; }
+
+/* ----------------------------------------
+   User Select
+   ---------------------------------------- */
+
+.ng-select-none { user-select: none; }
+.ng-select-text { user-select: text; }
+.ng-select-all { user-select: all; }
+.ng-select-auto { user-select: auto; }
+
+/* ----------------------------------------
+   Pointer Events
+   ---------------------------------------- */
+
+.ng-pointer-events-none { pointer-events: none; }
+.ng-pointer-events-auto { pointer-events: auto; }
+
+/* ----------------------------------------
+   Z-Index
+   ---------------------------------------- */
+
+.ng-z-0 { z-index: 0; }
+.ng-z-10 { z-index: 10; }
+.ng-z-20 { z-index: 20; }
+.ng-z-30 { z-index: 30; }
+.ng-z-40 { z-index: 40; }
+.ng-z-50 { z-index: 50; }
+.ng-z-dropdown { z-index: var(--ng-z-dropdown); }
+.ng-z-modal { z-index: var(--ng-z-modal); }
+.ng-z-popover { z-index: var(--ng-z-popover); }
+.ng-z-tooltip { z-index: var(--ng-z-tooltip); }
+
+/* ----------------------------------------
+   Opacity
+   ---------------------------------------- */
+
+.ng-opacity-0 { opacity: 0; }
+.ng-opacity-25 { opacity: 0.25; }
+.ng-opacity-50 { opacity: 0.5; }
+.ng-opacity-75 { opacity: 0.75; }
+.ng-opacity-100 { opacity: 1; }
+
+/* ----------------------------------------
+   Focus Styles
+   ---------------------------------------- */
+
+.ng-focus-ring:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-focus-ring-offset),
+    0 0 0 4px var(--ng-focus-ring);
+}
+
+.ng-focus-within:focus-within {
+  box-shadow:
+    0 0 0 2px var(--ng-focus-ring-offset),
+    0 0 0 4px var(--ng-focus-ring);
+}
+
+/* ----------------------------------------
+   Screen Reader Only
+   ---------------------------------------- */
+
+.ng-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ----------------------------------------
+   Aspect Ratios
+   ---------------------------------------- */
+
+.ng-aspect-square { aspect-ratio: 1 / 1; }
+.ng-aspect-video { aspect-ratio: 16 / 9; }
+.ng-aspect-photo { aspect-ratio: 4 / 3; }
+
+/* ----------------------------------------
+   Object Fit
+   ---------------------------------------- */
+
+.ng-object-cover { object-fit: cover; }
+.ng-object-contain { object-fit: contain; }
+.ng-object-fill { object-fit: fill; }
+.ng-object-none { object-fit: none; }

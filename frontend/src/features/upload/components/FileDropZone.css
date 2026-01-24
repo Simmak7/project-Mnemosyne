@@ -1,0 +1,246 @@
+/* ============================================
+   FileDropZone Styles
+   Neural Glass drop zone with multi-file support
+   ============================================ */
+
+.file-drop-zone-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+/* ----------------------------------------
+   Drop Zone
+   ---------------------------------------- */
+
+.file-drop-zone {
+  min-height: 200px;
+  padding: var(--ng-space-8, 2rem);
+  border: 2px dashed var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-xl, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-drop-zone:hover:not(.disabled) {
+  border-color: var(--ng-accent-ai, #818cf8);
+  background: rgba(129, 140, 248, 0.05);
+  transform: translateY(-2px);
+}
+
+.file-drop-zone.drag-active {
+  border-color: var(--ng-accent-ai, #818cf8);
+  border-style: solid;
+  background: rgba(129, 140, 248, 0.1);
+  box-shadow: 0 0 24px var(--ng-accent-ai-glow, rgba(129, 140, 248, 0.3));
+}
+
+.file-drop-zone.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.file-drop-zone:focus-visible {
+  outline: 2px solid var(--ng-accent-ai, #818cf8);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------
+   Drop Zone Content
+   ---------------------------------------- */
+
+.drop-zone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ng-space-4, 1rem);
+  text-align: center;
+}
+
+.drop-zone-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-zone-icon.primary {
+  color: var(--ng-accent-ai, #818cf8);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.drop-zone-icon-plus {
+  position: absolute;
+  bottom: -4px;
+  right: -8px;
+  color: var(--ng-accent-link, #34d399);
+  background: var(--ng-void-soft, #0f0f0f);
+  border-radius: 50%;
+  padding: 2px;
+}
+
+.file-drop-zone:hover:not(.disabled) .drop-zone-icon.primary,
+.file-drop-zone.drag-active .drop-zone-icon.primary {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ----------------------------------------
+   Text
+   ---------------------------------------- */
+
+.drop-zone-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 0.25rem);
+}
+
+.drop-zone-title {
+  margin: 0;
+  font-size: var(--ng-text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.drop-zone-subtitle {
+  margin: 0;
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, #9ca3af);
+}
+
+/* ----------------------------------------
+   File Types
+   ---------------------------------------- */
+
+.drop-zone-types {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.type-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-1, 0.25rem) var(--ng-space-3, 0.75rem);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-full, 9999px);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-secondary, #9ca3af);
+}
+
+.type-badge svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+/* ----------------------------------------
+   Limits
+   ---------------------------------------- */
+
+.drop-zone-limit {
+  margin: 0;
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+/* ----------------------------------------
+   Rejection Messages
+   ---------------------------------------- */
+
+.drop-zone-rejects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: var(--ng-space-2, 0.5rem);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--ng-radius-md, 8px);
+  animation: slideIn 0.3s ease;
+}
+
+.reject-message {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--ng-space-2, 0.5rem);
+  font-size: var(--ng-text-sm, 0.875rem);
+}
+
+.reject-file {
+  color: var(--ng-text-primary, #f9fafb);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.reject-error {
+  color: #f87171;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+
+@media (max-width: 768px) {
+  .file-drop-zone {
+    min-height: 160px;
+    padding: var(--ng-space-4, 1rem);
+  }
+
+  .drop-zone-icon.primary {
+    width: 36px;
+    height: 36px;
+  }
+
+  .drop-zone-title {
+    font-size: var(--ng-text-base, 1rem);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .file-drop-zone {
+  background: var(--ng-glass-bg-light, rgba(255, 255, 255, 0.8));
+}
+
+[data-theme="light"] .file-drop-zone:hover:not(.disabled) {
+  background: rgba(129, 140, 248, 0.08);
+}
+
+[data-theme="light"] .file-drop-zone.drag-active {
+  background: rgba(129, 140, 248, 0.12);
+}
+
+[data-theme="light"] .drop-zone-icon-plus {
+  background: var(--ng-white, #ffffff);
+}
+
+[data-theme="light"] .type-badge {
+  background: var(--ng-slate-100, #f1f5f9);
+}

@@ -1,0 +1,343 @@
+/* PhotoThumbnail.css - Individual photo card */
+/* Neural Glass Design */
+
+.photo-thumbnail {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  transition: transform var(--ng-transition-fast, 100ms ease-out),
+              box-shadow var(--ng-transition-fast, 100ms ease-out);
+}
+
+.photo-thumbnail:hover,
+.photo-thumbnail.hovered {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+/* Orientation-specific styles */
+.photo-thumbnail.portrait {
+  /* Portrait images get subtle border highlight */
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+}
+
+.photo-thumbnail.landscape {
+  /* Landscape images - default styling */
+}
+
+.photo-thumbnail.square {
+  /* Square images */
+  border-radius: var(--ng-radius-lg, 8px);
+}
+
+/* Image */
+.thumbnail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.thumbnail-image.loaded {
+  opacity: 1;
+}
+
+/* Placeholder */
+.thumbnail-placeholder {
+  position: absolute;
+  inset: 0;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+}
+
+.placeholder-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--ng-glass-hover, rgba(255, 255, 255, 0.05)) 50%,
+    transparent 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Error state */
+.thumbnail-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-2, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.5));
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
+}
+
+.thumbnail-error span {
+  font-size: var(--ng-text-xs, 0.75rem);
+}
+
+/* Status badges */
+.status-badge {
+  position: absolute;
+  top: var(--ng-space-2, 8px);
+  left: var(--ng-space-2, 8px);
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-sm, 4px);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-badge.processing {
+  background: var(--ng-accent-ai-subtle, rgba(129, 140, 248, 0.2));
+  color: var(--ng-accent-ai, #818cf8);
+  border: 1px solid var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+}
+
+.sparkle-icon {
+  animation: sparkle 1s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.status-badge.failed {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-badge .retry-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  margin-left: var(--ng-space-1, 4px);
+  border-radius: var(--ng-radius-sm, 4px);
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.status-badge .retry-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Favorite indicator */
+.favorite-indicator {
+  position: absolute;
+  top: var(--ng-space-2, 8px);
+  right: var(--ng-space-2, 8px);
+  color: #f43f5e;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+/* Tags on thumbnail */
+.thumbnail-tags {
+  position: absolute;
+  bottom: var(--ng-space-2, 8px);
+  left: var(--ng-space-2, 8px);
+  right: var(--ng-space-2, 8px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-1, 4px);
+}
+
+.thumbnail-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.thumbnail-tag-more {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+/* Hover overlay */
+.thumbnail-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.6) 0%,
+    transparent 30%,
+    transparent 70%,
+    rgba(0, 0, 0, 0.6) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--ng-space-2, 8px);
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Top actions */
+.overlay-top {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ng-space-2, 8px);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: pointer;
+  color: var(--ng-text-primary, #ffffff);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.action-btn:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.1));
+  transform: scale(1.1);
+}
+
+.favorite-btn.active {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.2);
+  border-color: rgba(244, 63, 94, 0.3);
+}
+
+.delete-btn:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.delete-btn.permanent:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.restore-btn:hover {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.2);
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+/* Album button */
+.album-btn:hover {
+  color: var(--ng-accent-image, #22d3ee);
+  background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.2));
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+/* Retry action button in overlay */
+.retry-action-btn {
+  color: #fbbf24 !important;
+  border-color: rgba(251, 191, 36, 0.3) !important;
+}
+
+.retry-action-btn:hover {
+  background: rgba(251, 191, 36, 0.2) !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+}
+
+/* Filename bar - always visible when enabled */
+.filename-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.8) 0%,
+    rgba(0, 0, 0, 0.6) 50%,
+    transparent 100%
+  );
+  z-index: 5;
+}
+
+.thumbnail-filename {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-primary, #ffffff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  display: block;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .photo-thumbnail,
+  .thumbnail-image,
+  .action-btn {
+    transition: none;
+  }
+
+  .placeholder-shimmer,
+  .sparkle-icon {
+    animation: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .photo-thumbnail:hover,
+[data-theme="light"] .photo-thumbnail.hovered {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .placeholder-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.03) 50%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .action-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .thumbnail-tag {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+[data-theme="light"] .thumbnail-tag-more {
+  background: rgba(255, 255, 255, 0.85);
+}

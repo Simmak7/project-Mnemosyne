@@ -1,0 +1,63 @@
+"""
+DEPRECATED: This module is a backward compatibility shim.
+
+All configuration has moved to core.config.
+Import from core.config directly in new code.
+"""
+
+# Re-export everything from core.config for backward compatibility
+from core.config import (
+    DATABASE_URL,
+    REDIS_URL,
+    SECRET_KEY,
+    ALGORITHM,
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    OLLAMA_HOST,
+    USE_NEW_MODEL,
+    NEW_MODEL_ROLLOUT_PERCENT,
+    OLLAMA_MODEL_OLD,
+    OLLAMA_MODEL_NEW,
+    PROMPT_VERSION,
+    PROMPT_ROLLOUT_PERCENT,
+    LOG_MODEL_SELECTION,
+    LOG_DETECTED_CONTENT_TYPE,
+    METRICS_ENABLED,
+    MAX_UPLOAD_SIZE_MB,
+    MAX_UPLOAD_SIZE_BYTES,
+    ALLOWED_FILE_TYPES,
+    UPLOAD_DIR,
+    API_TITLE,
+    API_VERSION,
+    RAG_MODEL,
+    RAG_TIMEOUT,
+    RAG_MAX_CONTEXT_TOKENS,
+    RAG_TEMPERATURE,
+)
+
+__all__ = [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "SECRET_KEY",
+    "ALGORITHM",
+    "ACCESS_TOKEN_EXPIRE_MINUTES",
+    "OLLAMA_HOST",
+    "USE_NEW_MODEL",
+    "NEW_MODEL_ROLLOUT_PERCENT",
+    "OLLAMA_MODEL_OLD",
+    "OLLAMA_MODEL_NEW",
+    "PROMPT_VERSION",
+    "PROMPT_ROLLOUT_PERCENT",
+    "LOG_MODEL_SELECTION",
+    "LOG_DETECTED_CONTENT_TYPE",
+    "METRICS_ENABLED",
+    "MAX_UPLOAD_SIZE_MB",
+    "MAX_UPLOAD_SIZE_BYTES",
+    "ALLOWED_FILE_TYPES",
+    "UPLOAD_DIR",
+    "API_TITLE",
+    "API_VERSION",
+    "RAG_MODEL",
+    "RAG_TIMEOUT",
+    "RAG_MAX_CONTEXT_TOKENS",
+    "RAG_TEMPERATURE",
+]

@@ -1,0 +1,188 @@
+.chat-window {
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fcfcfc;
+}
+
+.messages-display {
+  flex-grow: 1;
+  padding: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message-bubble {
+  max-width: 70%;
+  padding: 10px 15px;
+  border-radius: 20px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.message-bubble.user {
+  align-self: flex-end;
+  background-color: #667eea;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.message-bubble.ai {
+  align-self: flex-start;
+  background-color: #e0e0e0;
+  color: #333;
+  border-bottom-left-radius: 5px;
+}
+
+.loading-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-style: italic;
+  color: #666;
+}
+
+.message-input-form {
+  display: flex;
+  padding: 15px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #f0f0f0;
+  position: relative;
+  z-index: 1;
+}
+
+.message-input-form input {
+  flex-grow: 1;
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  margin-right: 10px;
+  font-size: 1em;
+}
+
+.message-input-form input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.message-input-form button {
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 1em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.message-input-form button:hover:not(:disabled) {
+  background-color: #5a67d8;
+}
+
+.message-input-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.no-messages {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  padding: 20px;
+}
+
+/* Overlay Mode Styling */
+.ai-chat-overlay-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--bg-primary);
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.overlay-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.overlay-header .close-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.overlay-header .close-btn:hover {
+  background: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.ai-chat-overlay-wrapper .chat-window {
+  flex: 1;
+  height: auto;
+  border: none;
+  border-radius: 0;
+  background: var(--bg-primary);
+}
+
+/* Ensure no close buttons in the input area when in overlay mode */
+.ai-chat-overlay-wrapper .message-input-form .close-btn,
+.ai-chat-overlay-wrapper .message-input-form .close-button,
+.brain-chat-overlay .message-input-form .close-btn,
+.brain-chat-overlay .message-input-form .close-button {
+  display: none !important;
+}
+
+/* Dark Mode Support */
+[data-theme='dark'] .chat-window {
+  background-color: #1a1a1a;
+  border-color: #374151;
+}
+
+[data-theme='dark'] .message-bubble.ai {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+[data-theme='dark'] .message-input-form {
+  background-color: #2d2d2d;
+  border-color: #374151;
+}
+
+[data-theme='dark'] .message-input-form input {
+  background-color: #1a1a1a;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+[data-theme='dark'] .no-messages {
+  color: #6b7280;
+}
+

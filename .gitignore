@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+uploaded_images/
+*.jpg
+*.jpeg
+*.png
+*.gif
+
+# Database
+*.db
+*.sqlite
+
+# Env
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Admin/History (not for GitHub)
+.admin-history/
+
+# Build artifacts
+frontend/build/
+test-results/
+
+# Playwright
+.playwright-mcp/
+
+# ===========================================
+# Claude Code / AI Workflow (PRIVATE)
+# ===========================================
+# These files contain AI workflow configuration,
+# prompts, and session data - not for public sharing
+
+# Claude configuration folder (entire folder)
+.claude/
+
+# Top-level Claude documentation
+CLAUDE.md
+global_claude.md
+claude-progress.json
+
+# All claude.md files in any subdirectory
+**/claude.md
+**/CLAUDE.md
+
+# MCP configuration (local tooling)
+.mcp.json
+*.mcp.json
+
+# ===========================================
+# Sensitive / Credentials
+# ===========================================
+# Never commit secrets
+*.pem
+*.key
+credentials.json
+secrets.json
+*_secret*
+*.secrets

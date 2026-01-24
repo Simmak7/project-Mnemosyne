@@ -1,0 +1,181 @@
+/* GalleryLayout.css - Immich-inspired 3-column gallery */
+/* Neural Glass Design System Integration */
+
+.gallery-layout {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Search Container - Fixed at top */
+.gallery-search-container {
+  flex-shrink: 0;
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg-heavy, rgba(0, 0, 0, 0.5));
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.gallery-panel-group {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Panel base styles */
+.gallery-panel {
+  height: 100%;
+  overflow: hidden;
+  margin: var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-xl, 12px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+/* Sidebar panel - slightly darker */
+.gallery-sidebar-panel {
+  background: var(--ng-glass-bg-heavy, rgba(0, 0, 0, 0.5));
+}
+
+/* Grid panel - lighter for content focus */
+.gallery-grid-panel {
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.3));
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Context panel */
+.gallery-context-panel {
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+}
+
+/* Resize handles */
+.gallery-resize-handle {
+  position: relative;
+  width: 6px;
+  background: transparent;
+  cursor: col-resize;
+  transition: background-color var(--ng-transition-fast, 100ms ease-out),
+              box-shadow var(--ng-transition-fast, 100ms ease-out);
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.gallery-resize-handle:hover {
+  background: var(--ng-accent-image, #22d3ee);
+  opacity: 0.3;
+}
+
+.gallery-resize-handle:active,
+.gallery-resize-handle[data-resize-handle-active] {
+  background: var(--ng-accent-image, #22d3ee);
+  opacity: 0.5;
+  box-shadow: 0 0 12px var(--ng-accent-image-glow, rgba(34, 211, 238, 0.3));
+}
+
+/* Visual grip indicator */
+.gallery-resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 4px;
+  height: 48px;
+  background: transparent;
+  border-radius: var(--ng-radius-full, 9999px);
+  pointer-events: none;
+  transition: background-color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.gallery-resize-handle:hover::after {
+  background: var(--ng-accent-image, #22d3ee);
+  opacity: 0.5;
+}
+
+/* Extended hit area */
+.gallery-resize-handle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+}
+
+/* Collapsed panel state */
+.gallery-panel[data-panel-size="0"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Focus management */
+.gallery-panel:focus-within {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ng-accent-image-glow, rgba(34, 211, 238, 0.3));
+}
+
+/* Smooth transitions */
+.gallery-panel {
+  transition: opacity 0.1s ease,
+              flex-basis var(--ng-duration-normal, 200ms) var(--ng-ease-out, ease-out);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .gallery-panel-group {
+    flex-direction: column;
+  }
+
+  .gallery-resize-handle {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+  }
+
+  .gallery-resize-handle::after {
+    width: 48px;
+    height: 4px;
+  }
+
+  .gallery-panel {
+    margin: var(--ng-space-1, 4px);
+  }
+
+  .gallery-grid-panel {
+    margin: var(--ng-space-1, 4px);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-panel,
+  .gallery-resize-handle,
+  .gallery-resize-handle::after {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .gallery-search-container {
+  background: var(--ng-glass-bg-heavy);
+}
+
+[data-theme="light"] .gallery-panel {
+  box-shadow: var(--ng-shadow-md);
+}
+
+[data-theme="light"] .gallery-resize-handle:hover {
+  opacity: 0.5;
+}
+
+[data-theme="light"] .gallery-resize-handle:active,
+[data-theme="light"] .gallery-resize-handle[data-resize-handle-active] {
+  opacity: 0.7;
+}

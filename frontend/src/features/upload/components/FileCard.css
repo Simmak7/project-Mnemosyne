@@ -1,0 +1,360 @@
+/* ============================================
+   FileCard Styles
+   Individual file in the upload queue
+   ============================================ */
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 0.75rem);
+  padding: var(--ng-space-3, 0.75rem);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 12px);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.file-card:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.02));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Status colors */
+.file-card.status-ai {
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.file-card.status-success {
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.file-card.status-error {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.file-card.status-warning {
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+/* ----------------------------------------
+   File Icon
+   ---------------------------------------- */
+
+.file-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--ng-radius-md, 8px);
+  color: var(--ng-accent-image, #22d3ee);
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------
+   File Info
+   ---------------------------------------- */
+
+.file-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 0.25rem);
+}
+
+.file-card-name {
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--ng-text-primary, #f9fafb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-3, 0.75rem);
+  font-size: var(--ng-text-xs, 0.75rem);
+}
+
+.file-card-size {
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.file-card-status {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  color: var(--ng-text-secondary, #9ca3af);
+}
+
+.status-ai .file-card-status {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.status-success .file-card-status {
+  color: var(--ng-accent-link, #34d399);
+}
+
+.status-error .file-card-status {
+  color: #f87171;
+}
+
+.status-warning .file-card-status {
+  color: #fbbf24;
+}
+
+.file-card-status .spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ----------------------------------------
+   Error Message
+   ---------------------------------------- */
+
+.file-card-error {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: #f87171;
+  padding: var(--ng-space-1, 0.25rem) 0;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----------------------------------------
+   Per-file Custom Prompt
+   ---------------------------------------- */
+
+.file-card-custom-prompt-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(129, 140, 248, 0.15);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.file-card-prompt-section {
+  margin-top: var(--ng-space-2, 0.5rem);
+}
+
+.file-card-prompt-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--ng-text-tertiary, #6b7280);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-card-prompt-toggle:hover {
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-accent-ai, #818cf8);
+  background: rgba(129, 140, 248, 0.05);
+}
+
+.file-card-prompt-toggle.has-custom {
+  border-color: var(--ng-accent-ai, #818cf8);
+  color: var(--ng-accent-ai, #818cf8);
+  background: rgba(129, 140, 248, 0.1);
+}
+
+.file-card-prompt-input-container {
+  margin-top: var(--ng-space-2, 0.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.file-card-prompt-input {
+  width: 100%;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--ng-text-primary, #f9fafb);
+  font-size: 0.75rem;
+  resize: none;
+  font-family: inherit;
+}
+
+.file-card-prompt-input:focus {
+  outline: none;
+  border-color: var(--ng-accent-ai, #818cf8);
+}
+
+.file-card-prompt-input::placeholder {
+  color: var(--ng-text-tertiary, #6b7280);
+}
+
+.file-card-prompt-actions {
+  display: flex;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.file-card-prompt-btn {
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-card-prompt-save {
+  background: var(--ng-accent-ai, #818cf8);
+  color: white;
+}
+
+.file-card-prompt-save:hover {
+  background: #6366f1;
+}
+
+.file-card-prompt-clear {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ng-text-secondary, #9ca3af);
+}
+
+.file-card-prompt-clear:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.file-card-prompt-cancel {
+  background: transparent;
+  color: var(--ng-text-tertiary, #6b7280);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.file-card-prompt-cancel:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ng-text-secondary, #9ca3af);
+}
+
+.file-card-prompt-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------
+   Progress Bar
+   ---------------------------------------- */
+
+.file-card-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.file-card-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ng-accent-ai, #818cf8) 0%, var(--ng-accent-image, #22d3ee) 100%);
+  transition: width 0.3s ease;
+}
+
+/* ----------------------------------------
+   Actions
+   ---------------------------------------- */
+
+.file-card-actions {
+  display: flex;
+  gap: var(--ng-space-1, 0.25rem);
+  flex-shrink: 0;
+}
+
+.file-card-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-md, 8px);
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.file-card-action:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+}
+
+.file-card-remove:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.file-card-retry:hover {
+  color: var(--ng-accent-ai, #818cf8);
+  background: rgba(129, 140, 248, 0.1);
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+
+@media (max-width: 480px) {
+  .file-card {
+    padding: var(--ng-space-2, 0.5rem);
+    gap: var(--ng-space-2, 0.5rem);
+  }
+
+  .file-card-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .file-card-action {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .file-card {
+  background: var(--ng-glass-bg-light, rgba(255, 255, 255, 0.8));
+}
+
+[data-theme="light"] .file-card:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+[data-theme="light"] .file-card-icon {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .file-card-prompt-input {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .file-card-prompt-clear {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .file-card-action:hover {
+  background: rgba(0, 0, 0, 0.05);
+}

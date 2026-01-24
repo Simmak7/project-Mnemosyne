@@ -1,0 +1,182 @@
+/* GalleryGrid.css - Justified photo grid */
+/* Neural Glass Design */
+
+.gallery-grid-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Header */
+.gallery-grid-header {
+  padding: var(--ng-space-4, 16px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  flex-shrink: 0;
+}
+
+.header-info {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ng-space-3, 12px);
+}
+
+.view-title {
+  font-size: var(--ng-text-lg, 1.125rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.image-count {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+/* Grid area - contains scroll container and timeline */
+.gallery-grid-area {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scroll container */
+.gallery-scroll-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  padding: var(--ng-space-4, 16px);
+  padding-right: 70px; /* Space for timeline scrubber */
+}
+
+/* Custom scrollbar - hidden since we have timeline scrubber */
+.gallery-scroll-container::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* Date header */
+.date-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-3, 12px) 0;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--ng-glass-bg-light, rgba(0, 0, 0, 0.3)) 0%,
+    var(--ng-glass-bg-light, rgba(0, 0, 0, 0.3)) 80%,
+    transparent 100%
+  );
+  z-index: 10;
+  margin-bottom: var(--ng-space-2, 8px);
+}
+
+.date-header svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+/* Image row */
+.image-row {
+  margin-bottom: 4px;
+}
+
+/* Loading state */
+.gallery-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ng-space-12, 48px);
+  gap: var(--ng-space-4, 16px);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-top-color: var(--ng-accent-image, #22d3ee);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.gallery-loading span {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: var(--ng-text-sm, 0.875rem);
+}
+
+/* Empty state */
+.gallery-grid-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--ng-space-12, 48px);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: var(--ng-space-4, 16px);
+  opacity: 0.5;
+}
+
+.gallery-grid-empty h3 {
+  font-size: var(--ng-text-xl, 1.25rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+  margin: 0 0 var(--ng-space-2, 8px) 0;
+}
+
+.gallery-grid-empty p {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gallery-scroll-container {
+    padding: var(--ng-space-2, 8px);
+    padding-right: var(--ng-space-2, 8px);
+  }
+
+  .date-header {
+    font-size: var(--ng-text-xs, 0.75rem);
+    padding: var(--ng-space-2, 8px) 0;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .date-header {
+  background: linear-gradient(
+    to bottom,
+    var(--ng-glass-bg-light) 0%,
+    var(--ng-glass-bg-light) 80%,
+    transparent 100%
+  );
+}
+
+[data-theme="light"] .loading-spinner {
+  border-color: var(--ng-glass-border);
+  border-top-color: var(--ng-accent-image);
+}
+
+[data-theme="light"] .gallery-grid-header {
+  border-bottom-color: var(--ng-glass-border);
+}

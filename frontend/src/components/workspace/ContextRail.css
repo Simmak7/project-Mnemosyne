@@ -1,0 +1,188 @@
+/* ContextRail.css - Styles for the context rail with tabs */
+/* Version: 2.0 - Neural Glass Design System */
+
+.context-rail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: transparent; /* Inside glass panel */
+}
+
+/* Tab navigation */
+.context-rail-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.2));
+}
+
+.context-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-3, 12px) var(--ng-space-2, 8px);
+  background: none;
+  border: none;
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  position: relative;
+  font-size: 11px;
+  font-weight: var(--ng-font-medium, 500);
+}
+
+.context-tab:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.context-tab.active {
+  color: var(--ng-accent-ai, #818cf8);
+  background: var(--ng-glass-bg-active, rgba(255, 255, 255, 0.05));
+}
+
+.context-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--ng-accent-ai, #818cf8);
+  box-shadow: 0 0 8px var(--ng-accent-ai-glow, rgba(129, 140, 248, 0.3));
+}
+
+/* Semantic tab colors */
+.context-tab[data-tab="backlinks"].active {
+  color: var(--ng-accent-link, #34d399);
+}
+.context-tab[data-tab="backlinks"].active::after {
+  background: var(--ng-accent-link, #34d399);
+  box-shadow: 0 0 8px var(--ng-accent-link-glow, rgba(52, 211, 153, 0.3));
+}
+
+.context-tab[data-tab="graph"].active {
+  color: var(--ng-accent-ai, #818cf8);
+}
+.context-tab[data-tab="graph"].active::after {
+  background: var(--ng-accent-ai, #818cf8);
+  box-shadow: 0 0 8px var(--ng-accent-ai-glow, rgba(129, 140, 248, 0.3));
+}
+
+.context-tab[data-tab="mentions"].active {
+  color: var(--ng-accent-note, #fbbf24);
+}
+.context-tab[data-tab="mentions"].active::after {
+  background: var(--ng-accent-note, #fbbf24);
+  box-shadow: 0 0 8px var(--ng-accent-note-glow, rgba(251, 191, 36, 0.3));
+}
+
+.context-tab[data-tab="info"].active {
+  color: var(--ng-text-primary, #f9fafb);
+}
+.context-tab[data-tab="info"].active::after {
+  background: var(--ng-text-tertiary, #9ca3af);
+  box-shadow: none;
+}
+
+.context-tab svg {
+  transition: transform var(--ng-transition-fast, 100ms ease-out);
+}
+
+.context-tab:hover svg {
+  transform: scale(1.1);
+}
+
+.context-tab-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Content area */
+.context-rail-content {
+  flex: 1;
+  overflow: hidden;
+  background: transparent;
+}
+
+/* Focus styles for accessibility - Neural Glass */
+.context-tab:focus {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-void, #0a0a0a),
+    0 0 0 4px var(--ng-accent-ai, #818cf8);
+}
+
+.context-tab:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--ng-void, #0a0a0a),
+    0 0 0 4px var(--ng-accent-ai, #818cf8);
+}
+
+/* Mobile responsive - horizontal scroll tabs */
+@media (max-width: 768px) {
+  .context-rail-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .context-tab {
+    flex: 0 0 auto;
+    min-width: 80px;
+    padding: var(--ng-space-2-5, 10px) var(--ng-space-3, 12px);
+  }
+
+  .context-tab-label {
+    font-size: 10px;
+  }
+}
+
+/* Very small screens - icon only */
+@media (max-width: 480px) {
+  .context-tab-label {
+    display: none;
+  }
+
+  .context-tab {
+    min-width: 60px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .context-tab,
+  .context-tab svg {
+    transition: none;
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+/* Tab bar - softer background */
+[data-theme="light"] .context-rail-tabs {
+  background: var(--ng-glass-bg-light);
+}
+
+/* Tab hover - subtle dark overlay */
+[data-theme="light"] .context-tab:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* Active tab - subtle background */
+[data-theme="light"] .context-tab.active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Focus ring - use light void for offset */
+[data-theme="light"] .context-tab:focus,
+[data-theme="light"] .context-tab:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--ng-void),
+    0 0 0 4px var(--ng-accent-ai);
+}

@@ -1,0 +1,296 @@
+/* ============================================
+   DailyView Component Styles
+   Main daily workflow container
+   ============================================ */
+
+.daily-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ----------------------------------------
+   Loading State
+   ---------------------------------------- */
+
+.daily-view-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ng-space-4);
+  color: var(--ng-text-secondary);
+}
+
+/* ----------------------------------------
+   Error State
+   ---------------------------------------- */
+
+.daily-view-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ng-space-3);
+  text-align: center;
+  color: var(--ng-error);
+}
+
+.error-content h2 {
+  font-size: var(--ng-text-lg);
+  font-weight: var(--ng-font-semibold);
+  color: var(--ng-text-primary);
+}
+
+.error-content p {
+  color: var(--ng-text-secondary);
+}
+
+/* ----------------------------------------
+   Empty State
+   ---------------------------------------- */
+
+.daily-view-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3);
+  padding: var(--ng-space-8);
+  text-align: center;
+}
+
+.daily-view-empty .empty-icon {
+  color: var(--ng-text-muted);
+}
+
+.daily-view-empty h2 {
+  font-size: var(--ng-text-xl);
+  font-weight: var(--ng-font-semibold);
+  color: var(--ng-text-secondary);
+}
+
+.daily-view-empty p {
+  color: var(--ng-text-tertiary);
+}
+
+/* ----------------------------------------
+   Capture Section
+   ---------------------------------------- */
+
+.daily-capture-section {
+  padding: var(--ng-space-6);
+  padding-bottom: var(--ng-space-8);
+  border-bottom: 1px solid var(--ng-glass-border);
+}
+
+/* ----------------------------------------
+   Content Area
+   ---------------------------------------- */
+
+.daily-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ng-space-6);
+}
+
+.daily-note-content {
+  max-width: var(--ng-content-max-width);
+  margin: 0 auto;
+}
+
+/* ----------------------------------------
+   Markdown Styling
+   ---------------------------------------- */
+
+.daily-note-content h1,
+.daily-note-content h2,
+.daily-note-content h3 {
+  font-family: var(--ng-font-reading);
+  color: var(--ng-text-primary);
+  margin-top: var(--ng-space-6);
+  margin-bottom: var(--ng-space-3);
+}
+
+.daily-note-content h1 {
+  font-size: var(--ng-text-3xl);
+  font-weight: var(--ng-font-bold);
+}
+
+.daily-note-content h2 {
+  font-size: var(--ng-text-2xl);
+  font-weight: var(--ng-font-semibold);
+  color: var(--ng-text-secondary);
+}
+
+.daily-note-content h3 {
+  font-size: var(--ng-text-xl);
+  font-weight: var(--ng-font-medium);
+}
+
+.daily-note-content p {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-base);
+  line-height: 1.75;
+  color: var(--ng-text-secondary);
+  margin-bottom: var(--ng-space-4);
+}
+
+.daily-note-content ul,
+.daily-note-content ol {
+  margin: var(--ng-space-4) 0;
+  padding-left: var(--ng-space-6);
+}
+
+.daily-note-content li {
+  font-family: var(--ng-font-reading);
+  font-size: var(--ng-text-base);
+  line-height: 1.75;
+  color: var(--ng-text-secondary);
+  margin-bottom: var(--ng-space-2);
+}
+
+/* Capture entries (timestamped) */
+.daily-note-content li:has(.daily-checkbox),
+.daily-note-content li code:first-child {
+  font-family: var(--ng-font-ui);
+}
+
+/* Checkbox styling */
+.daily-checkbox {
+  width: 16px;
+  height: 16px;
+  margin-right: var(--ng-space-2);
+  accent-color: var(--ng-accent-ai);
+  cursor: pointer;
+}
+
+/* Wikilinks */
+.daily-note-content .wikilink {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--ng-accent-link-bg);
+  border: 1px solid var(--ng-accent-link-border);
+  border-radius: var(--ng-radius-full);
+  color: var(--ng-accent-link);
+  font-family: var(--ng-font-ui);
+  font-size: var(--ng-text-sm);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast);
+}
+
+.daily-note-content .wikilink:hover {
+  background: var(--ng-accent-link);
+  color: var(--ng-text-inverse);
+}
+
+/* Code blocks */
+.daily-note-content code {
+  font-family: var(--ng-font-mono);
+  font-size: var(--ng-text-sm);
+  padding: 2px 6px;
+  background: var(--ng-charcoal-800);
+  border-radius: var(--ng-radius-sm);
+  color: var(--ng-accent-ai-light);
+}
+
+.daily-note-content pre {
+  background: var(--ng-charcoal-900);
+  border: 1px solid var(--ng-glass-border);
+  border-radius: var(--ng-radius-lg);
+  padding: var(--ng-space-4);
+  overflow-x: auto;
+  margin: var(--ng-space-4) 0;
+}
+
+.daily-note-content pre code {
+  background: transparent;
+  padding: 0;
+}
+
+/* Blockquotes */
+.daily-note-content blockquote {
+  border-left: 3px solid var(--ng-accent-ai);
+  box-shadow: -4px 0 12px var(--ng-accent-ai-glow);
+  padding-left: var(--ng-space-4);
+  margin: var(--ng-space-4) 0;
+  font-style: italic;
+  color: var(--ng-text-tertiary);
+}
+
+/* ----------------------------------------
+   Empty Content
+   ---------------------------------------- */
+
+.daily-content-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.empty-hint {
+  color: var(--ng-text-muted);
+  font-style: italic;
+}
+
+/* ----------------------------------------
+   Responsive
+   ---------------------------------------- */
+
+@media (max-width: 768px) {
+  .daily-capture-section {
+    padding: var(--ng-space-4);
+  }
+
+  .daily-content {
+    padding: var(--ng-space-4);
+  }
+
+  .daily-note-content h1 {
+    font-size: var(--ng-text-2xl);
+  }
+
+  .daily-note-content h2 {
+    font-size: var(--ng-text-xl);
+  }
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .daily-note-content code {
+  background: var(--ng-slate-200, #e2e8f0);
+  color: var(--ng-charcoal-700, #374151);
+}
+
+[data-theme="light"] .daily-note-content pre {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .daily-note-content pre code {
+  background: transparent;
+}
+
+[data-theme="light"] .daily-note-content blockquote {
+  box-shadow: -4px 0 12px rgba(129, 140, 248, 0.15);
+}
+
+[data-theme="light"] .daily-note-content .wikilink:hover {
+  color: #ffffff;
+}
