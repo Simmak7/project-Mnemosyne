@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-0.1.0--beta-blue" alt="Version">
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/AI-local%20only-purple" alt="Local AI">
 </p>
@@ -56,6 +56,10 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 ### Smart Gallery
 *Organize your visual knowledge with albums, tags, and smart filters*
 ![Gallery](docs/screenshots/gallery.png)
+
+### Image Detail View
+*View image details with AI-generated tags, descriptions, and linked notes*
+![Gallery Detail](docs/screenshots/gallery-detail.png)
 
 ### Notes Management
 *Inbox, collections, smart tags, and multiple note types*
@@ -228,7 +232,7 @@ Mnemosyne is built with love by a solo developer. If it helps you build your sec
 
 ## 📜 License
 
-Mnemosyne is open source software licensed under the [MIT License](LICENSE).
+Mnemosyne is open source software licensed under the [GNU Affero General Public License v3.0](LICENSE).
 
 ---
 
