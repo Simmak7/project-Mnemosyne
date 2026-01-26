@@ -45,16 +45,29 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 
 ## 📸 Screenshots
 
-<p align="center">
-  <em>Screenshots coming soon — the app is more beautiful than we can describe!</em>
-</p>
-
-<!--
-TODO: Add screenshots
+### Daily Workspace
+*Start your day with a personalized workspace - quick capture, daily notes, and activity tracking*
 ![Workspace](docs/screenshots/workspace.png)
-![Knowledge Graph](docs/screenshots/graph.png)
-![AI Chat](docs/screenshots/chat.png)
--->
+
+### Neural Studio
+*Upload images for AI-powered analysis with customizable settings*
+![Studio](docs/screenshots/studio.png)
+
+### Smart Gallery
+*Organize your visual knowledge with albums, tags, and smart filters*
+![Gallery](docs/screenshots/gallery.png)
+
+### Notes Management
+*Inbox, collections, smart tags, and multiple note types*
+![Notes](docs/screenshots/notes.png)
+
+### Knowledge Graph (Brain)
+*Visualize connections between your notes, tags, and images*
+![Brain](docs/screenshots/brain.png)
+
+### AI Chat (Mnemosyne)
+*Ask questions about your knowledge base with citation-backed answers*
+![Chat](docs/screenshots/chat.png)
 
 ---
 

@@ -89,3 +89,4 @@ secrets.json
 *_secret*
 *.secrets
 .vs/
+!docs/screenshots/*.png
