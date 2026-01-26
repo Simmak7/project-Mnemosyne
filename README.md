@@ -198,7 +198,7 @@ Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
 Mnemosyne is built with love by a solo developer. If it helps you build your second brain, consider supporting continued development:
 
 <p align="center">
-  <a href="https://ko-fi.com/YOUR_KOFI_USERNAME">
+  <a href="https://ko-fi.com/maksymzaiats">
     <img src="https://img.shields.io/badge/Ko--fi-Support%20Me-FF5E5B?logo=ko-fi&logoColor=white" alt="Ko-fi">
   </a>
   <a href="https://github.com/sponsors/Simmak7">

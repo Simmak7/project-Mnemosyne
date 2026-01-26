@@ -88,3 +88,4 @@ credentials.json
 secrets.json
 *_secret*
 *.secrets
+.vs/
