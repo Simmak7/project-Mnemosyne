@@ -224,6 +224,21 @@
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
 }
 
+/* Brain mode topic badges */
+.citation-badge.brain-topic {
+  border-color: rgba(129, 140, 248, 0.3);
+  cursor: default;
+}
+
+.citation-badge.brain-topic svg {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+/* Brain mode empty state icon */
+.empty-icon.brain-mode {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
 /* Message Footer - Timestamp and Actions */
 .message-footer {
   display: flex;

@@ -108,6 +108,14 @@ async def create_note(
         )
 
         logger.info(f"Note created successfully: ID {db_note.id} for user {current_user.username}")
+
+        # Mark brain as stale for this user
+        try:
+            from features.mnemosyne_brain.tasks import mark_brain_stale_task
+            mark_brain_stale_task.delay(current_user.id, db_note.id)
+        except Exception:
+            pass  # Non-critical
+
         return main_schemas.Note.model_validate(db_note)
 
     except exceptions.AppException:
@@ -147,6 +155,14 @@ async def update_note(
             raise exceptions.ResourceNotFoundException("Note", note_id)
 
         logger.info(f"Note {note_id} updated successfully by user {current_user.username}")
+
+        # Mark brain as stale for this note
+        try:
+            from features.mnemosyne_brain.tasks import mark_brain_stale_task
+            mark_brain_stale_task.delay(current_user.id, note_id)
+        except Exception:
+            pass  # Non-critical
+
         return main_schemas.Note.model_validate(db_note)
 
     except exceptions.AppException:
@@ -175,6 +191,14 @@ async def delete_note(
             raise exceptions.ResourceNotFoundException("Note", note_id)
 
         logger.info(f"Note {note_id} deleted successfully by user {current_user.username}")
+
+        # Mark brain as stale
+        try:
+            from features.mnemosyne_brain.tasks import mark_brain_stale_task
+            mark_brain_stale_task.delay(current_user.id, note_id)
+        except Exception:
+            pass  # Non-critical
+
         return {"status": "success", "message": "Note deleted successfully", "note_id": note_id}
 
     except exceptions.AppException:

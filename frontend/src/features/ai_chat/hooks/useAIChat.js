@@ -5,8 +5,9 @@
  * Provides query methods, conversation management, and streaming support.
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useMemo } from 'react';
 import { useAIChatContext, useAIChatActions } from './AIChatContext';
+import { useBrainChat } from './useBrainChat';
 
 const API_BASE = 'http://localhost:8000';
 
@@ -28,6 +29,8 @@ export function useAIChat() {
   const { state, settings } = useAIChatContext();
   const actions = useAIChatActions();
   const abortControllerRef = useRef(null);
+  const brainChat = useBrainChat();
+  const isBrainMode = state.chatMode === 'mnemosyne';
 
   /**
    * Send a RAG query (non-streaming)
@@ -601,24 +604,30 @@ export function useAIChat() {
     isStreaming: state.isStreaming,
     error: state.error,
     conversationId: state.conversationId,
+    chatMode: state.chatMode,
     lastRetrievalMetadata: state.lastRetrievalMetadata,
     previewItem: state.previewItem,
+    brainFilesUsed: state.brainFilesUsed,
+    topicsMatched: state.topicsMatched,
 
-    // Query methods
-    sendQuery,
-    sendStreamingQuery,
-    cancelStream,
-    regenerateMessage,
+    // Query methods (delegated by mode)
+    sendQuery: isBrainMode ? brainChat.sendQuery : sendQuery,
+    sendStreamingQuery: isBrainMode ? brainChat.sendStreamingQuery : sendStreamingQuery,
+    cancelStream: isBrainMode ? brainChat.cancelStream : cancelStream,
+    regenerateMessage: isBrainMode ? null : regenerateMessage,
 
     // Message management
     clearMessages: actions.clearMessages,
 
-    // Conversation management
+    // Conversation management (delegated by mode)
     startNewConversation,
-    loadConversation,
-    listConversations,
-    deleteConversation,
-    updateConversation,
+    loadConversation: isBrainMode ? brainChat.loadConversation : loadConversation,
+    listConversations: isBrainMode ? brainChat.listConversations : listConversations,
+    deleteConversation: isBrainMode ? brainChat.deleteConversation : deleteConversation,
+    updateConversation: isBrainMode ? brainChat.updateConversation : updateConversation,
+
+    // Mode management
+    setChatMode: actions.setChatMode,
 
     // Preview management
     setPreview: actions.setPreview,

@@ -25,8 +25,9 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAIChat } from '../hooks/useAIChat';
-import { useAIChatContext } from '../hooks/AIChatContext';
+import { useAIChatContext, useAIChatActions } from '../hooks/AIChatContext';
 import { useBrain } from '../hooks/useBrain';
+import { useMnemosyneBrain } from '../hooks/useMnemosyneBrain';
 import './ConversationPane.css';
 
 // Module-level tracking to prevent multiple fetches across component remounts
@@ -86,8 +87,10 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
   // Use external ref if provided, otherwise use internal ref
   const actualSearchRef = searchInputRef || internalSearchRef;
 
-  const { loadConversation, deleteConversation, updateConversation } = useAIChat();
+  const { loadConversation, deleteConversation, updateConversation, listConversations } = useAIChat();
   const { state, dispatch, ActionTypes } = useAIChatContext();
+  const { setChatMode } = useAIChatActions();
+  const isBrainMode = state.chatMode === 'mnemosyne';
 
   // Fetch conversations function with aggressive rate limiting protection
   const fetchConversations = useCallback(async (force = false) => {
@@ -118,29 +121,15 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
     setIsLoadingList(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(
-        'http://localhost:8000/rag/conversations?skip=0&limit=100',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': token ? `Bearer ${token}` : '',
-          }
-        }
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data || []);
-      } else {
-        console.error('Failed to fetch conversations:', response.status);
-      }
+      const data = await listConversations(0, 100);
+      setConversations(data || []);
     } catch (error) {
       console.error('Failed to fetch conversations:', error);
     } finally {
       setIsLoadingList(false);
       globalFetchInProgress = false;
     }
-  }, []);
+  }, [listConversations]);
 
   // Fetch conversations on mount only
   useEffect(() => {
@@ -148,6 +137,12 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
       fetchConversations();
     }
   }, []);
+
+  // Re-fetch conversations when chat mode changes
+  useEffect(() => {
+    hasFetchedRef.current = false;
+    fetchConversations(true);
+  }, [state.chatMode]);
 
   // Refresh list when a new conversation is auto-created
   useEffect(() => {
@@ -352,6 +347,24 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
         </button>
       </div>
 
+      {/* Mode Toggle */}
+      <div className="mode-toggle">
+        <button
+          className={`mode-toggle-btn ${!isBrainMode ? 'active' : ''}`}
+          onClick={() => setChatMode('rag')}
+        >
+          <Search size={14} />
+          <span>RAG</span>
+        </button>
+        <button
+          className={`mode-toggle-btn ${isBrainMode ? 'active' : ''}`}
+          onClick={() => setChatMode('mnemosyne')}
+        >
+          <Brain size={14} />
+          <span>Brain</span>
+        </button>
+      </div>
+
       {/* New Chat Button */}
       <button className="new-chat-btn" onClick={handleNewChat}>
         <Plus size={18} />
@@ -393,7 +406,7 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
       </div>
 
       {/* Brain Status Card */}
-      <BrainStatusCard />
+      {isBrainMode ? <MnemosyneBrainCard /> : <BrainStatusCard />}
     </div>
   );
 }
@@ -511,6 +524,90 @@ function BrainStatusCard() {
           <>
             <Sparkles size={14} />
             Train Brain
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * MnemosyneBrainCard - Shows Mnemosyne brain status and build actions
+ */
+function MnemosyneBrainCard() {
+  const {
+    hasBrain, isReady, isBuilding, isStale,
+    fetchBrainStatus, triggerBuild, startBuildPolling,
+    buildStatus,
+  } = useMnemosyneBrain();
+
+  useEffect(() => {
+    fetchBrainStatus();
+  }, []);
+
+  const getStatusDisplay = () => {
+    if (isBuilding) return { text: 'Building...', className: 'indexing' };
+    if (isStale) return { text: 'Stale', className: 'indexed' };
+    if (isReady) return { text: 'Ready', className: 'ready' };
+    if (hasBrain) return { text: 'Built', className: 'ready' };
+    return { text: 'Not Built', className: '' };
+  };
+
+  const statusDisplay = getStatusDisplay();
+
+  const handleBuild = async () => {
+    try {
+      await triggerBuild(true);
+    } catch (err) {
+      console.error('Brain build failed:', err);
+    }
+  };
+
+  return (
+    <div className="brain-status-card">
+      <div className="brain-status-header">
+        <Brain size={16} />
+        <span>Mnemosyne Brain</span>
+      </div>
+      <div className="brain-status-content">
+        <div className="brain-status-row">
+          <span className="brain-status-label">Status:</span>
+          <span className={`brain-status-value ${statusDisplay.className}`}>
+            {isBuilding && <Loader2 size={12} className="spinning" />}
+            {statusDisplay.text}
+          </span>
+        </div>
+        {buildStatus?.progress_pct > 0 && isBuilding && (
+          <div className="brain-status-row">
+            <span className="brain-status-label">Progress:</span>
+            <span className="brain-status-value">{buildStatus.progress_pct}%</span>
+          </div>
+        )}
+      </div>
+      <button
+        className="brain-train-btn"
+        onClick={handleBuild}
+        disabled={isBuilding}
+      >
+        {isBuilding ? (
+          <>
+            <Loader2 size={14} className="spinning" />
+            Building...
+          </>
+        ) : isStale ? (
+          <>
+            <Sparkles size={14} />
+            Rebuild Brain
+          </>
+        ) : hasBrain ? (
+          <>
+            <Sparkles size={14} />
+            Rebuild Brain
+          </>
+        ) : (
+          <>
+            <Database size={14} />
+            Build Brain
           </>
         )}
       </button>

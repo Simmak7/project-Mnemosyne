@@ -419,3 +419,15 @@ class NotificationPreferences(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", backref="notification_preferences")
+
+
+# ============================================
+# Mnemosyne Brain Models
+# ============================================
+# Import so Base.metadata.create_all picks them up
+from features.mnemosyne_brain.models import (  # noqa: E402, F401
+    BrainFile,
+    BrainBuildLog,
+    BrainConversation,
+    BrainMessage,
+)

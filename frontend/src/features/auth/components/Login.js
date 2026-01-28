@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
+import { API_URL } from '../../../utils/api';
 import './Login.css';
-
-const API_BASE = 'http://localhost:8000';
 
 /**
  * Login/Register component for user authentication.
  * Supports two-factor authentication (2FA) flow.
+ *
+ * Authentication is handled via httpOnly cookies for security.
+ * The token is also stored in localStorage for backward compatibility
+ * with components that check auth status on page load.
  *
  * @param {Object} props
  * @param {Function} props.onLoginSuccess - Callback when login succeeds (token, username)
@@ -32,11 +35,12 @@ function Login({ onLoginSuccess }) {
     try {
       if (isRegistering) {
         // Register
-        const registerResponse = await fetch(`${API_BASE}/register`, {
+        const registerResponse = await fetch(`${API_URL}/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // Include cookies for CSRF
           body: JSON.stringify({ username, email, password }),
         });
 
@@ -52,16 +56,19 @@ function Login({ onLoginSuccess }) {
         }
       } else if (requires2FA) {
         // Complete 2FA login
-        const response = await fetch(`${API_BASE}/login/2fa`, {
+        const response = await fetch(`${API_URL}/login/2fa`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // Include cookies for CSRF and auth
           body: JSON.stringify({ temp_token: tempToken, code: twoFactorCode }),
         });
 
         if (response.ok) {
           const data = await response.json();
+          // Store token in localStorage for backward compatibility
+          // Primary auth is now via httpOnly cookie set by server
           localStorage.setItem('token', data.access_token);
           localStorage.setItem('username', username);
           setMessage('Login successful!');
@@ -78,11 +85,12 @@ function Login({ onLoginSuccess }) {
         formData.append('username', username);
         formData.append('password', password);
 
-        const loginResponse = await fetch(`${API_BASE}/login`, {
+        const loginResponse = await fetch(`${API_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
+          credentials: 'include', // Include cookies for CSRF and auth
           body: formData,
         });
 
@@ -96,6 +104,8 @@ function Login({ onLoginSuccess }) {
             setMessage('Enter your authenticator code to continue');
             setMessageType('info');
           } else {
+            // Store token in localStorage for backward compatibility
+            // Primary auth is now via httpOnly cookie set by server
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('username', username);
             setMessage('Login successful!');

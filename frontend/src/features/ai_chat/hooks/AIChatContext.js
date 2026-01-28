@@ -28,6 +28,9 @@ const defaultSettings = {
 
 // Initial state
 const initialState = {
+  // Chat mode: "rag" or "mnemosyne"
+  chatMode: 'rag',
+
   // Current conversation
   conversationId: null,
   messages: [],
@@ -45,10 +48,15 @@ const initialState = {
 
   // Last retrieval metadata
   lastRetrievalMetadata: null,
+
+  // Brain mode metadata
+  brainFilesUsed: [],
+  topicsMatched: [],
 };
 
 // Action types
 const ActionTypes = {
+  SET_CHAT_MODE: 'SET_CHAT_MODE',
   SET_CONVERSATION: 'SET_CONVERSATION',
   ADD_MESSAGE: 'ADD_MESSAGE',
   UPDATE_MESSAGE: 'UPDATE_MESSAGE',
@@ -61,12 +69,26 @@ const ActionTypes = {
   CLEAR_PREVIEW: 'CLEAR_PREVIEW',
   SET_ACTIVE_CITATIONS: 'SET_ACTIVE_CITATIONS',
   SET_RETRIEVAL_METADATA: 'SET_RETRIEVAL_METADATA',
+  SET_BRAIN_FILES_USED: 'SET_BRAIN_FILES_USED',
+  SET_TOPICS_MATCHED: 'SET_TOPICS_MATCHED',
   RESET_STATE: 'RESET_STATE',
 };
 
 // Reducer
 function chatReducer(state, action) {
   switch (action.type) {
+    case ActionTypes.SET_CHAT_MODE:
+      return {
+        ...state,
+        chatMode: action.payload,
+        messages: [],
+        conversationId: null,
+        lastRetrievalMetadata: null,
+        activeCitations: [],
+        brainFilesUsed: [],
+        topicsMatched: [],
+      };
+
     case ActionTypes.SET_CONVERSATION:
       return { ...state, conversationId: action.payload };
 
@@ -85,7 +107,10 @@ function chatReducer(state, action) {
       return { ...state, messages: action.payload };
 
     case ActionTypes.CLEAR_MESSAGES:
-      return { ...state, messages: [], conversationId: null, lastRetrievalMetadata: null };
+      return {
+        ...state, messages: [], conversationId: null,
+        lastRetrievalMetadata: null, brainFilesUsed: [], topicsMatched: [],
+      };
 
     case ActionTypes.SET_LOADING:
       return { ...state, isLoading: action.payload };
@@ -108,6 +133,12 @@ function chatReducer(state, action) {
     case ActionTypes.SET_RETRIEVAL_METADATA:
       return { ...state, lastRetrievalMetadata: action.payload };
 
+    case ActionTypes.SET_BRAIN_FILES_USED:
+      return { ...state, brainFilesUsed: action.payload };
+
+    case ActionTypes.SET_TOPICS_MATCHED:
+      return { ...state, topicsMatched: action.payload };
+
     case ActionTypes.RESET_STATE:
       return { ...initialState };
 
@@ -122,9 +153,10 @@ function loadPersistedState() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Only restore messages and conversationId, not UI state
+      // Only restore messages, conversationId, and chatMode, not UI state
       return {
         ...initialState,
+        chatMode: parsed.chatMode || 'rag',
         conversationId: parsed.conversationId || null,
         messages: parsed.messages || [],
       };
@@ -160,6 +192,7 @@ export function AIChatProvider({ children }) {
     const timeoutId = setTimeout(() => {
       try {
         const toStore = {
+          chatMode: state.chatMode,
           conversationId: state.conversationId,
           messages: state.messages,
         };
@@ -170,7 +203,7 @@ export function AIChatProvider({ children }) {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [state.conversationId, state.messages]);
+  }, [state.chatMode, state.conversationId, state.messages]);
 
   // Persist settings
   useEffect(() => {
@@ -219,6 +252,8 @@ export function useAIChatActions() {
   const { dispatch, ActionTypes } = useAIChatContext();
 
   // Memoize all action functions to maintain stable references
+  const setChatMode = useCallback((mode) =>
+    dispatch({ type: ActionTypes.SET_CHAT_MODE, payload: mode }), [dispatch, ActionTypes]);
   const setConversation = useCallback((id) =>
     dispatch({ type: ActionTypes.SET_CONVERSATION, payload: id }), [dispatch, ActionTypes]);
   const addMessage = useCallback((message) =>
@@ -243,11 +278,16 @@ export function useAIChatActions() {
     dispatch({ type: ActionTypes.SET_ACTIVE_CITATIONS, payload: citations }), [dispatch, ActionTypes]);
   const setRetrievalMetadata = useCallback((metadata) =>
     dispatch({ type: ActionTypes.SET_RETRIEVAL_METADATA, payload: metadata }), [dispatch, ActionTypes]);
+  const setBrainFilesUsed = useCallback((files) =>
+    dispatch({ type: ActionTypes.SET_BRAIN_FILES_USED, payload: files }), [dispatch, ActionTypes]);
+  const setTopicsMatched = useCallback((topics) =>
+    dispatch({ type: ActionTypes.SET_TOPICS_MATCHED, payload: topics }), [dispatch, ActionTypes]);
   const resetState = useCallback(() =>
     dispatch({ type: ActionTypes.RESET_STATE }), [dispatch, ActionTypes]);
 
   // Return memoized object with stable function references
   return React.useMemo(() => ({
+    setChatMode,
     setConversation,
     addMessage,
     updateMessage,
@@ -260,11 +300,14 @@ export function useAIChatActions() {
     clearPreview,
     setActiveCitations,
     setRetrievalMetadata,
+    setBrainFilesUsed,
+    setTopicsMatched,
     resetState,
   }), [
-    setConversation, addMessage, updateMessage, setMessages, clearMessages,
-    setLoading, setStreaming, setError, setPreview, clearPreview,
-    setActiveCitations, setRetrievalMetadata, resetState
+    setChatMode, setConversation, addMessage, updateMessage, setMessages,
+    clearMessages, setLoading, setStreaming, setError, setPreview, clearPreview,
+    setActiveCitations, setRetrievalMetadata, setBrainFilesUsed, setTopicsMatched,
+    resetState
   ]);
 }
 

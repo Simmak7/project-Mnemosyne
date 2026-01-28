@@ -59,6 +59,56 @@
   color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
 }
 
+/* Mode Toggle */
+.mode-toggle {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.06));
+  border-radius: 8px;
+}
+
+.mode-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+}
+
+.mode-toggle-btn.active {
+  background: rgba(129, 140, 248, 0.2);
+  color: var(--ng-accent-ai, #818cf8);
+  font-weight: 600;
+}
+
+[data-theme="light"] .mode-toggle {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .mode-toggle-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .mode-toggle-btn.active {
+  background: rgba(129, 140, 248, 0.15);
+}
+
 /* New Chat Button */
 .new-chat-btn {
   display: flex;

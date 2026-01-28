@@ -24,6 +24,7 @@ celery_app = Celery(
         "features.brain.tasks",
         "features.graph.tasks",  # Phase 2: Semantic edges and clustering
         "features.settings.tasks",  # Phase 4: Data export tasks
+        "features.mnemosyne_brain.tasks",  # Mnemosyne Brain build & evolution
     ]  # Import tasks modules
 )
 

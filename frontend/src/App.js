@@ -5,6 +5,9 @@ import './App.css';
 // Neural Glass Design System (Phase 2)
 import './styles/neural-glass/index.css';
 
+// API utility for centralized URL configuration
+import { API_URL, api } from './utils/api';
+
 // Feature imports (fractal architecture)
 import { Login, EmailVerification } from './features/auth';
 
@@ -73,10 +76,11 @@ function App() {
       if (token && savedUsername) {
         // Validate token by calling /me endpoint
         try {
-          const response = await fetch('http://localhost:8000/me', {
+          const response = await fetch(`${API_URL}/me`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
+            credentials: 'include', // Include cookies for auth
           });
 
           if (response.ok) {
@@ -84,7 +88,7 @@ function App() {
             setUsername(savedUsername);
             // Fetch profile to get display name
             try {
-              const profileRes = await fetch('http://localhost:8000/profile', {
+              const profileRes = await fetch(`${API_URL}/profile`, {
                 headers: { 'Authorization': `Bearer ${token}` },
               });
               if (profileRes.ok) {
@@ -235,7 +239,7 @@ function App() {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('http://localhost:8000/images/');
+      const response = await fetch(`${API_URL}/images/`);
       const data = await response.json();
       setImages(data);
     } catch (error) {
@@ -250,7 +254,7 @@ function App() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/notes-enhanced/', {
+      const response = await fetch(`${API_URL}/notes-enhanced/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -270,7 +274,7 @@ function App() {
     setUsername(user);
     // Fetch profile to get display name
     try {
-      const profileRes = await fetch('http://localhost:8000/profile', {
+      const profileRes = await fetch(`${API_URL}/profile`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       if (profileRes.ok) {
@@ -284,12 +288,31 @@ function App() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // Call logout endpoint to clear httpOnly cookie
+    try {
+      await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        credentials: 'include', // Include cookies for auth
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+    } catch (error) {
+      // Continue with local logout even if server call fails
+      console.warn('Logout API call failed:', error);
+    }
+
+    // Clear local storage
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('displayName');
     localStorage.removeItem('accentColor');
     localStorage.removeItem('uiDensity');
+
+    // Clear API client state
+    api.clearAuth();
+
     // Reset CSS variables to defaults
     const root = document.documentElement;
     root.style.removeProperty('--accent-color');

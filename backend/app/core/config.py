@@ -80,3 +80,41 @@ PASSWORD_REQUIRE_SPECIAL = os.getenv("PASSWORD_REQUIRE_SPECIAL", "true").lower()
 
 # 2FA Configuration
 TOTP_ISSUER_NAME = os.getenv("TOTP_ISSUER_NAME", "Mnemosyne")
+
+# Password Breach Checking (haveibeenpwned)
+# Set to false to disable checking passwords against known breaches
+PASSWORD_CHECK_BREACH = os.getenv("PASSWORD_CHECK_BREACH", "true").lower() == "true"
+
+# CORS Configuration
+# In production, set CORS_ORIGINS to your actual frontend domain(s)
+# Example: "https://app.mnemosyne.com,https://www.mnemosyne.com"
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:8000"
+).split(",")
+
+# Restrict CORS methods and headers for better security
+CORS_ALLOW_METHODS = os.getenv(
+    "CORS_ALLOW_METHODS",
+    "GET,POST,PUT,DELETE,OPTIONS,PATCH"
+).split(",")
+
+CORS_ALLOW_HEADERS = os.getenv(
+    "CORS_ALLOW_HEADERS",
+    "Authorization,Content-Type,Accept,Origin,X-Requested-With,X-CSRF-Token"
+).split(",")
+
+# Security Headers Configuration
+# Enable HSTS only in production with valid HTTPS certificate
+ENABLE_HSTS = os.getenv("ENABLE_HSTS", "false").lower() == "true"
+
+# Environment indicator (development, staging, production)
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+
+# Mnemosyne Brain Configuration
+BRAIN_MODEL = os.getenv("BRAIN_MODEL", "llama3.2:3b")
+BRAIN_MAX_CONTEXT_TOKENS = int(os.getenv("BRAIN_MAX_CONTEXT_TOKENS", "6000"))
+BRAIN_CORE_TOKEN_BUDGET = int(os.getenv("BRAIN_CORE_TOKEN_BUDGET", "2500"))
+BRAIN_TOPIC_TOKEN_BUDGET = int(os.getenv("BRAIN_TOPIC_TOKEN_BUDGET", "3000"))
+BRAIN_TEMPERATURE = float(os.getenv("BRAIN_TEMPERATURE", "0.7"))
+BRAIN_MIN_NOTES = int(os.getenv("BRAIN_MIN_NOTES", "3"))

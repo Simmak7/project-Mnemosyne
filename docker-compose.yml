@@ -8,8 +8,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # No host port mapping needed - accessed via Docker internal network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
@@ -20,7 +19,7 @@ services:
     image: redis:7-alpine
     restart: always
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -34,8 +33,7 @@ services:
     restart: always
     volumes:
       - ollama_data:/root/.ollama
-    ports:
-      - "11434:11434"
+    # No host port mapping needed - accessed via Docker internal network
     # GPU support for Ollama AI inference (RTX 5070)
     deploy:
       resources:

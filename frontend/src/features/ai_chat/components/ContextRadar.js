@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useAIChatContext } from '../hooks/AIChatContext';
 import { useBrain } from '../hooks/useBrain';
+import { useMnemosyneBrain } from '../hooks/useMnemosyneBrain';
 import './ContextRadar.css';
 
 /**
@@ -555,8 +556,157 @@ function BrainSection() {
   );
 }
 
+/**
+ * BrainFilesPanel - Shows brain files and topics for Mnemosyne mode
+ */
+function BrainFilesPanel() {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const { state } = useAIChatContext();
+  const { brainFiles, fetchBrainFiles, hasBrain, isReady, isBuilding } = useMnemosyneBrain();
+
+  useEffect(() => {
+    fetchBrainFiles();
+  }, []);
+
+  const { brainFilesUsed, topicsMatched } = state;
+
+  return (
+    <div className="brain-section">
+      <button
+        className="section-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="section-title">
+          <Brain size={14} />
+          <span>Brain Files</span>
+          {isReady ? (
+            <span className="status-badge ready"><Check size={10} /> Ready</span>
+          ) : isBuilding ? (
+            <span className="status-badge indexing"><Loader2 size={10} className="spinning" /> Building</span>
+          ) : (
+            <span className="status-badge none">Not Built</span>
+          )}
+        </div>
+        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {isExpanded && (
+        <div className="brain-content">
+          {/* Files loaded for last response */}
+          {brainFilesUsed.length > 0 && (
+            <div className="brain-stats">
+              <div className="adapters-header">Loaded Files</div>
+              {brainFilesUsed.map((fileKey, idx) => (
+                <div key={idx} className="adapter-item">
+                  <span className="adapter-version">
+                    <FileText size={12} />
+                    {fileKey}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Topics matched */}
+          {topicsMatched.length > 0 && (
+            <div className="brain-stats">
+              <div className="adapters-header">Topics Matched</div>
+              {topicsMatched.map((topic, idx) => (
+                <div key={idx} className="adapter-item">
+                  <span className="adapter-version">
+                    <Sparkles size={12} />
+                    {topic}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* All brain files */}
+          {brainFiles.length > 0 && (
+            <div className="brain-stats">
+              <div className="adapters-header">All Brain Files ({brainFiles.length})</div>
+              {brainFiles.map((file, idx) => (
+                <div key={idx} className="adapter-item">
+                  <span className="adapter-version">
+                    <FileText size={12} />
+                    {file.file_key}
+                  </span>
+                  <span className="adapter-info">
+                    {file.file_type} · ~{file.token_count_approx || '?'} tokens
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!hasBrain && brainFiles.length === 0 && (
+            <p className="brain-hint">
+              Build your brain first to enable Mnemosyne mode.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Brain mode settings - simplified, only temperature
+ */
+function BrainSettingsSection() {
+  const { settings, updateSettings } = useAIChatContext();
+  const [isExpanded, setIsExpanded] = useState(true);
+
+  return (
+    <div className="settings-section">
+      <button
+        className="section-header"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="section-title">
+          <Sliders size={14} />
+          <span>Settings</span>
+        </div>
+        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+
+      {isExpanded && (
+        <div className="settings-content">
+          <div className="setting-item">
+            <label>
+              Temperature
+              <span className="setting-value">{settings.temperature}</span>
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={settings.temperature}
+              onChange={(e) => updateSettings({ temperature: parseFloat(e.target.value) })}
+            />
+          </div>
+
+          <div className="setting-toggles">
+            <label className="toggle-item">
+              <input
+                type="checkbox"
+                checked={settings.useStreaming}
+                onChange={(e) => updateSettings({ useStreaming: e.target.checked })}
+              />
+              <span>Stream responses</span>
+            </label>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToImage }) {
   const { state, dispatch, ActionTypes } = useAIChatContext();
+  const isBrainMode = state.chatMode === 'mnemosyne';
 
   const handleClearPreview = useCallback(() => {
     dispatch({ type: ActionTypes.CLEAR_PREVIEW });
@@ -576,11 +726,11 @@ function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToI
 
   return (
     <div className="context-radar">
-      {/* Header - stays fixed at top */}
+      {/* Header */}
       <div className="context-radar-header">
         <div className="context-radar-title">
           <Settings size={16} />
-          <span>Context & Settings</span>
+          <span>{isBrainMode ? 'Brain & Settings' : 'Context & Settings'}</span>
         </div>
         <button
           className="collapse-btn"
@@ -593,21 +743,30 @@ function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToI
 
       {/* Scrollable content area */}
       <div className="context-radar-content">
-        {/* Preview Section */}
-        <PreviewSection
-          previewItem={state.previewItem}
-          activeCitations={state.activeCitations}
-          onNavigateToNote={onNavigateToNote}
-          onNavigateToImage={onNavigateToImage}
-          onClear={handleClearPreview}
-          onSelectCitation={handleSelectCitation}
-        />
-
-        {/* Settings Section */}
-        <SettingsSection />
-
-        {/* Brain Section */}
-        <BrainSection />
+        {isBrainMode ? (
+          <>
+            {/* Brain Files Panel */}
+            <BrainFilesPanel />
+            {/* Simplified Settings */}
+            <BrainSettingsSection />
+          </>
+        ) : (
+          <>
+            {/* Preview Section */}
+            <PreviewSection
+              previewItem={state.previewItem}
+              activeCitations={state.activeCitations}
+              onNavigateToNote={onNavigateToNote}
+              onNavigateToImage={onNavigateToImage}
+              onClear={handleClearPreview}
+              onSelectCitation={handleSelectCitation}
+            />
+            {/* Settings Section */}
+            <SettingsSection />
+            {/* Brain Section */}
+            <BrainSection />
+          </>
+        )}
       </div>
     </div>
   );

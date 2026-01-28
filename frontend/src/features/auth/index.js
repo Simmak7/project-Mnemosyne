@@ -4,6 +4,8 @@
  * Main entry point for the authentication feature.
  */
 
+import { API_URL } from '../../utils/api';
+
 // Components
 export { default as Login } from './components/Login';
 export { default as EmailVerification } from './components/EmailVerification';
@@ -11,9 +13,13 @@ export { default as EmailVerification } from './components/EmailVerification';
 // Hooks (to be added)
 // export { useAuth } from './hooks/useAuth';
 
-// Constants
+// API utility re-export for convenience
+export { API_URL, api } from '../../utils/api';
+
+// Constants - use API_URL from environment
 export const AUTH_ENDPOINTS = {
-  LOGIN: 'http://localhost:8000/login',
-  REGISTER: 'http://localhost:8000/register',
-  ME: 'http://localhost:8000/me',
+  LOGIN: `${API_URL}/login`,
+  REGISTER: `${API_URL}/register`,
+  ME: `${API_URL}/me`,
+  LOGOUT: `${API_URL}/logout`,
 };

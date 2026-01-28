@@ -194,8 +194,8 @@ function MessageBubble({
           )}
         </div>
 
-        {/* Citations summary */}
-        {!isUser && message.citations && message.citations.length > 0 && (
+        {/* Citations summary (RAG mode only) */}
+        {!isUser && !message.isBrainMode && message.citations && message.citations.length > 0 && (
           <div className="message-citations">
             <span className="citations-label">Sources:</span>
             <div className="citations-list">
@@ -221,8 +221,23 @@ function MessageBubble({
           </div>
         )}
 
-        {/* Confidence indicator */}
-        {!isUser && message.confidenceLevel && (
+        {/* Brain mode topics matched */}
+        {!isUser && message.isBrainMode && message.topicsMatched && message.topicsMatched.length > 0 && (
+          <div className="message-citations">
+            <span className="citations-label">Topics:</span>
+            <div className="citations-list">
+              {message.topicsMatched.map((topic, idx) => (
+                <span key={idx} className="citation-badge brain-topic">
+                  <FileText size={12} />
+                  <span>{topic}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Confidence indicator (RAG mode only) */}
+        {!isUser && !message.isBrainMode && message.confidenceLevel && (
           <div className={`message-confidence ${message.confidenceLevel}`}>
             Confidence: {message.confidenceLevel}
           </div>
@@ -235,7 +250,28 @@ function MessageBubble({
 /**
  * Empty state component
  */
-function EmptyState() {
+function EmptyState({ isBrainMode }) {
+  if (isBrainMode) {
+    return (
+      <div className="chat-empty-state">
+        <Bot size={48} className="empty-icon brain-mode" />
+        <h3>Mnemosyne Brain</h3>
+        <p>
+          I have deep knowledge of your notes. Ask me anything and I'll draw
+          connections across topics with a personal touch — no citations needed.
+        </p>
+        <div className="empty-suggestions">
+          <span className="suggestion-label">Try asking:</span>
+          <div className="suggestions-list">
+            <button className="suggestion-chip">"What patterns do you see in my notes?"</button>
+            <button className="suggestion-chip">"Connect my ideas about..."</button>
+            <button className="suggestion-chip">"What are my main interests?"</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="chat-empty-state">
       <Bot size={48} className="empty-icon" />
@@ -290,7 +326,8 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
     regenerateMessage,
   } = useAIChat();
 
-  const { settings } = useAIChatContext();
+  const { settings, state: chatState } = useAIChatContext();
+  const isBrainMode = chatState.chatMode === 'mnemosyne';
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -384,7 +421,7 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
       {/* Messages Area */}
       <div className="chat-messages">
         {messages.length === 0 ? (
-          <EmptyState />
+          <EmptyState isBrainMode={isBrainMode} />
         ) : (
           <>
             {messages.map((message) => (
@@ -410,7 +447,10 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about your notes and images..."
+            placeholder={isBrainMode
+              ? "Ask Mnemosyne about your knowledge..."
+              : "Ask about your notes and images..."
+            }
             rows={1}
             disabled={isLoading}
           />

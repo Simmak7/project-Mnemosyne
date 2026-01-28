@@ -27,7 +27,7 @@ import uuid
 import logging
 
 from core.database import get_db
-from core.auth import get_current_active_user, get_current_user_optional
+from core.auth import get_current_active_user
 from core import config, exceptions
 import models
 
@@ -374,16 +374,15 @@ async def get_image_metadata(
 async def get_image_file(
     image_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User | None = Depends(get_current_user_optional)
+    current_user: models.User = Depends(get_current_active_user)
 ):
     """
     Get an image file by ID.
 
-    Authentication is optional but recommended.
-    Returns the actual image file for display.
+    **Authentication required.** Returns the actual image file for display.
+    Only the owner of the image can access it.
     """
-    user_info = f" by user {current_user.username}" if current_user else " (anonymous)"
-    logger.debug(f"Image {image_id} requested{user_info}")
+    logger.debug(f"Image {image_id} requested by user {current_user.username}")
 
     try:
         image = ImageService.get_image(db, image_id=image_id)
@@ -391,8 +390,8 @@ async def get_image_file(
             logger.warning(f"Image {image_id} not found")
             raise exceptions.ResourceNotFoundException("Image", image_id)
 
-        # Check ownership if user is authenticated
-        if current_user and image.owner_id != current_user.id:
+        # Verify ownership - users can only access their own images
+        if image.owner_id != current_user.id:
             logger.warning(f"User {current_user.username} attempted to access image {image_id} owned by user {image.owner_id}")
             raise exceptions.AuthorizationException("Not authorized to access this image")
 
@@ -400,7 +399,7 @@ async def get_image_file(
             logger.error(f"Image file not found on disk: {image.filepath}")
             raise exceptions.FileNotFoundException("Image file not found on disk")
 
-        logger.debug(f"Serving image {image_id}{user_info}")
+        logger.debug(f"Serving image {image_id} to user {current_user.username}")
         return FileResponse(image.filepath)
 
     except exceptions.AppException:

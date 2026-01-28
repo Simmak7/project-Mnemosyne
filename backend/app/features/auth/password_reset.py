@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from core import config
 from core.auth import get_password_hash
-from core.password import validate_password
+from core.password import validate_password_with_breach_check
 from core.email import email_service
 import models
 
@@ -124,7 +124,7 @@ def verify_reset_token(db: Session, token: str) -> Tuple[bool, Optional[models.U
     return True, user, None
 
 
-def complete_password_reset(
+async def complete_password_reset(
     db: Session,
     token: str,
     new_password: str
@@ -145,8 +145,8 @@ def complete_password_reset(
     if not is_valid:
         return False, error
 
-    # Validate new password
-    is_valid_password, errors = validate_password(new_password)
+    # Validate new password including breach check
+    is_valid_password, errors = await validate_password_with_breach_check(new_password)
     if not is_valid_password:
         return False, "; ".join(errors)
 

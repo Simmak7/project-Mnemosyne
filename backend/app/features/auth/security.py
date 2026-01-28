@@ -13,7 +13,7 @@ from sqlalchemy import and_
 
 from core import config
 from core.auth import verify_password, get_password_hash
-from core.password import validate_password
+from core.password import validate_password_with_breach_check
 import models
 
 logger = logging.getLogger(__name__)
@@ -164,7 +164,7 @@ def get_recent_failed_attempts(
 # Password Change Functions
 # ============================================
 
-def change_password(
+async def change_password(
     db: Session,
     user: models.User,
     current_password: str,
@@ -190,8 +190,8 @@ def change_password(
     if verify_password(new_password, user.hashed_password):
         return False, "New password must be different from current password"
 
-    # Validate new password meets requirements
-    is_valid, errors = validate_password(new_password)
+    # Validate new password meets requirements including breach check
+    is_valid, errors = await validate_password_with_breach_check(new_password)
     if not is_valid:
         return False, "; ".join(errors)
 

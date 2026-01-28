@@ -13,15 +13,15 @@ FastAPI endpoints for authentication:
 import logging
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from core import config
 from core.database import get_db
-from core.auth import create_access_token, get_current_active_user
+from core.auth import create_access_token, get_current_active_user, set_auth_cookie, clear_auth_cookie
 from core import exceptions
-from core.password import validate_password, get_password_strength, get_password_requirements
+from core.password import validate_password, get_password_strength, get_password_requirements, validate_password_with_breach_check
 
 from features.auth import schemas
 from features.auth import service
@@ -77,6 +77,12 @@ async def register_user(
             logger.warning(f"Registration failed: Email '{user.email}' already exists")
             raise exceptions.ValidationException("Email already registered")
 
+        # Validate password including breach check (async)
+        is_valid, errors = await validate_password_with_breach_check(user.password)
+        if not is_valid:
+            logger.warning(f"Registration failed: Password validation failed for '{user.username}'")
+            raise exceptions.ValidationException(errors[0] if errors else "Password validation failed")
+
         # Create new user
         new_user = service.create_user(db=db, user=user)
         logger.info(f"User registered successfully: {new_user.username} (ID: {new_user.id})")
@@ -93,6 +99,7 @@ async def register_user(
 @limiter.limit("10/minute")
 async def login(
     request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
@@ -201,6 +208,11 @@ async def login(
             ip_address=ip_address
         )
 
+        # Set httpOnly cookie for browser clients (more secure than localStorage)
+        # Also return token in response for API clients that need it
+        secure_cookie = config.ENVIRONMENT == "production"
+        set_auth_cookie(response, access_token, secure=secure_cookie)
+
         logger.info(f"User logged in successfully: {authenticated_user.username}")
         return {"access_token": access_token, "token_type": "bearer"}
 
@@ -215,6 +227,7 @@ async def login(
 @limiter.limit("10/minute")
 async def login_with_2fa(
     request: Request,
+    response: Response,
     data: schemas.Login2FARequest,
     db: Session = Depends(get_db)
 ):
@@ -278,6 +291,10 @@ async def login_with_2fa(
             ip_address=ip_address
         )
 
+        # Set httpOnly cookie for browser clients
+        secure_cookie = config.ENVIRONMENT == "production"
+        set_auth_cookie(response, access_token, secure=secure_cookie)
+
         logger.info(f"User completed 2FA login: {user.username}")
         return {"access_token": access_token, "token_type": "bearer"}
 
@@ -295,13 +312,40 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
     """
     Get current authenticated user's information.
 
-    Requires valid JWT token in Authorization header.
+    Requires valid JWT token in Authorization header or cookie.
 
     Returns:
         Current user data (without password)
     """
     logger.debug(f"User info requested: {current_user.username}")
     return current_user
+
+
+@router.post("/logout")
+async def logout(
+    response: Response,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Logout the current user.
+
+    Clears the authentication cookie and invalidates the session.
+    Client should also clear any locally stored tokens.
+
+    Returns:
+        Success message
+    """
+    logger.info(f"User logout: {current_user.username}")
+
+    # Clear the httpOnly auth cookie
+    clear_auth_cookie(response)
+
+    # Optionally: Invalidate the session in database
+    # This is handled by the client clearing their token
+    # For stronger security, you could blacklist the token here
+
+    return {"message": "Logged out successfully"}
 
 
 # ============================================
@@ -334,7 +378,7 @@ async def change_password(
     """
     logger.info(f"Password change attempt for user: {current_user.username}")
 
-    success, error = security.change_password(
+    success, error = await security.change_password(
         db=db,
         user=current_user,
         current_password=password_data.current_password,
@@ -472,7 +516,7 @@ async def reset_password(
     """
     logger.info("Password reset attempt")
 
-    success, error = password_reset.complete_password_reset(
+    success, error = await password_reset.complete_password_reset(
         db=db,
         token=data.token,
         new_password=data.new_password

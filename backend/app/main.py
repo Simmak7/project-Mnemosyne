@@ -23,6 +23,8 @@ from core import exceptions
 from core.logging_config import setup_logging, get_logger
 from core.error_handlers import register_exception_handlers
 from core.auth import get_current_user, get_current_active_user, get_current_user_optional, create_access_token
+from core.security_headers import SecurityHeadersMiddleware
+from core.csrf import CSRFMiddleware
 
 # Feature routers (fractal architecture)
 from features.auth.router import router as auth_router
@@ -39,6 +41,8 @@ from features.buckets.router import router as buckets_router
 from features.albums.router import router as albums_router
 from features.collections.router import router as collections_router
 from features.brain.router import router as brain_router
+from features.mnemosyne_brain.router import router as mnemosyne_router
+from features.mnemosyne_brain.router_chat import router as mnemosyne_chat_router
 
 # Legacy imports (to be migrated to features)
 import models
@@ -107,13 +111,30 @@ app.include_router(albums_router)  # Album CRUD and image management endpoints
 app.include_router(collections_router)  # Note collection (groups) endpoints
 app.include_router(search_router)  # Search endpoints (fulltext, semantic, embeddings)
 
-# CORS middleware
+# Security headers middleware (added first so it wraps all responses)
+app.add_middleware(
+    SecurityHeadersMiddleware,
+    enable_hsts=config.ENABLE_HSTS,
+)
+
+# CSRF middleware - protects against cross-site request forgery
+# Uses double-submit cookie pattern for stateless CSRF protection
+app.add_middleware(
+    CSRFMiddleware,
+    secure_cookies=config.ENVIRONMENT == "production",
+    exempt_paths={"/docs", "/openapi.json", "/redoc", "/health", "/"},
+)
+
+# CORS middleware - configured via environment variables
+# In production, set CORS_ORIGINS to your actual frontend domain(s)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:8000"],
+    allow_origins=config.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=config.CORS_ALLOW_METHODS,
+    allow_headers=config.CORS_ALLOW_HEADERS + ["X-CSRF-Token"],  # Include CSRF header
+    expose_headers=["X-Request-ID", "X-CSRF-Token"],  # Allow frontend to read CSRF token
+    max_age=600,  # Cache preflight requests for 10 minutes
 )
 
 # Dependency - use core's get_db
@@ -301,5 +322,16 @@ app.include_router(
     tags=["Brain Indexer"]
 )
 
+app.include_router(
+    mnemosyne_router,
+    tags=["Mnemosyne Brain"]
+)
+
+app.include_router(
+    mnemosyne_chat_router,
+    tags=["Mnemosyne Brain Chat"]
+)
+
 logger.info("Phase 3 routers registered: buckets (feature), rag_chat (feature)")
 logger.info("Phase 4 routers registered: brain (semantic condensation)")
+logger.info("Mnemosyne Brain routers registered: build/files, chat")
