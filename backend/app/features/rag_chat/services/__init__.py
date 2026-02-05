@@ -91,6 +91,36 @@ from .prompts import (
     get_query_specific_instructions,
 )
 
+# Intent Detection
+from .intent_detector import (
+    QueryIntent,
+    IntentResult,
+    detect_intent,
+    should_skip_rag_search,
+    should_include_conversation_context,
+    extract_citation_references,
+)
+
+# Ollama Client
+from .ollama_client import (
+    call_ollama_generate,
+    call_ollama_stream,
+    check_ollama_health,
+)
+
+# Title Generator
+from .title_generator import (
+    generate_conversation_title,
+)
+
+# Cache
+from .cache import (
+    QueryCache,
+    get_query_cache,
+    get_cached_retrieval_results,
+    cache_retrieval_results,
+)
+
 __all__ = [
     # Chunking
     "chunk_note_content",
@@ -151,4 +181,26 @@ __all__ = [
     "validate_citations",
     "detect_query_type",
     "get_query_specific_instructions",
+
+    # Intent Detection
+    "QueryIntent",
+    "IntentResult",
+    "detect_intent",
+    "should_skip_rag_search",
+    "should_include_conversation_context",
+    "extract_citation_references",
+
+    # Ollama Client
+    "call_ollama_generate",
+    "call_ollama_stream",
+    "check_ollama_health",
+
+    # Title Generator
+    "generate_conversation_title",
+
+    # Cache
+    "QueryCache",
+    "get_query_cache",
+    "get_cached_retrieval_results",
+    "cache_retrieval_results",
 ]
