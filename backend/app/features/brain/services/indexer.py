@@ -13,16 +13,21 @@ changed since the last indexing run.
 """
 
 import logging
-from typing import List, Dict, Optional, Set, Tuple
+from typing import List, Dict, Set, Tuple
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from sqlalchemy.orm import Session
-from sqlalchemy import func, and_
+from sqlalchemy import func
 
 from models import Note, Image
 from .condenser import SemanticCondenser, ExtractedFact, CondensationResult
 from .classifier import MemoryClassifier, ClassifiedMemory, GraphSignals, ClassifiedFact
+from .indexer_samples import (
+    SAMPLE_TEMPLATES,
+    determine_sample_type,
+    combine_facts_for_sample,
+)
 from ..models import TrainingSample, CondensedFact, IndexingRun, MemoryType
 
 logger = logging.getLogger(__name__)
@@ -47,35 +52,6 @@ class IndexingResult:
     stats: IndexingStats
     classified: ClassifiedMemory
     errors: List[str] = field(default_factory=list)
-
-
-# Training sample templates by type
-SAMPLE_TEMPLATES = {
-    "identity": [
-        ("Who am I?", "You are {content}"),
-        ("Tell me about myself.", "{content}"),
-    ],
-    "interests": [
-        ("What topics am I interested in?", "You frequently explore: {content}"),
-        ("What are my main interests?", "{content}"),
-    ],
-    "cognitive_style": [
-        ("How do I organize my thoughts?", "{content}"),
-        ("What's my thinking style?", "{content}"),
-    ],
-    "preferences": [
-        ("What are my preferences?", "{content}"),
-        ("How do I like things done?", "{content}"),
-    ],
-    "projects": [
-        ("What am I working on?", "{content}"),
-        ("What are my current projects?", "{content}"),
-    ],
-    "behaviors": [
-        ("What are my habits?", "{content}"),
-        ("What do I typically do?", "{content}"),
-    ],
-}
 
 
 class BrainIndexer:
@@ -393,10 +369,10 @@ class BrainIndexer:
         # Generate samples for each concept
         for concept, facts in by_concept.items():
             # Determine sample type based on facts
-            sample_type = self._determine_sample_type(facts)
+            sample_type = determine_sample_type(facts)
 
             # Combine facts into coherent output
-            combined_output = self._combine_facts_for_sample(facts)
+            combined_output = combine_facts_for_sample(facts)
 
             if not combined_output:
                 continue
@@ -423,37 +399,6 @@ class BrainIndexer:
 
         self.db.commit()
         return samples
-
-    def _determine_sample_type(self, facts: List[ClassifiedFact]) -> str:
-        """Determine the sample type based on facts."""
-        # Check classification reasons and fact types
-        reasons = [f.classification_reason for f in facts]
-        fact_types = [f.fact.fact_type for f in facts]
-
-        if any("identity" in r for r in reasons):
-            return "identity"
-        if any("preference" in r for r in reasons):
-            return "preferences"
-        if "relation" in fact_types:
-            return "projects"
-        if "entity" in fact_types:
-            return "interests"
-
-        return "behaviors"
-
-    def _combine_facts_for_sample(self, facts: List[ClassifiedFact]) -> str:
-        """Combine multiple facts into a coherent training output."""
-        if not facts:
-            return ""
-
-        # Simple combination - join fact texts
-        fact_texts = [f.fact.fact_text for f in facts if f.fact.fact_text]
-
-        if len(fact_texts) == 1:
-            return fact_texts[0]
-
-        # Combine with semicolons for multiple facts
-        return "; ".join(fact_texts[:5])  # Limit to 5 facts per sample
 
     def get_status(self) -> Dict:
         """Get current brain indexing status."""

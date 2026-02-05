@@ -8,9 +8,11 @@ Contains the core search algorithms:
 - ranking.py: Result ranking and scoring
 """
 
-from features.search.logic.fulltext import (
+from features.search.logic.fulltext_helpers import (
     parse_search_query,
     apply_date_filter,
+)
+from features.search.logic.fulltext import (
     search_notes_fulltext,
     search_images_fulltext,
     search_tags_fuzzy,
