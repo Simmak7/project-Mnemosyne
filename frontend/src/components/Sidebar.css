@@ -84,7 +84,6 @@
 .nav-item.active {
   background: var(--active-bg);
   color: var(--accent-color);
-  font-weight: 600;
 }
 
 .nav-item.active::before {
