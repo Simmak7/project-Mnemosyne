@@ -133,6 +133,15 @@ function ImageLightbox({
       // Don't handle shortcuts when editing
       if (isEditing) return;
 
+      // Don't handle single-key shortcuts when any input is focused (e.g. album name)
+      const activeEl = document.activeElement;
+      const isInputFocused = activeEl && (
+        activeEl.tagName === 'INPUT' ||
+        activeEl.tagName === 'TEXTAREA' ||
+        activeEl.isContentEditable
+      );
+      if (isInputFocused) return;
+
       switch (e.key) {
         case 'Escape':
           onClose();
@@ -256,7 +265,7 @@ function ImageLightbox({
               </div>
             ) : (
               <div className="lightbox-title-display">
-                <h2 className="lightbox-title">
+                <h2 className="lightbox-title" title={image.display_name || image.filename}>
                   {image.display_name || image.filename}
                 </h2>
                 <button
@@ -362,19 +371,22 @@ function ImageLightbox({
                 </div>
                 <div className="lightbox-notes">
                   {image.notes.filter(Boolean).map(note => (
-                    <div key={note.id} className="note-card">
+                    <div
+                      key={note.id}
+                      className="note-card"
+                      onClick={() => handleViewNote(note.id)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleViewNote(note.id)}
+                      role="button"
+                      tabIndex={0}
+                    >
                       <div className="note-title">{note.title || 'Untitled Note'}</div>
                       <div className="note-preview">
                         {(note.content || '').substring(0, 150)}
                         {(note.content || '').length > 150 && '...'}
                       </div>
-                      <button
-                        className="view-note-btn"
-                        onClick={() => handleViewNote(note.id)}
-                      >
-                        <span>View Note</span>
-                        <ExternalLink size={12} />
-                      </button>
+                      <div className="note-card-hint">
+                        Open note <ExternalLink size={10} />
+                      </div>
                     </div>
                   ))}
                 </div>

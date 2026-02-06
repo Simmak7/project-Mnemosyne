@@ -1,4 +1,5 @@
 ﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Float
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from pgvector.sqlalchemy import Vector
@@ -53,6 +54,7 @@ class Image(Base):
     blur_hash = Column(String(32), nullable=True)  # BlurHash string (e.g., "LEHV6nWB2yk8pyo0adR*.7kCMdnj")
     width = Column(Integer, nullable=True)  # Original image width
     height = Column(Integer, nullable=True)  # Original image height
+    file_size = Column(Integer, nullable=True)  # File size in bytes
     # Favorites and Trash (Phase 4)
     is_favorite = Column(Boolean, default=False, nullable=False)
     is_trashed = Column(Boolean, default=False, nullable=False)
@@ -359,7 +361,7 @@ class EmailChangeToken(Base):
 
 
 class UserPreferences(Base):
-    """User preferences for appearance and UI customization (Phase 3)."""
+    """User preferences for appearance, UI customization, and AI models."""
     __tablename__ = "user_preferences"
 
     id = Column(Integer, primary_key=True, index=True)
@@ -370,6 +372,11 @@ class UserPreferences(Base):
     font_size = Column(String(20), default="medium", nullable=False)
     sidebar_collapsed = Column(Boolean, default=False, nullable=False)
     default_view = Column(String(50), default="notes", nullable=False)
+    # AI Model preferences (null = use system default)
+    rag_model = Column(String(100), nullable=True)   # User's preferred RAG model
+    brain_model = Column(String(100), nullable=True)  # User's preferred Brain model
+    # Phase 4: Pinned brain topics for topic selection UI
+    pinned_brain_topics = Column(JSONB, default=list)  # ["cooking", "travel", ...]
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

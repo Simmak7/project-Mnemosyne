@@ -69,6 +69,7 @@ class ImageResponse(BaseModel):
     blur_hash: Optional[str] = None
     width: Optional[int] = None
     height: Optional[int] = None
+    file_size: Optional[int] = None  # File size in bytes
     # Favorites and Trash (Phase 4)
     is_favorite: bool = False
     is_trashed: bool = False
