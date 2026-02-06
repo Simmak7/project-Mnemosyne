@@ -14,7 +14,7 @@ function PhotoThumbnail({
   height,
   showFilename,
   showTags = true,
-  onClick,
+  onImageClick,
   onFavorite,
   onDelete,
   onRetry,
@@ -24,7 +24,6 @@ function PhotoThumbnail({
 }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
   const [albumBtnRect, setAlbumBtnRect] = useState(null);
   const albumBtnRef = useRef(null);
@@ -52,32 +51,35 @@ function PhotoThumbnail({
     setIsLoaded(true);
   }, []);
 
+  const handleClick = useCallback(() => {
+    onImageClick?.(image);
+  }, [onImageClick, image]);
+
   const handleFavoriteClick = useCallback((e) => {
     e.stopPropagation();
-    // Immediately toggle local state for instant feedback
     setLocalFavorite(prev => !prev);
-    onFavorite?.();
-  }, [onFavorite]);
+    onFavorite?.(image.id);
+  }, [onFavorite, image.id]);
 
   const handleDeleteClick = useCallback((e) => {
     e.stopPropagation();
-    onDelete?.();
-  }, [onDelete]);
+    onDelete?.(image.id);
+  }, [onDelete, image.id]);
 
   const handleRetryClick = useCallback((e) => {
     e.stopPropagation();
-    onRetry?.();
-  }, [onRetry]);
+    onRetry?.(image.id);
+  }, [onRetry, image.id]);
 
   const handleRestoreClick = useCallback((e) => {
     e.stopPropagation();
-    onRestore?.();
-  }, [onRestore]);
+    onRestore?.(image.id);
+  }, [onRestore, image.id]);
 
   const handlePermanentDeleteClick = useCallback((e) => {
     e.stopPropagation();
-    onPermanentDelete?.();
-  }, [onPermanentDelete]);
+    onPermanentDelete?.(image.id);
+  }, [onPermanentDelete, image.id]);
 
   const handleAlbumClick = useCallback((e) => {
     e.stopPropagation();
@@ -98,11 +100,9 @@ function PhotoThumbnail({
 
   return (
     <div
-      className={`photo-thumbnail ${orientation} ${isHovered ? 'hovered' : ''}`}
+      className={`photo-thumbnail ${orientation}`}
       style={{ width, height }}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
     >
       {/* Loading placeholder with blur hash (Phase 3) */}
       {!isLoaded && (
@@ -153,15 +153,15 @@ function PhotoThumbnail({
         </div>
       )}
 
-      {/* Favorite indicator */}
-      {localFavorite && !isHovered && (
+      {/* Favorite indicator — hidden on hover via CSS */}
+      {localFavorite && (
         <div className="favorite-indicator">
           <Heart size={14} fill="currentColor" />
         </div>
       )}
 
-      {/* Tags on thumbnail */}
-      {showTags && image.tags && image.tags.length > 0 && !isHovered && (
+      {/* Tags on thumbnail — hidden on hover via CSS */}
+      {showTags && image.tags && image.tags.length > 0 && (
         <div className="thumbnail-tags">
           {image.tags.slice(0, 2).map(tag => (
             <span key={tag.id} className="thumbnail-tag">
@@ -183,9 +183,8 @@ function PhotoThumbnail({
         </div>
       )}
 
-      {/* Hover overlay with actions */}
-      {isHovered && (
-        <div className="thumbnail-overlay">
+      {/* Hover overlay with actions — visibility toggled via CSS */}
+      <div className="thumbnail-overlay">
           {/* Top actions */}
           <div className="overlay-top">
             {isTrashView ? (
@@ -250,7 +249,6 @@ function PhotoThumbnail({
             )}
           </div>
         </div>
-      )}
     </div>
   );
 }

@@ -50,6 +50,8 @@
   position: relative;
   padding: var(--ng-space-4, 16px);
   padding-right: 70px; /* Space for timeline scrubber */
+  contain: layout style;
+  will-change: scroll-position;
 }
 
 /* Custom scrollbar - hidden since we have timeline scrubber */
