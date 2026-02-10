@@ -8,12 +8,15 @@
  * - PathFinder: Find paths between nodes
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Compass, Map, Image, GitBranch } from 'lucide-react';
+import { usePersistedState } from '../../../hooks/usePersistedState';
+import ErrorBoundary from '../../../components/ErrorBoundary';
 
 import { ViewSwitcher } from './ViewSwitcher';
 import { LeftPanel } from './LeftPanel';
 import { Inspector } from './Inspector';
+import { ShortcutHelp } from './ShortcutHelp';
 import { ExploreView } from '../views/ExploreView';
 import { MapView } from '../views/MapView';
 import { MediaView } from '../views/MediaView';
@@ -27,40 +30,54 @@ import './BrainGraph.css';
 
 // View configuration
 const VIEWS = [
-  { id: 'explore', label: 'Explore', icon: Compass },
   { id: 'map', label: 'Map', icon: Map },
+  { id: 'explore', label: 'Explore', icon: Compass },
   { id: 'media', label: 'Media', icon: Image },
   { id: 'pathfinder', label: 'Path', icon: GitBranch },
 ];
 
 export function BrainGraph({
   initialNodeId = null,
-  defaultView = 'explore',
+  defaultView = 'map',
   showLeftPanel = true,
   showInspector = true,
   onNavigate = null,
   className = '',
+  isVisible = true,
 }) {
   // Use provided navigate handler or log to console as fallback
   const navigate = onNavigate || ((path) => console.log('Navigate to:', path));
-  const [currentView, setCurrentView] = useState(defaultView);
+  const [currentView, setCurrentView] = usePersistedState('brain:view', defaultView);
+  const [showHelp, setShowHelp] = useState(false);
 
   // Initialize hooks
   const graphState = useGraphState((path) => navigate(path));
   const filters = useGraphFilters();
   const layout = useGraphLayout(currentView === 'map' ? 'map' : 'explore');
 
-  // Set initial focus node
+  // Set focus node when initialNodeId changes (e.g., navigating from Notes)
   useEffect(() => {
-    if (initialNodeId && !graphState.focusNodeId) {
+    if (initialNodeId) {
       graphState.setFocusNodeId(initialNodeId);
+      setCurrentView('explore'); // Deep-link → show neighborhood, not map
     }
-  }, [initialNodeId, graphState]);
+  }, [initialNodeId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Handle keyboard shortcuts
+  // Pause simulation when hidden, resume when visible
   useEffect(() => {
+    if (!layout.graphRef?.current) return;
+    if (isVisible) {
+      layout.graphRef.current.resumeAnimation?.();
+    } else {
+      layout.graphRef.current.pauseAnimation?.();
+    }
+  }, [isVisible, layout.graphRef]);
+
+  // Handle keyboard shortcuts (only when visible)
+  useEffect(() => {
+    if (!isVisible) return;
+
     const handleKeyDown = (e) => {
-      // Don't handle if typing in input
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
         return;
       }
@@ -68,16 +85,24 @@ export function BrainGraph({
       graphState.handleKeyDown(e);
       layout.handleLayoutKeyDown(e);
 
-      // View switching shortcuts
-      if (e.key === '1') setCurrentView('explore');
-      if (e.key === '2') setCurrentView('map');
+      // Center on focus node
+      if (e.key === 'c' || e.key === 'C') {
+        if (graphState.focusNodeId) layout.centerOnNode(graphState.focusNodeId);
+      }
+
+      // View switching shortcuts (matches tab order)
+      if (e.key === '1') setCurrentView('map');
+      if (e.key === '2') setCurrentView('explore');
       if (e.key === '3') setCurrentView('media');
       if (e.key === '4') setCurrentView('pathfinder');
+
+      // Help overlay
+      if (e.key === '?') setShowHelp((prev) => !prev);
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [graphState, layout]);
+  }, [graphState, layout, isVisible]);
 
   // Handle view change
   const handleViewChange = useCallback((viewId) => {
@@ -102,20 +127,23 @@ export function BrainGraph({
       graphState,
       filters,
       layout,
+      onViewChange: handleViewChange,
     };
 
+    let ViewComponent;
+    let extraProps = {};
     switch (currentView) {
-      case 'explore':
-        return <ExploreView {...viewProps} />;
-      case 'map':
-        return <MapView {...viewProps} onExploreNode={handleExploreNode} />;
-      case 'media':
-        return <MediaView {...viewProps} />;
-      case 'pathfinder':
-        return <PathFinderView {...viewProps} />;
-      default:
-        return <ExploreView {...viewProps} />;
+      case 'explore': ViewComponent = ExploreView; break;
+      case 'map': ViewComponent = MapView; extraProps = { onExploreNode: handleExploreNode }; break;
+      case 'media': ViewComponent = MediaView; break;
+      case 'pathfinder': ViewComponent = PathFinderView; break;
+      default: ViewComponent = ExploreView;
     }
+    return (
+      <ErrorBoundary>
+        <ViewComponent {...viewProps} {...extraProps} />
+      </ErrorBoundary>
+    );
   };
 
   return (
@@ -158,10 +186,14 @@ export function BrainGraph({
               graphState.setPathSource(node.id);
               setCurrentView('pathfinder');
             }}
+            edgeBreakdown={graphState.edgeBreakdown}
             isPinned={graphState.selectedNode && graphState.isPinned(graphState.selectedNode.id)}
           />
         )}
       </div>
+
+      {/* Keyboard Shortcut Help Overlay */}
+      <ShortcutHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
     </div>
   );
 }

@@ -130,6 +130,7 @@ class BrainQueryResponse(BaseModel):
     topics_matched: List[dict] = []
     conversation_id: Optional[int] = None
     message_id: Optional[int] = None
+    model_used: Optional[str] = None  # Which model generated this response
 
 
 class TopicMatch(BaseModel):
@@ -193,3 +194,36 @@ class BrainConversationUpdate(BaseModel):
     """Request to update a brain conversation."""
     title: Optional[str] = None
     is_archived: Optional[bool] = None
+
+
+# ============================================
+# Topic Selection Schemas (Phase 4)
+# ============================================
+
+class TopicScoreItem(BaseModel):
+    """A topic with its relevance score."""
+    file_key: str
+    title: str
+    token_count: int
+    score: float
+    is_auto_selected: bool  # Would be auto-selected based on score
+    is_pinned: bool  # User has pinned this topic
+
+
+class TopicScoresResponse(BaseModel):
+    """Response for topic scores endpoint."""
+    topics: List[TopicScoreItem]
+    pinned: List[str]  # List of pinned topic keys
+    token_budget: int  # Available token budget for topics
+    core_tokens_used: int  # Tokens used by core files
+
+
+class PinTopicRequest(BaseModel):
+    """Request to pin or unpin a topic."""
+    topic_key: str
+    pin: bool = True  # True to pin, False to unpin
+
+
+class PinnedTopicsResponse(BaseModel):
+    """Response after pinning/unpinning."""
+    pinned: List[str]  # Updated list of pinned topic keys

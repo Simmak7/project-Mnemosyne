@@ -22,6 +22,11 @@ class BrainConversation(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     is_archived = Column(Boolean, default=False)
 
+    # Phase 3: Long-term conversation memory
+    conversation_summary = Column(Text, nullable=True)  # Rolling summary of older messages
+    summary_updated_at = Column(DateTime(timezone=True), nullable=True)
+    messages_since_summary = Column(Integer, default=0)  # Triggers re-summarization at 5+
+
     messages = relationship(
         "BrainMessage",
         back_populates="conversation",

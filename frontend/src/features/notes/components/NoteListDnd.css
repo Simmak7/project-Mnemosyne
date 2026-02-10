@@ -1,0 +1,65 @@
+/* ===== Drag Overlay (ghost card) ===== */
+.note-drag-overlay {
+  opacity: 0.9;
+  transform: rotate(2deg);
+  pointer-events: none;
+  max-width: 320px;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+}
+
+.note-drag-overlay .note-card {
+  border: 1.5px solid var(--ng-accent-note, #fbbf24);
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+}
+
+/* ===== Sortable / Draggable wrappers ===== */
+.sortable-note-wrapper,
+.draggable-note-wrapper {
+  touch-action: none;
+}
+
+.sortable-note-wrapper.is-dragging .note-card,
+.draggable-note-wrapper.is-dragging .note-card {
+  outline: 2px dashed var(--ng-glass-border, rgba(255, 255, 255, 0.12));
+  outline-offset: 2px;
+}
+
+/* ===== Collection drop target highlights ===== */
+.collection-droppable.is-drag-over .collection-item {
+  background: rgba(251, 191, 36, 0.12);
+  border-color: var(--ng-accent-note, #fbbf24);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.2);
+}
+
+.collection-droppable.is-drag-over .collection-icon-placeholder,
+.collection-droppable.is-drag-over .collection-icon {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+/* ===== Drop feedback toast ===== */
+.note-drop-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background: var(--ng-glass-bg, rgba(20, 20, 30, 0.85));
+  border: 1px solid var(--ng-accent-note, #fbbf24);
+  border-radius: 8px;
+  color: var(--ng-text-primary, #fff);
+  font-size: 13px;
+  z-index: 9999;
+  animation: toast-in 0.25s ease-out, toast-out 0.3s ease-in 2.2s forwards;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes toast-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}

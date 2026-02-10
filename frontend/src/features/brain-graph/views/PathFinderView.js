@@ -18,10 +18,10 @@ export function PathFinderView({ graphState, filters, layout }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  // Source and target selection
-  const [sourceId, setSourceId] = useState('');
+  // Source and target selection (initialize from context menu "Find Path From")
+  const [sourceId, setSourceId] = useState(() => graphState.pathSourceId || '');
   const [targetId, setTargetId] = useState('');
-  const [sourceSearch, setSourceSearch] = useState('');
+  const [sourceSearch, setSourceSearch] = useState(() => graphState.pathSourceId || '');
   const [targetSearch, setTargetSearch] = useState('');
   const [showSourceDropdown, setShowSourceDropdown] = useState(false);
   const [showTargetDropdown, setShowTargetDropdown] = useState(false);
@@ -129,6 +129,14 @@ export function PathFinderView({ graphState, filters, layout }) {
       setTargetSearch('');
     }
   };
+
+  // Sync path source from context menu "Find Path From" action
+  useEffect(() => {
+    if (graphState.pathSourceId && graphState.pathSourceId !== sourceId) {
+      setSourceId(graphState.pathSourceId);
+      setSourceSearch(graphState.pathSourceId);
+    }
+  }, [graphState.pathSourceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Use selected node as source/target
   useEffect(() => {

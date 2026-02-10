@@ -1,6 +1,6 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const API_BASE = 'http://localhost:8000';
+import { api } from '../../../utils/api';
 
 /**
  * Hook for fetching and managing gallery images
@@ -28,58 +28,42 @@ export function useGalleryImages(options = {}) {
   } = useQuery({
     queryKey,
     queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
+      let path = `/images/?skip=${skip}&limit=${limit}`;
 
-      let url = `${API_BASE}/images/?skip=${skip}&limit=${limit}`;
-
-      // Adjust URL based on view
       if (view === 'favorites') {
-        url = `${API_BASE}/images/favorites/?skip=${skip}&limit=${limit}`;
+        path = `/images/favorites/?skip=${skip}&limit=${limit}`;
       } else if (view === 'trash') {
-        url = `${API_BASE}/images/trash/?skip=${skip}&limit=${limit}`;
+        path = `/images/trash/?skip=${skip}&limit=${limit}`;
       } else if (view === 'album' && albumId) {
-        url = `${API_BASE}/albums/${albumId}/images?skip=${skip}&limit=${limit}`;
+        path = `/albums/${albumId}/images?skip=${skip}&limit=${limit}`;
       }
 
-      const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          window.location.reload();
-        }
-        throw new Error('Failed to fetch images');
-      }
-
-      return response.json();
+      return api.get(path);
     },
     staleTime: 30000,
     refetchOnWindowFocus: false
   });
 
+  // Listen for gallery:refresh events to invalidate cache after upload
+  useEffect(() => {
+    const handleRefresh = () => {
+      queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
+    };
+
+    window.addEventListener('gallery:refresh', handleRefresh);
+    return () => window.removeEventListener('gallery:refresh', handleRefresh);
+  }, [queryClient]);
+
   // Toggle favorite mutation with optimistic updates
   const toggleFavorite = useMutation({
     mutationFn: async (imageId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/images/${imageId}/favorite`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to toggle favorite');
-      return { imageId, data: await response.json() };
+      const data = await api.post(`/images/${imageId}/favorite`);
+      return { imageId, data };
     },
     onMutate: async (imageId) => {
-      // Cancel any outgoing refetches to avoid overwriting optimistic update
       await queryClient.cancelQueries({ queryKey: ['gallery-images'] });
-
-      // Snapshot all gallery-images queries for potential rollback
       const previousQueries = queryClient.getQueriesData({ queryKey: ['gallery-images'] });
 
-      // Optimistically update all cached gallery-images queries
       queryClient.setQueriesData({ queryKey: ['gallery-images'] }, (oldData) => {
         if (!oldData || !Array.isArray(oldData)) return oldData;
         return oldData.map(img =>
@@ -87,19 +71,16 @@ export function useGalleryImages(options = {}) {
         );
       });
 
-      // Return context with previous data for rollback
       return { previousQueries, imageId };
     },
     onError: (err, imageId, context) => {
-      // Roll back to previous state on error
       if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
+        context.previousQueries.forEach(([qk, data]) => {
+          queryClient.setQueryData(qk, data);
         });
       }
     },
     onSuccess: (result) => {
-      // Update cache with actual server response (no refetch needed)
       const { imageId, data: updatedImage } = result;
       queryClient.setQueriesData({ queryKey: ['gallery-images'] }, (oldData) => {
         if (!oldData || !Array.isArray(oldData)) return oldData;
@@ -108,19 +89,12 @@ export function useGalleryImages(options = {}) {
         );
       });
     }
-    // No onSettled - we don't want to refetch and overwrite the update
   });
 
   // Move to trash mutation
   const moveToTrash = useMutation({
     mutationFn: async (imageId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/images/${imageId}/trash`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to move to trash');
-      return response.json();
+      return api.post(`/images/${imageId}/trash`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
@@ -130,13 +104,7 @@ export function useGalleryImages(options = {}) {
   // Restore from trash mutation
   const restoreFromTrash = useMutation({
     mutationFn: async (imageId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/images/${imageId}/restore`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to restore image');
-      return response.json();
+      return api.post(`/images/${imageId}/restore`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
@@ -146,13 +114,7 @@ export function useGalleryImages(options = {}) {
   // Permanent delete mutation
   const permanentDelete = useMutation({
     mutationFn: async (imageId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/images/${imageId}/permanent`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to delete image');
-      return response.json();
+      return api.delete(`/images/${imageId}/permanent`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
@@ -162,19 +124,9 @@ export function useGalleryImages(options = {}) {
   // Retry AI analysis mutation
   const retryAnalysis = useMutation({
     mutationFn: async (imageId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/retry-image/${imageId}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) throw new Error('Failed to retry analysis');
-      return response.json();
+      return api.post(`/retry-image/${imageId}`);
     },
     onSuccess: () => {
-      // Refetch after a delay to see updated status
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
       }, 2000);
@@ -184,17 +136,8 @@ export function useGalleryImages(options = {}) {
   // Rename image mutation with optimistic updates
   const renameImage = useMutation({
     mutationFn: async ({ imageId, displayName }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/images/${imageId}/rename`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ display_name: displayName })
-      });
-      if (!response.ok) throw new Error('Failed to rename image');
-      return { imageId, data: await response.json() };
+      const data = await api.put(`/images/${imageId}/rename`, { display_name: displayName });
+      return { imageId, data };
     },
     onMutate: async ({ imageId, displayName }) => {
       await queryClient.cancelQueries({ queryKey: ['gallery-images'] });
@@ -211,8 +154,8 @@ export function useGalleryImages(options = {}) {
     },
     onError: (err, variables, context) => {
       if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, data]) => {
-          queryClient.setQueryData(queryKey, data);
+        context.previousQueries.forEach(([qk, data]) => {
+          queryClient.setQueryData(qk, data);
         });
       }
     },
@@ -256,15 +199,7 @@ export function useGalleryTags() {
   } = useQuery({
     queryKey: ['gallery-tags'],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/tags/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch tags');
-      return response.json();
+      return api.get('/tags/');
     },
     staleTime: 60000
   });
@@ -276,33 +211,15 @@ export function useGalleryTags() {
  * Hook for searching gallery images
  */
 export function useGallerySearch() {
-  const queryClient = useQueryClient();
-
   const searchMutation = useMutation({
     mutationFn: async ({ query, searchType = 'text', limit = 50 }) => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
       const params = new URLSearchParams({
         q: query,
         search_type: searchType,
         limit: limit.toString()
       });
 
-      const response = await fetch(`${API_BASE}/images/search/?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          window.location.reload();
-        }
-        throw new Error('Search failed');
-      }
-
-      return response.json();
+      return api.get(`/images/search/?${params}`);
     }
   });
 

@@ -30,9 +30,10 @@ function NoteSearchBar({ resultCount, isLoading }) {
 
   // Sort options
   const sortOptions = [
-    { id: 'updated', label: 'Recently Updated' },
-    { id: 'created', label: 'Recently Created' },
-    { id: 'title', label: 'Title A-Z' }
+    { id: 'created', label: 'Date Created' },
+    { id: 'updated', label: 'Last Modified' },
+    { id: 'title', label: 'Title A-Z' },
+    { id: 'custom', label: 'Custom Order' }
   ];
 
   // Debounced search input
@@ -182,6 +183,13 @@ function NoteSearchBar({ resultCount, isLoading }) {
           </button>
         </div>
       </div>
+
+      {/* Custom order hint */}
+      {sortBy === 'custom' && (
+        <div className="custom-order-hint">
+          Drag notes to reorder
+        </div>
+      )}
     </div>
   );
 }

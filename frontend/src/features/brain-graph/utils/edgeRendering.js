@@ -23,6 +23,11 @@ export const EDGE_COLORS_DARK = {
     highlight: 'rgba(34, 211, 238, 0.8)',
     glow: 'rgba(34, 211, 238, 0.2)',
   },
+  source: {
+    base: 'rgba(251, 113, 133, 0.5)', // Rose for document sources
+    highlight: 'rgba(251, 113, 133, 0.8)',
+    glow: 'rgba(251, 113, 133, 0.2)',
+  },
   semantic: {
     base: 'rgba(129, 140, 248, 0.4)', // Violet
     highlight: 'rgba(129, 140, 248, 0.7)',
@@ -62,6 +67,11 @@ export const EDGE_COLORS_LIGHT = {
     highlight: 'rgba(14, 116, 144, 0.8)', // Cyan-700
     glow: 'rgba(8, 145, 178, 0.2)',
   },
+  source: {
+    base: 'rgba(225, 29, 72, 0.6)', // Rose-600
+    highlight: 'rgba(190, 18, 60, 0.8)', // Rose-700
+    glow: 'rgba(225, 29, 72, 0.2)',
+  },
   semantic: {
     base: 'rgba(99, 102, 241, 0.5)', // Indigo-500
     highlight: 'rgba(79, 70, 229, 0.7)', // Indigo-600
@@ -96,10 +106,12 @@ export function isLightTheme() {
 }
 
 /**
- * Get edge colors based on current theme
+ * Get edge colors based on current theme.
+ * Pass isLight to avoid per-edge DOM reads.
  */
-export function getThemedEdgeColors() {
-  return isLightTheme() ? EDGE_COLORS_LIGHT : EDGE_COLORS_DARK;
+export function getThemedEdgeColors(isLight) {
+  if (isLight === undefined) isLight = isLightTheme();
+  return isLight ? EDGE_COLORS_LIGHT : EDGE_COLORS_DARK;
 }
 
 // Dash patterns for different edge types
@@ -107,6 +119,7 @@ export const EDGE_DASH_PATTERNS = {
   wikilink: [], // Solid line
   tag: [5, 3], // Dashed
   image: [3, 3], // Short dash for image connections
+  source: [], // Solid line for document sources
   semantic: [2, 2], // Dotted
   mentions: [8, 4, 2, 4], // Dash-dot
   session: [4, 8], // Sparse dash
@@ -116,9 +129,9 @@ export const EDGE_DASH_PATTERNS = {
 /**
  * Get color scheme for an edge based on its type and current theme
  */
-export function getEdgeColor(edge) {
+export function getEdgeColor(edge, isLight) {
   const type = edge?.type || 'default';
-  const colors = getThemedEdgeColors();
+  const colors = getThemedEdgeColors(isLight);
   return colors[type] || colors.default;
 }
 
@@ -269,6 +282,7 @@ export function getEdgeLabel(edge) {
   const labels = {
     wikilink: 'links to',
     tag: 'tagged',
+    source: 'source',
     semantic: `${Math.round((edge.weight || 0) * 100)}% similar`,
     mentions: 'mentions',
     session: 'same session',

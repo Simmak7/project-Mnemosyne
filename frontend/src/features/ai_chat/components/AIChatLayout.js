@@ -47,6 +47,9 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
   // Handle initial context from deep linking (e.g., "Ask AI about this note")
   useEffect(() => {
     if (initialContext && onClearContext) {
+      // Start a fresh conversation
+      clearMessages();
+
       // Set the preview item
       setPreview({ type: initialContext.type, id: initialContext.id });
 
@@ -67,7 +70,7 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
         rightPanelRef.current.expand();
       }
     }
-  }, [initialContext, onClearContext, setPreview, rightCollapsed]);
+  }, [initialContext, onClearContext, setPreview, rightCollapsed, clearMessages]);
 
   // Collapse/expand handlers
   const handleCollapseLeft = useCallback(() => {

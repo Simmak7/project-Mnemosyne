@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Layout, Sparkles, Upload, Image, FileText } from 'lucide-react';
+import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Layout, Sparkles, Upload, Image, FileText, BookOpen, FileScan } from 'lucide-react';
 import Settings from './Settings';
 import './Sidebar.css';
 
@@ -9,17 +9,20 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
   const menuRef = useRef(null);
   const userSectionRef = useRef(null);
 
-  // Feature flag check for workspace
-  const workspaceEnabled = localStorage.getItem('ENABLE_WORKSPACE') !== 'false';
-  // Feature flag for new Neural Studio Upload
+  // Feature flags
+  const workspaceEnabled = localStorage.getItem('ENABLE_WORKSPACE') === 'true';
+  const journalEnabled = localStorage.getItem('ENABLE_JOURNAL') !== 'false';
   const newUploadEnabled = localStorage.getItem('ENABLE_NEW_UPLOAD') !== 'false';
+  const documentsEnabled = localStorage.getItem('ENABLE_DOCUMENTS') !== 'false';
 
   const navItems = [
     { id: 'upload', iconComponent: Upload, label: newUploadEnabled ? 'Studio' : 'Upload' },
     { id: 'gallery', iconComponent: Image, label: 'Gallery' },
     { id: 'notes', iconComponent: FileText, label: 'Notes' },
+    ...(documentsEnabled ? [{ id: 'documents', iconComponent: FileScan, label: 'Documents' }] : []),
     { id: 'graph', iconComponent: Brain, label: 'Brain' },
-    ...(workspaceEnabled ? [{ id: 'workspace', iconComponent: Layout, label: 'Workspace' }] : []),
+    ...(journalEnabled ? [{ id: 'journal', iconComponent: BookOpen, label: 'Journal' }] : []),
+    ...(workspaceEnabled && !journalEnabled ? [{ id: 'workspace', iconComponent: Layout, label: 'Workspace' }] : []),
     { id: 'chat', iconComponent: Sparkles, label: 'Mnemosyne' }
   ];
 

@@ -1,0 +1,92 @@
+/**
+ * Breadcrumbs.css - Navigation history trail
+ */
+
+.breadcrumbs {
+  position: absolute;
+  bottom: var(--ng-space-4, 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  z-index: 10;
+  max-width: 400px;
+  animation: breadcrumbs-in 0.2s ease;
+}
+
+@keyframes breadcrumbs-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.breadcrumbs__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.breadcrumbs__nav:hover:not(:disabled) {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.04));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.breadcrumbs__nav:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.breadcrumbs__trail {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.breadcrumbs__sep {
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.breadcrumbs__crumb {
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  background: none;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.breadcrumbs__crumb:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.04));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.breadcrumbs__crumb.is-current {
+  color: var(--ng-accent-ai, #818cf8);
+  font-weight: 600;
+}
+
+/* Light mode */
+[data-theme="light"] .breadcrumbs {
+  background: rgba(255, 255, 255, 0.9);
+}

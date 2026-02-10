@@ -270,7 +270,13 @@
 }
 
 [data-theme="light"] .capture-submit.active {
+  background: var(--ng-accent-ai, #6366f1);
+  border-color: var(--ng-accent-ai, #6366f1);
   color: #ffffff;
+}
+
+[data-theme="light"] .capture-submit.active:hover:not(:disabled) {
+  background: #4f46e5;
 }
 
 [data-theme="light"] .capture-keyboard-hint kbd {

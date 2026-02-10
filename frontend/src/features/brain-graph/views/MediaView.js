@@ -5,7 +5,7 @@
  * Filters out entities and other non-visual node types.
  */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { RefreshCw, Image, FileText, Tag } from 'lucide-react';
 
 import { GraphCanvas } from '../components/GraphCanvas';
@@ -16,7 +16,7 @@ import './MediaView.css';
 // Media-focused layers
 const MEDIA_LAYERS = ['notes', 'images', 'tags'];
 
-export function MediaView({ graphState, filters, layout }) {
+export function MediaView({ graphState, filters, layout, onViewChange }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [activeFilters, setActiveFilters] = useState({
@@ -40,6 +40,18 @@ export function MediaView({ graphState, filters, layout }) {
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, []);
+
+  // Proper refresh: refetch + reheat simulation
+  const handleRefresh = useCallback(() => {
+    refetch().then(() => {
+      if (layout.graphRef?.current) {
+        const nodes = layout.graphRef.current.graphData?.()?.nodes || [];
+        nodes.forEach((n) => { n.fx = undefined; n.fy = undefined; });
+        layout.graphRef.current.d3ReheatSimulation?.();
+        setTimeout(() => layout.fitToView(40), 600);
+      }
+    });
+  }, [refetch, layout]);
 
   // Toggle filter
   const toggleFilter = (type) => {
@@ -133,7 +145,7 @@ export function MediaView({ graphState, filters, layout }) {
         </button>
 
         <button
-          onClick={refetch}
+          onClick={handleRefresh}
           className="media-view__refresh"
           title="Refresh"
           disabled={isLoading}
@@ -167,6 +179,7 @@ export function MediaView({ graphState, filters, layout }) {
           filters={filters}
           width={dimensions.width}
           height={dimensions.height}
+          onViewChange={onViewChange}
         />
       )}
 

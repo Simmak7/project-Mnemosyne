@@ -5,16 +5,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
-
-const API_BASE = 'http://localhost:8000';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : '',
-  };
-};
+import { api } from '../../../utils/api';
 
 export function useMnemosyneBrain() {
   const [brainStatus, setBrainStatus] = useState(null);
@@ -27,14 +18,9 @@ export function useMnemosyneBrain() {
   // Fetch overall brain status
   const fetchBrainStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/status`, {
-        headers: getAuthHeaders(),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setBrainStatus(data);
-        return data;
-      }
+      const data = await api.get('/mnemosyne/status');
+      setBrainStatus(data);
+      return data;
     } catch (err) {
       console.error('Failed to fetch brain status:', err);
     }
@@ -46,18 +32,7 @@ export function useMnemosyneBrain() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/build`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ full_rebuild: fullRebuild }),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || 'Build failed');
-      }
-
-      const data = await response.json();
+      const data = await api.post('/mnemosyne/build', { full_rebuild: fullRebuild });
       setBuildStatus(data);
 
       // Start polling for progress
@@ -75,14 +50,9 @@ export function useMnemosyneBrain() {
   // Fetch build status
   const fetchBuildStatus = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/build/status`, {
-        headers: getAuthHeaders(),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setBuildStatus(data);
-        return data;
-      }
+      const data = await api.get('/mnemosyne/build/status');
+      setBuildStatus(data);
+      return data;
     } catch (err) {
       console.error('Failed to fetch build status:', err);
     }
@@ -115,14 +85,9 @@ export function useMnemosyneBrain() {
   // Fetch brain files list
   const fetchBrainFiles = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/files`, {
-        headers: getAuthHeaders(),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setBrainFiles(data);
-        return data;
-      }
+      const data = await api.get('/mnemosyne/files');
+      setBrainFiles(data);
+      return data;
     } catch (err) {
       console.error('Failed to fetch brain files:', err);
     }
@@ -132,12 +97,7 @@ export function useMnemosyneBrain() {
   // Fetch single brain file
   const fetchBrainFile = useCallback(async (fileKey) => {
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/files/${fileKey}`, {
-        headers: getAuthHeaders(),
-      });
-      if (response.ok) {
-        return await response.json();
-      }
+      return await api.get(`/mnemosyne/files/${fileKey}`);
     } catch (err) {
       console.error('Failed to fetch brain file:', err);
     }
@@ -147,18 +107,7 @@ export function useMnemosyneBrain() {
   // Update brain file content
   const updateBrainFile = useCallback(async (fileKey, content) => {
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/files/${fileKey}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.detail || 'Update failed');
-      }
-
-      return await response.json();
+      return await api.put(`/mnemosyne/files/${fileKey}`, { content });
     } catch (err) {
       setError(err.message);
       throw err;

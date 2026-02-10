@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const API_BASE = 'http://localhost:8000';
+import { api } from '../../../utils/api';
 
 /**
  * Hook for fetching and managing note collections
@@ -17,42 +16,14 @@ export function useCollections() {
     refetch
   } = useQuery({
     queryKey: ['collections'],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/collections/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          window.location.reload();
-        }
-        throw new Error('Failed to fetch collections');
-      }
-
-      return response.json();
-    },
+    queryFn: () => api.get('/collections/'),
     staleTime: 30000
   });
 
   // Create collection mutation
   const createCollection = useMutation({
     mutationFn: async ({ name, description, icon, color }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/collections/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, description, icon, color })
-      });
-      if (!response.ok) throw new Error('Failed to create collection');
-      return response.json();
+      return api.post('/collections/', { name, description, icon, color });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
@@ -62,17 +33,7 @@ export function useCollections() {
   // Update collection mutation
   const updateCollection = useMutation({
     mutationFn: async ({ collectionId, name, description, icon, color }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/collections/${collectionId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, description, icon, color })
-      });
-      if (!response.ok) throw new Error('Failed to update collection');
-      return response.json();
+      return api.put(`/collections/${collectionId}`, { name, description, icon, color });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
@@ -82,13 +43,7 @@ export function useCollections() {
   // Delete collection mutation
   const deleteCollection = useMutation({
     mutationFn: async (collectionId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/collections/${collectionId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to delete collection');
-      return true;
+      return api.delete(`/collections/${collectionId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
@@ -98,41 +53,24 @@ export function useCollections() {
   // Add note to collection mutation
   const addNoteToCollection = useMutation({
     mutationFn: async ({ collectionId, noteId }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/collections/${collectionId}/notes`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ note_id: noteId })
-      });
-      if (!response.ok) throw new Error('Failed to add note to collection');
-      return response.json();
+      return api.post(`/collections/${collectionId}/notes`, { note_id: noteId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
       queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] });
+      queryClient.invalidateQueries({ queryKey: ['note-collections'] });
     }
   });
 
   // Remove note from collection mutation
   const removeNoteFromCollection = useMutation({
     mutationFn: async ({ collectionId, noteId }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(
-        `${API_BASE}/collections/${collectionId}/notes/${noteId}`,
-        {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
-      if (!response.ok) throw new Error('Failed to remove note from collection');
-      return true;
+      return api.delete(`/collections/${collectionId}/notes/${noteId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['collections'] });
       queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] });
+      queryClient.invalidateQueries({ queryKey: ['note-collections'] });
     }
   });
 
@@ -164,19 +102,7 @@ export function useCollectionNotes(collectionId) {
     error
   } = useQuery({
     queryKey: ['collection', collectionId],
-    queryFn: async () => {
-      if (!collectionId) return null;
-
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/collections/${collectionId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch collection');
-      return response.json();
-    },
+    queryFn: () => collectionId ? api.get(`/collections/${collectionId}`) : null,
     enabled: !!collectionId,
     staleTime: 30000
   });
@@ -201,19 +127,7 @@ export function useNoteCollections(noteId) {
     error
   } = useQuery({
     queryKey: ['note-collections', noteId],
-    queryFn: async () => {
-      if (!noteId) return [];
-
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/collections/note/${noteId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch note collections');
-      return response.json();
-    },
+    queryFn: () => noteId ? api.get(`/collections/note/${noteId}`) : [],
     enabled: !!noteId,
     staleTime: 30000
   });

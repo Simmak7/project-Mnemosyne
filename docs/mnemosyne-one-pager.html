@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mnemosyne — Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #08080d;
+    color: #e2e2ea;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .page {
+    width: 1000px;
+    margin: 0 auto;
+    padding: 48px 52px;
+    position: relative;
+    background: #0c0c14;
+    min-height: 100vh;
+  }
+
+  /* Subtle grid background */
+  .page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  /* Glow orbs */
+  .glow-1 { position: absolute; top: -80px; left: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(124,92,252,0.12), transparent 70%); pointer-events: none; }
+  .glow-2 { position: absolute; bottom: -80px; right: -80px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(34,211,238,0.08), transparent 70%); pointer-events: none; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+  }
+  .logo-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 6px; }
+  .logo-icon { font-size: 42px; }
+  .logo-text {
+    font-size: 44px; font-weight: 900; letter-spacing: -1.5px;
+    background: linear-gradient(135deg, #7c5cfc 0%, #22d3ee 50%, #7c5cfc 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: shimmer 6s ease-in-out infinite;
+  }
+  @keyframes shimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+
+  .subtitle {
+    font-size: 15px; color: #8888a0; font-weight: 400; letter-spacing: 0.5px;
+  }
+  .subtitle strong { color: #b0a0ff; font-weight: 600; }
+
+  /* Pill badges */
+  .pills { display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+  .pill {
+    padding: 5px 16px; border-radius: 20px; font-size: 11px; font-weight: 600;
+    border: 1px solid; letter-spacing: 0.3px;
+  }
+  .pill-purple { background: rgba(124,92,252,0.1); color: #9d85fd; border-color: rgba(124,92,252,0.25); }
+  .pill-green { background: rgba(52,211,153,0.1); color: #34d399; border-color: rgba(52,211,153,0.25); }
+  .pill-cyan { background: rgba(34,211,238,0.1); color: #22d3ee; border-color: rgba(34,211,238,0.25); }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: #555570; margin-bottom: 14px; padding-left: 2px;
+  }
+
+  /* Input cards row */
+  .input-row {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin-bottom: 20px; position: relative; z-index: 1;
+  }
+  .input-card {
+    background: linear-gradient(135deg, #14142a, #1a1a30);
+    border: 1px solid #2a2a44;
+    border-radius: 14px; padding: 20px 16px; text-align: center;
+    position: relative; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .input-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(124,92,252,0.15);
+  }
+  .input-card .ic-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+  .input-card .ic-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .input-card .ic-desc { font-size: 11px; color: #8888a0; line-height: 1.5; }
+  .input-card .ic-glow {
+    position: absolute; top: -20px; right: -20px; width: 80px; height: 80px;
+    border-radius: 50%; opacity: 0.15; pointer-events: none;
+  }
+  .planned-badge {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(244,114,182,0.15); color: #f472b6;
+    font-size: 9px; font-weight: 700; padding: 2px 8px; border-radius: 8px;
+    border: 1px solid rgba(244,114,182,0.3);
+  }
+
+  /* Flow connector */
+  .flow-connector {
+    display: flex; align-items: center; justify-content: center;
+    margin: 6px 0 16px; position: relative; z-index: 1;
+  }
+  .flow-line { width: 2px; height: 28px; background: linear-gradient(180deg, #7c5cfc44, #7c5cfc); border-radius: 2px; }
+  .flow-arrow { width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 10px solid #7c5cfc; }
+  .flow-label {
+    position: absolute; right: calc(50% - 180px); top: 50%; transform: translateY(-50%);
+    font-size: 10px; color: #7c5cfc; font-weight: 600; letter-spacing: 0.5px;
+    background: #0c0c14; padding: 0 8px;
+  }
+
+  /* Processing engine */
+  .engine {
+    background: linear-gradient(135deg, #1a1030, #151528);
+    border: 1px solid #3a2a6a;
+    border-radius: 16px; padding: 24px 28px;
+    margin-bottom: 20px; position: relative; z-index: 1; overflow: hidden;
+  }
+  .engine::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #7c5cfc, #22d3ee, #7c5cfc);
+    background-size: 200% 100%;
+    animation: engineGlow 4s linear infinite;
+  }
+  @keyframes engineGlow { 0%{background-position:0% 0%} 100%{background-position:200% 0%} }
+
+  .engine-title { font-size: 16px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .engine-title span { color: #9d85fd; }
+
+  .pipeline {
+    display: flex; align-items: center; gap: 0; justify-content: space-between;
+  }
+  .pipe-step {
+    flex: 1; text-align: center; padding: 12px 8px;
+    background: rgba(124,92,252,0.06); border-radius: 10px;
+    border: 1px solid rgba(124,92,252,0.12);
+    position: relative;
+  }
+  .pipe-step .ps-icon { font-size: 22px; margin-bottom: 6px; display: block; }
+  .pipe-step .ps-label { font-size: 11px; font-weight: 600; color: #ccc; }
+  .pipe-step .ps-sub { font-size: 9px; color: #666; margin-top: 2px; }
+  .pipe-arrow {
+    font-size: 18px; color: #7c5cfc; flex-shrink: 0; padding: 0 4px;
+  }
+
+  /* Auto-generation badges */
+  .auto-row {
+    display: flex; gap: 10px; margin-top: 16px; justify-content: center;
+  }
+  .auto-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 10px; font-size: 11px; font-weight: 600;
+  }
+  .auto-badge.tags { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+  .auto-badge.links { background: rgba(34,211,238,0.1); color: #22d3ee; border: 1px solid rgba(34,211,238,0.2); }
+  .auto-badge.source { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.2); }
+
+  /* Storage */
+  .storage {
+    background: linear-gradient(135deg, #101020, #151528);
+    border: 1px solid #2a2a44; border-radius: 16px;
+    padding: 20px 28px; margin-bottom: 20px;
+    position: relative; z-index: 1;
+  }
+  .storage-title { font-size: 13px; font-weight: 700; color: #8888a0; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .storage-items { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .storage-item {
+    padding: 8px 16px; border-radius: 10px; font-size: 11px; font-weight: 500;
+    background: rgba(255,255,255,0.04); border: 1px solid #2a2a44; color: #aaa;
+  }
+
+  /* Output row */
+  .output-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    position: relative; z-index: 1;
+  }
+  .output-card {
+    border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+  }
+  .output-card.brain {
+    background: linear-gradient(135deg, #0a1a2a, #0f2035);
+    border: 1px solid rgba(34,211,238,0.25);
+  }
+  .output-card.ai {
+    background: linear-gradient(135deg, #1a0a2a, #200f35);
+    border: 1px solid rgba(124,92,252,0.25);
+  }
+  .output-card .oc-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .output-card .oc-title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .output-card .oc-desc { font-size: 12px; color: #8888a0; line-height: 1.6; margin-bottom: 14px; }
+
+  .feature-list { display: flex; flex-direction: column; gap: 6px; }
+  .feature-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: #bbb; padding: 5px 10px;
+    background: rgba(255,255,255,0.03); border-radius: 8px;
+  }
+  .feature-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+  /* AI Brain sub-section */
+  .ai-modes {
+    display: flex; gap: 8px; margin-top: 14px;
+  }
+  .ai-mode {
+    flex: 1; padding: 12px; border-radius: 10px; text-align: center;
+  }
+  .ai-mode.rag {
+    background: rgba(124,92,252,0.08); border: 1px solid rgba(124,92,252,0.2);
+  }
+  .ai-mode.brain-md {
+    background: rgba(157,133,253,0.08); border: 1px solid rgba(157,133,253,0.2);
+  }
+  .ai-mode .am-title { font-size: 12px; font-weight: 700; margin-bottom: 3px; }
+  .ai-mode .am-desc { font-size: 10px; color: #777; line-height: 1.4; }
+
+  /* .md file structure */
+  .md-files {
+    display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .md-file {
+    padding: 3px 10px; border-radius: 6px; font-size: 10px;
+    font-family: 'Courier New', monospace; font-weight: 600;
+    background: rgba(157,133,253,0.1); color: #9d85fd;
+    border: 1px solid rgba(157,133,253,0.2);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center; margin-top: 32px; position: relative; z-index: 1;
+  }
+  .footer-lock {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 28px; border-radius: 30px;
+    background: linear-gradient(135deg, rgba(52,211,153,0.08), rgba(34,211,238,0.08));
+    border: 1px solid rgba(52,211,153,0.2);
+    font-size: 14px; font-weight: 700; color: #34d399;
+  }
+  .footer-sub {
+    font-size: 11px; color: #555; margin-top: 12px; letter-spacing: 0.3px;
+  }
+
+  /* Connector splits */
+  .split-connector {
+    display: flex; justify-content: center; margin: 6px 0 16px;
+    position: relative; z-index: 1;
+  }
+  .split-v { width: 2px; height: 20px; background: #7c5cfc; }
+  .split-h {
+    position: relative; height: 2px; width: 60%;
+    background: linear-gradient(90deg, transparent, #7c5cfc 20%, #7c5cfc 80%, transparent);
+    margin-top: 10px;
+  }
+  .split-h::before, .split-h::after {
+    content: ''; position: absolute; bottom: -10px;
+    width: 2px; height: 12px; background: #7c5cfc;
+  }
+  .split-h::before { left: 25%; }
+  .split-h::after { right: 25%; }
+  .split-arrows {
+    display: flex; justify-content: space-around; width: 60%; margin: 0 auto;
+    padding: 0 10%;
+  }
+  .split-arr {
+    width: 0; height: 0;
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-top: 9px solid #7c5cfc;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="glow-1"></div>
+  <div class="glow-2"></div>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <span class="logo-icon">🏛</span>
+      <span class="logo-text">Mnemosyne</span>
+    </div>
+    <div class="subtitle">AI-Powered Note-Taking with <strong>RAG</strong> · 100% Local on Your PC</div>
+    <div class="pills">
+      <span class="pill pill-purple">🔒 Local-First</span>
+      <span class="pill pill-green">🤖 AI-Organised</span>
+      <span class="pill pill-cyan">🧠 Knowledge Graph</span>
+    </div>
+  </div>
+
+  <!-- INPUT LAYER -->
+  <div class="section-label">📥 INPUT LAYER — How Knowledge Enters</div>
+  <div class="input-row">
+    <div class="input-card">
+      <div class="ic-glow" style="background: radial-gradient(circle, #34d399, transparent);"></div>
+      <span class="ic-icon">📸</span>
+      <div class="ic-title" style="color: #34d399;">Image Analysis</div>
+      <div class="ic-desc">Upload photos, diagrams, handwriting. AI extracts & creates notes with optional custom prompts.</div>
+    </div>
+    <div class="input-card">
+      <div class="ic-glow" style="background: radial-gradient(circle, #7c5cfc, transparent);"></div>
+      <span class="ic-icon">✍️</span>
+      <div class="ic-title" style="color: #9d85fd;">Manual Notes</div>
+      <div class="ic-desc">Create notes directly. Full control over content, tags, and wikilinks.</div>
+    </div>
+    <div class="input-card">
+      <div class="ic-glow" style="background: radial-gradient(circle, #f59e0b, transparent);"></div>
+      <span class="ic-icon">📅</span>
+      <div class="ic-title" style="color: #f59e0b;">Daily Journal</div>
+      <div class="ic-desc">Fast capture throughout the day. Tasks, remarks, ideas appended to daily notes.</div>
+    </div>
+    <div class="input-card">
+      <div class="ic-glow" style="background: radial-gradient(circle, #f472b6, transparent);"></div>
+      <span class="planned-badge">PLANNED</span>
+      <span class="ic-icon">📄</span>
+      <div class="ic-title" style="color: #f472b6;">PDF Import</div>
+      <div class="ic-desc">Upload PDFs. AI extracts data, suggests tags & links for approval.</div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="flow-connector">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="flow-line"></div>
+      <div class="flow-arrow"></div>
+    </div>
+    <span class="flow-label">all inputs feed into →</span>
+  </div>
+
+  <!-- PROCESSING ENGINE -->
+  <div class="section-label">⚙️ AI PROCESSING ENGINE</div>
+  <div class="engine">
+    <div class="engine-title"><span>⚙️</span> AI Processing Pipeline</div>
+    <div class="pipeline">
+      <div class="pipe-step">
+        <span class="ps-icon">🔍</span>
+        <div class="ps-label">Analyse</div>
+        <div class="ps-sub">Content extraction</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <span class="ps-icon">📝</span>
+        <div class="ps-label">Structure</div>
+        <div class="ps-sub">Note formatting</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <span class="ps-icon">🏷️</span>
+        <div class="ps-label">Auto-Tag</div>
+        <div class="ps-sub">#topic detection</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <span class="ps-icon">🔗</span>
+        <div class="ps-label">Auto-Link</div>
+        <div class="ps-sub">[[wikilink]] creation</div>
+      </div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step">
+        <span class="ps-icon">📐</span>
+        <div class="ps-label">Index</div>
+        <div class="ps-sub">Vector + graph</div>
+      </div>
+    </div>
+    <div class="auto-row">
+      <div class="auto-badge tags">🏷️ Auto #Tags</div>
+      <div class="auto-badge links">🔗 Auto [[Wikilinks]]</div>
+      <div class="auto-badge source">📎 Source Links</div>
+    </div>
+  </div>
+
+  <!-- CONNECTOR -->
+  <div class="flow-connector">
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="flow-line"></div>
+      <div class="flow-arrow"></div>
+    </div>
+  </div>
+
+  <!-- STORAGE -->
+  <div class="storage">
+    <div class="storage-title">💾 Knowledge Base (Local Storage)</div>
+    <div class="storage-items">
+      <div class="storage-item">📝 Notes + Metadata</div>
+      <div class="storage-item">🏷️ Tags & Wikilinks</div>
+      <div class="storage-item">📎 Source Links</div>
+      <div class="storage-item">🧮 Vector Embeddings</div>
+      <div class="storage-item">📁 .md Files (AI Brain)</div>
+    </div>
+  </div>
+
+  <!-- SPLIT CONNECTOR -->
+  <div class="split-connector">
+    <div style="display:flex;flex-direction:column;align-items:center;width:60%;">
+      <div class="split-v"></div>
+      <div class="split-h"></div>
+      <div class="split-arrows">
+        <div class="split-arr"></div>
+        <div class="split-arr"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTPUT LAYER -->
+  <div class="section-label">🎯 OUTPUT LAYER — How You Access Knowledge</div>
+  <div class="output-row">
+    <!-- Brain -->
+    <div class="output-card brain">
+      <span class="oc-icon">🧠</span>
+      <div class="oc-title" style="color: #22d3ee;">Brain</div>
+      <div class="oc-desc">Visual knowledge graph of all notes and connections. The primary way to navigate, search, and discover.</div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="feature-dot" style="background:#22d3ee;"></div>Interactive node-based graph</div>
+        <div class="feature-item"><div class="feature-dot" style="background:#22d3ee;"></div>Click nodes to open notes</div>
+        <div class="feature-item"><div class="feature-dot" style="background:#22d3ee;"></div>Discover topic clusters</div>
+        <div class="feature-item"><div class="feature-dot" style="background:#22d3ee;"></div>Filter by tags, date, type</div>
+        <div class="feature-item"><div class="feature-dot" style="background:#22d3ee;"></div>Find hidden connections</div>
+      </div>
+    </div>
+
+    <!-- Mnemosyne AI -->
+    <div class="output-card ai">
+      <span class="oc-icon">🤖</span>
+      <div class="oc-title" style="color: #9d85fd;">Mnemosyne AI</div>
+      <div class="oc-desc">Ask questions about your notes. Get answers grounded in your personal knowledge base.</div>
+      <div class="ai-modes">
+        <div class="ai-mode rag">
+          <div class="am-title" style="color:#7c5cfc;">🔍 RAG Search</div>
+          <div class="am-desc">Precise retrieval from vector store. Find specific notes & answers.</div>
+        </div>
+        <div class="ai-mode brain-md">
+          <div class="am-title" style="color:#9d85fd;">🧬 AI Brain</div>
+          <div class="am-desc">Conversational AI with full context. Cross-topic insights & synthesis.</div>
+        </div>
+      </div>
+      <div class="md-files">
+        <span class="md-file">askimap.md</span>
+        <span class="md-file">memory.md</span>
+        <span class="md-file">soul.md</span>
+        <span class="md-file">topics/*.md</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-lock">🔒 100% Local · Your Data Never Leaves Your Machine</div>
+    <div class="footer-sub">Mnemosyne — Your memory, your knowledge, your machine.</div>
+  </div>
+</div>
+</body>
+</html>

@@ -27,6 +27,9 @@ class UserPreferencesResponse(BaseModel):
     font_size: str
     sidebar_collapsed: bool
     default_view: str
+    # AI Model preferences (null = use system default)
+    rag_model: Optional[str] = None
+    brain_model: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -42,6 +45,9 @@ class UserPreferencesUpdate(BaseModel):
     font_size: Optional[Literal["small", "medium", "large"]] = None
     sidebar_collapsed: Optional[bool] = None
     default_view: Optional[Literal["notes", "gallery", "graph", "buckets"]] = None
+    # AI Model preferences (null = use system default, empty string = reset to default)
+    rag_model: Optional[str] = None
+    brain_model: Optional[str] = None
 
 
 class PreferencesOptions(BaseModel):

@@ -319,6 +319,96 @@ def find_unlinked_mentions(
         raise
 
 
+def semantic_search_document_chunks(
+    db: Session,
+    query: str,
+    owner_id: int,
+    limit: int = 10,
+    threshold: float = 0.5
+) -> List[Dict[str, Any]]:
+    """
+    Search document chunks by semantic similarity to a query.
+
+    Generates a query embedding and finds document chunks with similar
+    embeddings using cosine similarity via pgvector.
+
+    Args:
+        db: Database session
+        query: Search query text
+        owner_id: User ID for multi-tenant filtering
+        limit: Maximum results to return
+        threshold: Minimum similarity threshold (0.0-1.0)
+
+    Returns:
+        List of document chunk dicts sorted by similarity
+    """
+    logger.info(f"Document chunk search: owner={owner_id}, query='{query[:50]}...'")
+
+    query_embedding = generate_embedding(query)
+    if not query_embedding:
+        logger.error("Failed to generate query embedding for document search")
+        return []
+
+    embedding_str = '[' + ','.join(str(x) for x in query_embedding) + ']'
+
+    try:
+        query_text = text("""
+            SELECT
+                dc.id,
+                dc.document_id,
+                dc.content,
+                dc.chunk_index,
+                dc.page_number,
+                d.filename,
+                d.display_name,
+                d.ai_summary,
+                1 - (dc.embedding <=> CAST(:query_embedding AS vector)) AS similarity
+            FROM document_chunks dc
+            JOIN documents d ON dc.document_id = d.id
+            WHERE
+                d.owner_id = :owner_id
+                AND d.is_trashed = false
+                AND dc.embedding IS NOT NULL
+                AND (1 - (dc.embedding <=> CAST(:query_embedding AS vector))) >= :threshold
+            ORDER BY similarity DESC
+            LIMIT :limit
+        """)
+
+        result = db.execute(
+            query_text,
+            {
+                "query_embedding": embedding_str,
+                "owner_id": owner_id,
+                "threshold": threshold,
+                "limit": limit,
+            }
+        )
+
+        rows = result.fetchall()
+        results = [
+            {
+                "id": row[0],
+                "document_id": row[1],
+                "content": row[2],
+                "chunk_index": row[3],
+                "page_number": row[4],
+                "filename": row[5],
+                "display_name": row[6] or row[5],
+                "document_summary": row[7],
+                "similarity": float(row[8]),
+                "type": "document_chunk",
+            }
+            for row in rows
+        ]
+
+        logger.info(f"Document chunk search returned {len(results)} results")
+        return results
+
+    except Exception as e:
+        logger.error(f"Document chunk search failed: {str(e)}", exc_info=True)
+        return []
+
+
 def get_embedding_coverage(db: Session, owner_id: int) -> Dict[str, Any]:
     """
     Get statistics about embedding coverage for a user's notes.

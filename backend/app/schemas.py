@@ -124,6 +124,8 @@ class NoteEnhanced(BaseModel):
     is_favorite: bool = False     # Whether the note is favorited
     is_reviewed: bool = False     # Whether the note has been reviewed
     is_trashed: bool = False      # Whether the note is in trash
+    is_standalone: bool = True    # Whether note was manually created
+    source: str = 'manual'        # How note was created: 'manual', 'image_analysis', 'document_analysis'
 
     class Config:
         from_attributes = True

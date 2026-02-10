@@ -3,9 +3,10 @@
  * Manages analysis configuration state with localStorage persistence
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { DEFAULT_MODEL, isValidModelKey } from '../utils/modelMapper';
 import { UPLOAD_FLAGS } from '../utils/featureFlags';
+import { API_URL } from '../../../utils/api';
 
 const STORAGE_KEY = 'mnemosyne_upload_config';
 
@@ -65,6 +66,28 @@ function saveConfig(config) {
  */
 export function useAnalysisConfig() {
   const [config, setConfig] = useState(loadConfig);
+  const [visionModel, setVisionModel] = useState(null);
+  const fetchedRef = useRef(false);
+
+  // Fetch active vision model from /models endpoint
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetch(`${API_URL}/models`, { credentials: 'include' })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) return;
+        const modelId = data.current_vision_model;
+        const modelInfo = data.models?.find(m => m.id === modelId);
+        setVisionModel({
+          id: modelId,
+          name: modelInfo?.name || modelId,
+          parameters: modelInfo?.parameters || '',
+          is_available: modelInfo?.is_available ?? true,
+        });
+      })
+      .catch(() => {});
+  }, []);
 
   // Persist config changes
   useEffect(() => {
@@ -165,7 +188,6 @@ export function useAnalysisConfig() {
     return (
       config.userPrompt.trim() !== '' ||
       config.preset !== null ||
-      config.model !== DEFAULT_MODEL ||
       config.analysisDepth !== 'standard' ||
       config.autoTagging !== true ||
       config.maxTags !== 5 ||
@@ -179,10 +201,6 @@ export function useAnalysisConfig() {
    */
   const getConfigSummary = useCallback(() => {
     const parts = [];
-
-    if (config.model !== DEFAULT_MODEL) {
-      parts.push(`Model: ${config.model}`);
-    }
 
     if (config.preset) {
       parts.push(`Preset: ${config.preset}`);
@@ -210,6 +228,7 @@ export function useAnalysisConfig() {
   return {
     // State
     config,
+    visionModel,
 
     // Individual setters
     setModel,

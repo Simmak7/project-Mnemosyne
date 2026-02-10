@@ -1,0 +1,111 @@
+/**
+ * StatsBreakdown.css - Detailed stats panel styling
+ */
+
+.stats-breakdown {
+  position: absolute;
+  bottom: var(--ng-space-4, 16px);
+  left: var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-lg, 8px);
+  padding: var(--ng-space-3, 12px);
+  z-index: 10;
+  min-width: 200px;
+}
+
+.stats-breakdown__summary {
+  display: flex;
+  gap: var(--ng-space-4, 16px);
+  padding-bottom: var(--ng-space-2, 8px);
+  margin-bottom: var(--ng-space-2, 8px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.stats-breakdown__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stats-breakdown__stat-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  font-variant-numeric: tabular-nums;
+}
+
+.stats-breakdown__stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.stats-breakdown__section {
+  margin-top: var(--ng-space-2, 8px);
+}
+
+.stats-breakdown__section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+  margin-bottom: var(--ng-space-1, 4px);
+}
+
+.stats-breakdown__bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 20px;
+}
+
+.stats-breakdown__bar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.stats-breakdown__bar-label {
+  font-size: 10px;
+  color: var(--ng-text-secondary, #d1d5db);
+  width: 56px;
+  text-transform: capitalize;
+}
+
+.stats-breakdown__bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--ng-charcoal-700, #1e1e1e);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.stats-breakdown__bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  opacity: 0.8;
+}
+
+.stats-breakdown__bar-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ng-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+  width: 28px;
+  text-align: right;
+}
+
+/* Light mode */
+[data-theme="light"] .stats-breakdown {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme="light"] .stats-breakdown__bar-track {
+  background: rgba(0, 0, 0, 0.08);
+}

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import ReactDOM from 'react-dom';
 import { FolderPlus, Check, X, Plus } from 'lucide-react';
 import { useCollections, useNoteCollections } from '../hooks/useCollections';
 import './CollectionPicker.css';
@@ -137,7 +138,7 @@ function CollectionPicker({ noteId, onClose }) {
         <FolderPlus size={16} />
       </button>
 
-      {isOpen && (
+      {isOpen && ReactDOM.createPortal(
         <div
           ref={dropdownRef}
           className="collection-picker-dropdown"
@@ -225,7 +226,8 @@ function CollectionPicker({ noteId, onClose }) {
               </button>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

@@ -1,37 +1,28 @@
-/**
- * ExploreView - Local neighborhood navigation view
- *
- * Default view showing focused node at center with neighbors up to depth.
- * Optimized for fast navigation: click sets focus, double-click opens.
- */
+/** ExploreView - Local neighborhood navigation view */
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Search, RefreshCw, Target } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { Target, RefreshCw } from 'lucide-react';
 
 import { GraphCanvas } from '../components/GraphCanvas';
+import { ExploreSearchBar } from '../components/ExploreSearchBar';
+import { Breadcrumbs } from '../components/Breadcrumbs';
+import { DiscoveryPanel } from '../components/DiscoveryPanel';
 import { useLocalGraph } from '../hooks/useGraphData';
 
+import '../components/Breadcrumbs.css';
+import '../components/DiscoveryPanel.css';
 import './ExploreView.css';
 
 // Number of top hubs to show labels for
 const TOP_HUBS_COUNT = 5;
 
-export function ExploreView({ graphState, filters, layout }) {
+export function ExploreView({ graphState, filters, layout, onViewChange }) {
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
-  const [searchQuery, setSearchQuery] = useState('');
 
-  // Get focused node ID - no hardcoded default, user must select a starting point
-  // Backend expects hyphen format: note-1, tag-123
   const focusNodeId = graphState.focusNodeId;
+  const effectiveDepth = Math.min((filters.filters.depth || 2) + (graphState.expandedDepth || 0), 3);
 
-  // Calculate effective depth (base + expanded)
-  const effectiveDepth = Math.min(
-    (filters.filters.depth || 2) + (graphState.expandedDepth || 0),
-    3 // Max depth capped at 3
-  );
-
-  // Fetch local neighborhood data only if we have a focus node
   const { data, isLoading, error, refetch } = useLocalGraph(
     focusNodeId,
     effectiveDepth,
@@ -39,13 +30,10 @@ export function ExploreView({ graphState, filters, layout }) {
     filters.filters.minWeight
   );
 
-  // Show prompt if no focus node is set
   const showWelcome = !focusNodeId;
 
-  // Resize handling
   useEffect(() => {
     if (!containerRef.current) return;
-
     const observer = new ResizeObserver((entries) => {
       const { width, height } = entries[0].contentRect;
       setDimensions({ width, height });
@@ -55,10 +43,8 @@ export function ExploreView({ graphState, filters, layout }) {
     return () => observer.disconnect();
   }, []);
 
-  // Calculate hub nodes (most connected) for label display
   const hubNodeIds = useMemo(() => {
     if (!data?.nodes) return new Set();
-
     const sorted = [...data.nodes]
       .sort((a, b) => (b.connections || 0) - (a.connections || 0))
       .slice(0, TOP_HUBS_COUNT);
@@ -66,16 +52,36 @@ export function ExploreView({ graphState, filters, layout }) {
     return new Set(sorted.map((n) => n.id));
   }, [data]);
 
-  // Transform API data to graph format with hub marking
   const graphData = useMemo(() => {
     if (!data) return null;
-
-    // Compute connection counts from edges
     const connectionCounts = {};
     data.edges.forEach((edge) => {
       connectionCounts[edge.source] = (connectionCounts[edge.source] || 0) + 1;
       connectionCounts[edge.target] = (connectionCounts[edge.target] || 0) + 1;
     });
+
+    const depths = {};
+    if (focusNodeId) {
+      const adj = {};
+      data.edges.forEach((e) => {
+        (adj[e.source] ??= []).push(e.target);
+        (adj[e.target] ??= []).push(e.source);
+      });
+      let queue = [focusNodeId];
+      depths[focusNodeId] = 0;
+      while (queue.length) {
+        const next = [];
+        for (const id of queue) {
+          for (const neighbor of adj[id] || []) {
+            if (depths[neighbor] === undefined) {
+              depths[neighbor] = depths[id] + 1;
+              next.push(neighbor);
+            }
+          }
+        }
+        queue = next;
+      }
+    }
 
     return {
       nodes: data.nodes.map((node) => {
@@ -89,6 +95,7 @@ export function ExploreView({ graphState, filters, layout }) {
           val: connections || 1, // Size based on connections
           isHub: hubNodeIds.has(node.id),
           isFocus: node.id === focusNodeId,
+          depth: depths[node.id] ?? 99,
         };
       }),
       links: data.edges.map((edge) => ({
@@ -101,6 +108,24 @@ export function ExploreView({ graphState, filters, layout }) {
     };
   }, [data, hubNodeIds, focusNodeId]);
 
+  // Compute edge breakdown by type for selected node
+  const selectedNodeId = graphState.selectedNode?.id;
+  useEffect(() => {
+    if (!selectedNodeId || !graphData?.links) {
+      graphState.setEdgeBreakdown(null);
+      return;
+    }
+    const counts = {};
+    graphData.links.forEach((link) => {
+      const src = typeof link.source === 'object' ? link.source.id : link.source;
+      const tgt = typeof link.target === 'object' ? link.target.id : link.target;
+      if (src === selectedNodeId || tgt === selectedNodeId) {
+        counts[link.type] = (counts[link.type] || 0) + 1;
+      }
+    });
+    graphState.setEdgeBreakdown(Object.keys(counts).length > 0 ? counts : null);
+  }, [selectedNodeId, graphData]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Center on focus node when data loads
   useEffect(() => {
     if (graphData && focusNodeId && layout.graphRef?.current) {
@@ -112,53 +137,32 @@ export function ExploreView({ graphState, filters, layout }) {
     }
   }, [focusNodeId, graphData, layout]);
 
-  // Handle search
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      filters.setSearchQuery(searchQuery);
-    }
-  };
+  // Proper refresh: refetch + reheat simulation + fit to view
+  const handleRefresh = useCallback(() => {
+    refetch().then(() => {
+      if (layout.graphRef?.current) {
+        const nodes = layout.graphRef.current.graphData?.()?.nodes || [];
+        nodes.forEach((n) => { n.fx = undefined; n.fy = undefined; });
+        layout.graphRef.current.d3ReheatSimulation?.();
+        setTimeout(() => layout.fitToView(40), 600);
+      }
+    });
+  }, [refetch, layout]);
 
-  // Clear search
-  const clearSearch = () => {
-    setSearchQuery('');
-    filters.setSearchQuery('');
-  };
+  // Wire search results to canvas highlight
+  const handleSearchResults = useCallback((results) => {
+    graphState.setHighlightedNodes(results.map((r) => r.id));
+  }, [graphState]);
 
   return (
     <div className="explore-view" ref={containerRef}>
-      {/* Search Bar */}
-      <div className="explore-view__search">
-        <form onSubmit={handleSearch} className="explore-view__search-form">
-          <Search size={16} className="explore-view__search-icon" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search nodes..."
-            className="explore-view__search-input"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={clearSearch}
-              className="explore-view__search-clear"
-            >
-              Clear
-            </button>
-          )}
-        </form>
-
-        <button
-          onClick={refetch}
-          className="explore-view__refresh"
-          title="Refresh graph"
-          disabled={isLoading}
-        >
-          <RefreshCw size={16} className={isLoading ? 'is-spinning' : ''} />
-        </button>
-      </div>
+      {/* Search Bar with autocomplete */}
+      <ExploreSearchBar
+        onFocusNode={(nodeId) => graphState.setFocus(nodeId)}
+        onRefresh={handleRefresh}
+        isRefreshing={isLoading}
+        onSearchResults={handleSearchResults}
+      />
 
       {/* Focus Info */}
       {graphState.focusNodeId && (
@@ -177,6 +181,9 @@ export function ExploreView({ graphState, filters, layout }) {
           </button>
         </div>
       )}
+
+      {/* Breadcrumbs - navigation history trail */}
+      <Breadcrumbs graphState={graphState} graphData={graphData} />
 
       {/* Loading State */}
       {isLoading && (
@@ -203,6 +210,7 @@ export function ExploreView({ graphState, filters, layout }) {
           filters={filters}
           width={dimensions.width}
           height={dimensions.height}
+          onViewChange={onViewChange}
         />
       )}
 
@@ -215,6 +223,7 @@ export function ExploreView({ graphState, filters, layout }) {
           <p className="explore-view__welcome-hint">
             Or search for a specific note above
           </p>
+          <DiscoveryPanel onFocusNode={(id) => graphState.setFocusNodeId(id)} />
         </div>
       )}
 

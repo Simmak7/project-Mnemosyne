@@ -127,9 +127,16 @@
   -webkit-appearance: none;
   appearance: none;
   height: 4px;
-  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
+  background: rgba(255, 255, 255, 0.15);
   border-radius: var(--ng-radius-full, 9999px);
   outline: none;
+}
+
+.slider::-moz-range-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--ng-radius-full, 9999px);
+  border: none;
 }
 
 .slider::-webkit-slider-thumb {
@@ -374,4 +381,12 @@
 
 [data-theme="light"] .tag-search-clear:hover {
   background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .slider {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .slider::-moz-range-track {
+  background: rgba(0, 0, 0, 0.15);
 }

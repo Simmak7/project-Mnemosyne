@@ -13,7 +13,8 @@ import {
   Loader2,
   MessageSquare,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 import { formatFileSize, getFileTypeInfo } from '../utils/fileValidation';
 import { FILE_STATES } from '../hooks/useUploadQueue';
@@ -40,6 +41,8 @@ function getStatusDisplay(status, isSlow = false) {
       };
     case FILE_STATES.COMPLETED:
       return { icon: CheckCircle, color: 'success', label: 'Done' };
+    case 'needs_review':
+      return { icon: AlertCircle, color: 'warning', label: 'Needs Review' };
     case FILE_STATES.FAILED:
       return { icon: AlertCircle, color: 'error', label: 'Failed' };
     default:
@@ -51,9 +54,8 @@ function getStatusDisplay(status, isSlow = false) {
  * Get file type icon
  */
 function getFileIcon(type) {
-  if (type.startsWith('image/')) {
-    return Image;
-  }
+  if (type === 'application/pdf') return FileText;
+  if (type.startsWith('image/')) return Image;
   return FileText;
 }
 
@@ -65,7 +67,7 @@ function getFileIcon(type) {
  * @param {function} props.onRetry - Retry callback (for failed files)
  * @param {function} props.onSetCustomPrompt - Set per-file custom prompt
  */
-function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
+function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocument }) {
   const { name, size, type, status, progress, error, isSlow, customPrompt, useCustomPrompt } = file;
   const statusDisplay = getStatusDisplay(status, isSlow);
   const FileIcon = getFileIcon(type);
@@ -79,6 +81,7 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
   const isCompleted = status === FILE_STATES.COMPLETED;
   const isPending = status === FILE_STATES.PENDING;
   const canEditPrompt = isPending && UPLOAD_FLAGS.PER_FILE_CONFIG;
+  const canNavigateToDoc = isCompleted && file.isDocument && file.documentId && onNavigateToDocument;
 
   const handlePromptSave = () => {
     if (onSetCustomPrompt) {
@@ -96,8 +99,16 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
     setShowPromptInput(false);
   };
 
+  const handleCardClick = () => {
+    if (canNavigateToDoc) onNavigateToDocument(file.documentId);
+  };
+
   return (
-    <div className={`file-card ng-glass-interactive status-${statusDisplay.color}`}>
+    <div
+      className={`file-card ng-glass-interactive status-${statusDisplay.color}${canNavigateToDoc ? ' file-card-clickable' : ''}`}
+      onClick={handleCardClick}
+      title={canNavigateToDoc ? 'Open in Documents' : undefined}
+    >
       {/* File icon */}
       <div className="file-card-icon">
         <FileIcon size={24} />
@@ -119,6 +130,12 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
             )}
             {statusDisplay.label}
           </span>
+          {/* Navigate hint for completed documents */}
+          {canNavigateToDoc && (
+            <span className="file-card-navigate-hint">
+              Open in Documents <ArrowRight size={12} />
+            </span>
+          )}
           {/* Per-file prompt indicator */}
           {useCustomPrompt && customPrompt && (
             <span className="file-card-custom-prompt-badge" title={customPrompt}>
@@ -146,8 +163,8 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
               <MessageSquare size={14} />
               <span>
                 {useCustomPrompt
-                  ? 'Custom instructions'
-                  : 'Add custom instructions'}
+                  ? 'Custom instructions (overrides global)'
+                  : 'Override global instructions'}
               </span>
             </button>
 
@@ -157,7 +174,7 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt }) {
                   className="file-card-prompt-input"
                   value={promptValue}
                   onChange={(e) => setPromptValue(e.target.value)}
-                  placeholder="Add specific instructions for this file only..."
+                  placeholder="Instructions for this file only (replaces global instructions)..."
                   rows={2}
                   autoFocus
                 />

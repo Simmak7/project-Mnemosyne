@@ -4,6 +4,7 @@
  */
 
 import { useState, useCallback, useRef } from 'react';
+import { api } from '../../../utils/api';
 import { validateFile } from '../utils/fileValidation';
 import { composePrompt } from '../utils/promptComposer';
 import { getModelId } from '../utils/modelMapper';
@@ -122,35 +123,50 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
    */
   const uploadSingleFile = useCallback(async (queuedFile, config, signal) => {
     const { file, id } = queuedFile;
+    const isDocument = file.type === 'application/pdf';
 
     // Update status to uploading
     updateFile(id, { status: FILE_STATES.UPLOADING, progress: 0 });
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Please login first');
-      }
-
-      // Compose prompt (null = use backend default)
-      const prompt = composePrompt({
-        userPrompt: queuedFile.useCustomPrompt ? queuedFile.customPrompt : config.userPrompt,
-        preset: config.preset
-      });
-
       // Create form data
       const formData = new FormData();
       formData.append('file', file);
-      if (prompt) {
-        formData.append('prompt', prompt);
+
+      let uploadEndpoint, statusEndpoint;
+
+      if (isDocument) {
+        // Route PDFs to the documents endpoint
+        uploadEndpoint = '/documents/upload/';
+        statusEndpoint = '/documents/task-status/';
+
+        // Send user instructions for PDF analysis if provided
+        const instructions = queuedFile.useCustomPrompt
+          ? queuedFile.customPrompt
+          : config.userPrompt;
+        if (instructions) formData.append('instructions', instructions);
+      } else {
+        // Route images to the existing image endpoint
+        uploadEndpoint = '/upload-image/';
+        statusEndpoint = '/task-status/';
+
+        // Compose prompt (null = use backend default)
+        const prompt = composePrompt({
+          userPrompt: queuedFile.useCustomPrompt ? queuedFile.customPrompt : config.userPrompt,
+          preset: config.preset,
+          depth: config.analysisDepth
+        });
+
+        if (prompt) formData.append('prompt', prompt);
+        if (config.targetAlbumId) formData.append('album_id', config.targetAlbumId);
+        if (config.autoTagging !== undefined) formData.append('auto_tagging', config.autoTagging);
+        if (config.maxTags !== undefined) formData.append('max_tags', config.maxTags);
+        if (config.autoCreateNote !== undefined) formData.append('auto_create_note', config.autoCreateNote);
       }
 
-      // Upload file
-      const response = await fetch('http://localhost:8000/upload-image/', {
+      // Upload file using centralized API (handles cookies, CSRF, token refresh)
+      const response = await api.fetch(uploadEndpoint, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         body: formData,
         signal
       });
@@ -170,11 +186,14 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
         status: FILE_STATES.PROCESSING,
         progress: 50,
         taskId: data.task_id,
-        imageId: data.image_id
+        imageId: data.image_id,
+        documentId: data.document_id,
+        isDocument,
+        statusEndpoint,
       });
 
       // Poll for completion
-      await pollTaskStatus(id, data.task_id, signal);
+      await pollTaskStatus(id, data.task_id, signal, statusEndpoint);
 
       return data;
 
@@ -199,8 +218,7 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
    * Poll task status until completion
    * Extended timeout (5 minutes) for AI analysis which can take 2-3+ minutes
    */
-  const pollTaskStatus = useCallback(async (fileId, taskId, signal) => {
-    const token = localStorage.getItem('token');
+  const pollTaskStatus = useCallback(async (fileId, taskId, signal, statusEndpoint = '/task-status/') => {
     const maxAttempts = 300; // 5 minutes with 1s interval (AI can be slow)
     const slowWarningThreshold = 120; // Show "slow" indicator after 2 minutes
     let attempts = 0;
@@ -211,10 +229,7 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
       }
 
       try {
-        const response = await fetch(`http://localhost:8000/task-status/${taskId}`, {
-          headers: { 'Authorization': `Bearer ${token}` },
-          signal
-        });
+        const response = await api.fetch(`${statusEndpoint}${taskId}`, { signal });
 
         if (!response.ok) {
           throw new Error('Failed to check task status');
@@ -230,14 +245,8 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
             result: status.result
           });
 
-          // Find the file and call success callback
-          setFiles(prev => {
-            const file = prev.find(f => f.id === fileId);
-            if (file) {
-              onUploadSuccess?.(file, status.result);
-            }
-            return prev;
-          });
+          // Call success callback after state update
+          onUploadSuccess?.({ id: fileId }, status.result);
 
           return status;
         }

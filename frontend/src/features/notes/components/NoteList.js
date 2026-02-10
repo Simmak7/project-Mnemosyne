@@ -1,16 +1,23 @@
 import React, { useCallback, useMemo, useEffect, useRef } from 'react';
 import { FileText, Sparkles, Inbox, AlertCircle } from 'lucide-react';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useNotes } from '../hooks/useNotes';
 import { useNoteContext } from '../hooks/NoteContext';
-import NoteCard from './NoteCard';
+import { useValidateNoteSelection } from '../hooks/useValidateNoteSelection';
+import SortableNoteCard from './SortableNoteCard';
+import DraggableNoteCard from './DraggableNoteCard';
 import NoteSearchBar from './NoteSearchBar';
 import './NoteList.css';
 
 /**
- * NoteList - Center panel showing notes as cards
- * Supports list and grid view modes
+ * NoteList - Center panel showing notes as cards.
+ * Renders SortableContext when in custom sort mode, DraggableNoteCard otherwise.
  */
-function NoteList({ onNoteSelect, onNoteOpen }) {
+function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustomSort }) {
   const {
     currentCategory,
     selectedNoteId,
@@ -20,12 +27,18 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
   } = useNoteContext();
 
   const {
-    notes,
+    notes: rawNotes,
     isLoading,
     isError,
     error,
     filteredCount
   } = useNotes();
+
+  // Use DnD-ordered notes if provided, otherwise raw
+  const notes = orderedNotes || rawNotes;
+
+  // Clear persisted selection if note was deleted/trashed
+  useValidateNoteSelection(notes, isLoading);
 
   // Category display info
   const categoryInfo = useMemo(() => ({
@@ -40,28 +53,20 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
   const currentCategoryInfo = categoryInfo[currentCategory] || categoryInfo.inbox;
   const CategoryIcon = currentCategoryInfo.icon;
 
-  // Handle note click
   const handleNoteClick = useCallback((note) => {
     selectNote(note.id);
-    if (onNoteSelect) {
-      onNoteSelect(note);
-    }
+    onNoteSelect?.(note);
   }, [selectNote, onNoteSelect]);
 
-  // Handle note double-click (open in detail view)
   const handleNoteDoubleClick = useCallback((note) => {
-    if (onNoteOpen) {
-      onNoteOpen(note);
-    }
+    onNoteOpen?.(note);
   }, [onNoteOpen]);
 
-  // List container ref for keyboard navigation
   const listRef = useRef(null);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Don't handle if typing in any editable area
       const tagName = e.target.tagName;
       const isEditable = e.target.isContentEditable;
       const isInEditor = e.target.closest?.('.ng-block-editor, .tiptap, .ProseMirror, [contenteditable="true"]');
@@ -72,7 +77,7 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
 
       switch (e.key) {
         case 'ArrowDown':
-        case 'j': // Vim-style
+        case 'j':
           e.preventDefault();
           if (currentIndex < noteIds.length - 1) {
             selectNote(noteIds[currentIndex + 1]);
@@ -80,55 +85,40 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
             selectNote(noteIds[0]);
           }
           break;
-
         case 'ArrowUp':
-        case 'k': // Vim-style
+        case 'k':
           e.preventDefault();
-          if (currentIndex > 0) {
-            selectNote(noteIds[currentIndex - 1]);
-          }
+          if (currentIndex > 0) selectNote(noteIds[currentIndex - 1]);
           break;
-
         case 'Escape':
           selectNote(null);
           break;
-
         case 'Enter':
           if (selectedNoteId && onNoteOpen) {
             const selectedNote = notes.find(n => n.id === selectedNoteId);
             if (selectedNote) onNoteOpen(selectedNote);
           }
           break;
-
         default:
           break;
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [notes, selectedNoteId, selectNote, onNoteOpen]);
 
-  // Empty state
   const renderEmptyState = () => {
     if (isLoading) return null;
-
     const hasSearch = searchQuery?.trim();
-
     return (
       <div className="note-list-empty">
         <CategoryIcon size={48} className="empty-icon" />
         <h3>{hasSearch ? 'No matching notes' : `No ${currentCategoryInfo.title.toLowerCase()}`}</h3>
-        <p>
-          {hasSearch
-            ? `No notes found for "${searchQuery}"`
-            : currentCategoryInfo.description}
-        </p>
+        <p>{hasSearch ? `No notes found for "${searchQuery}"` : currentCategoryInfo.description}</p>
       </div>
     );
   };
 
-  // Loading skeleton
   const renderSkeleton = () => (
     <div className={`note-list-content ${viewMode}`}>
       {[1, 2, 3, 4, 5].map(i => (
@@ -145,7 +135,40 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
     </div>
   );
 
-  // Error state
+  const CardComponent = isCustomSort ? SortableNoteCard : DraggableNoteCard;
+  const strategy = viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy;
+
+  const renderNotes = () => {
+    const cards = notes.map((note, index) => (
+      <CardComponent
+        key={note.id}
+        note={note}
+        isSelected={selectedNoteId === note.id}
+        onClick={() => handleNoteClick(note)}
+        onDoubleClick={() => handleNoteDoubleClick(note)}
+        searchQuery={searchQuery}
+        style={{ animationDelay: `${index * 30}ms` }}
+      />
+    ));
+
+    // Wrap in SortableContext when custom sort is active
+    if (isCustomSort && orderedIds) {
+      return (
+        <SortableContext items={orderedIds} strategy={strategy}>
+          <div className={`note-list-content ${viewMode}`} ref={listRef}>
+            {cards}
+          </div>
+        </SortableContext>
+      );
+    }
+
+    return (
+      <div className={`note-list-content ${viewMode}`} ref={listRef}>
+        {cards}
+      </div>
+    );
+  };
+
   if (isError) {
     return (
       <div className="note-list">
@@ -161,7 +184,6 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
 
   return (
     <div className="note-list">
-      {/* Category Header */}
       <div className="note-list-header">
         <CategoryIcon size={20} className="category-icon" />
         <div className="category-info">
@@ -170,32 +192,9 @@ function NoteList({ onNoteSelect, onNoteOpen }) {
         </div>
       </div>
 
-      {/* Search and Filter Bar */}
-      <NoteSearchBar
-        resultCount={filteredCount}
-        isLoading={isLoading}
-      />
+      <NoteSearchBar resultCount={filteredCount} isLoading={isLoading} />
 
-      {/* Notes Content */}
-      {isLoading ? (
-        renderSkeleton()
-      ) : notes.length === 0 ? (
-        renderEmptyState()
-      ) : (
-        <div className={`note-list-content ${viewMode}`}>
-          {notes.map((note, index) => (
-            <NoteCard
-              key={note.id}
-              note={note}
-              isSelected={selectedNoteId === note.id}
-              onClick={() => handleNoteClick(note)}
-              onDoubleClick={() => handleNoteDoubleClick(note)}
-              searchQuery={searchQuery}
-              style={{ animationDelay: `${index * 30}ms` }}
-            />
-          ))}
-        </div>
-      )}
+      {isLoading ? renderSkeleton() : notes.length === 0 ? renderEmptyState() : renderNotes()}
     </div>
   );
 }

@@ -1,0 +1,205 @@
+/**
+ * BrainTopicsPanel Styles
+ *
+ * Neural Glass design for topic selection UI.
+ */
+
+.brain-topics-panel {
+  border-radius: var(--ng-radius-md);
+  background: var(--ng-glass-bg);
+  border: 1px solid var(--ng-glass-border);
+  margin-bottom: var(--ng-space-sm);
+}
+
+.brain-topics-panel .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--ng-space-sm) var(--ng-space-md);
+  background: none;
+  border: none;
+  color: var(--ng-text-primary);
+  cursor: pointer;
+  transition: background var(--ng-transition-fast);
+}
+
+.brain-topics-panel .section-header:hover {
+  background: var(--ng-glass-hover);
+}
+
+.brain-topics-panel .section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-xs);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.brain-topics-panel .section-title .spinning {
+  animation: spin 1s linear infinite;
+}
+
+.topics-content {
+  padding: 0 var(--ng-space-md) var(--ng-space-md);
+}
+
+.topics-section {
+  margin-bottom: var(--ng-space-sm);
+}
+
+.topics-section .section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-xs);
+  font-size: 0.7rem;
+  color: var(--ng-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--ng-space-xs);
+  padding: var(--ng-space-xs) 0;
+}
+
+/* Topic Item */
+.topic-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-xs) var(--ng-space-sm);
+  border-radius: var(--ng-radius-sm);
+  background: transparent;
+  transition: background var(--ng-transition-fast);
+  margin-bottom: 2px;
+}
+
+.topic-item:hover {
+  background: var(--ng-glass-hover);
+}
+
+.topic-item.pinned {
+  background: rgba(var(--ng-accent-ai-rgb), 0.1);
+  border-left: 2px solid var(--ng-accent-ai);
+}
+
+.topic-item.auto-selected {
+  background: rgba(var(--ng-accent-note-rgb, 251, 191, 36), 0.08);
+}
+
+.topic-info {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-xs);
+  flex: 1;
+  min-width: 0;
+}
+
+.topic-icon {
+  color: var(--ng-text-tertiary);
+  flex-shrink: 0;
+}
+
+.topic-title {
+  font-size: 0.8rem;
+  color: var(--ng-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topic-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-xs);
+}
+
+.topic-score {
+  font-size: 0.65rem;
+  color: var(--ng-accent-ai);
+  font-weight: 500;
+}
+
+.topic-tokens {
+  font-size: 0.65rem;
+  color: var(--ng-text-tertiary);
+}
+
+.topic-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm);
+  color: var(--ng-text-tertiary);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast);
+  opacity: 0;
+}
+
+.topic-item:hover .topic-action {
+  opacity: 1;
+}
+
+.topic-action:hover {
+  background: var(--ng-glass-bg);
+  color: var(--ng-accent-ai);
+}
+
+.topic-action.unpin:hover {
+  color: var(--ng-status-error);
+}
+
+/* More topics link */
+.topics-more {
+  font-size: 0.75rem;
+  color: var(--ng-text-tertiary);
+  padding: var(--ng-space-xs) var(--ng-space-sm);
+  text-align: center;
+}
+
+/* Empty state */
+.topics-empty {
+  font-size: 0.8rem;
+  color: var(--ng-text-tertiary);
+  text-align: center;
+  padding: var(--ng-space-md);
+}
+
+/* Token Budget Bar */
+.token-budget {
+  margin-top: var(--ng-space-md);
+  padding-top: var(--ng-space-sm);
+  border-top: 1px solid var(--ng-glass-border);
+}
+
+.budget-label {
+  font-size: 0.7rem;
+  color: var(--ng-text-tertiary);
+  margin-bottom: var(--ng-space-xs);
+}
+
+.budget-bar {
+  height: 4px;
+  background: var(--ng-glass-bg);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.budget-fill {
+  height: 100%;
+  background: var(--ng-accent-ai);
+  border-radius: 2px;
+  transition: width var(--ng-transition-normal);
+}
+
+.budget-fill.near-limit {
+  background: var(--ng-status-warning);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

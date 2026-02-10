@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo } from 'react';
 import { useNoteContext } from './NoteContext';
-
-const API_BASE = 'http://localhost:8000';
+import { api } from '../../../utils/api';
 
 /**
  * useNotes - Hook for fetching and filtering notes
@@ -29,25 +28,7 @@ export function useNotes() {
     refetch: refetchNotes
   } = useQuery({
     queryKey: ['notes-enhanced'],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/notes-enhanced/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          window.location.reload();
-        }
-        throw new Error('Failed to fetch notes');
-      }
-
-      return response.json();
-    },
+    queryFn: () => api.get('/notes-enhanced/'),
     staleTime: 30000,
     refetchOnWindowFocus: false
   });
@@ -61,17 +42,7 @@ export function useNotes() {
     refetch: refetchTrash
   } = useQuery({
     queryKey: ['notes-trash'],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/notes/trash/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch trashed notes');
-      return response.json();
-    },
+    queryFn: () => api.get('/notes/trash/'),
     enabled: currentCategory === 'trash',
     staleTime: 30000,
     refetchOnWindowFocus: false
@@ -86,17 +57,7 @@ export function useNotes() {
     refetch: refetchCollection
   } = useQuery({
     queryKey: ['collection', selectedCollectionId],
-    queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/collections/${selectedCollectionId}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch collection');
-      return response.json();
-    },
+    queryFn: () => api.get(`/collections/${selectedCollectionId}`),
     enabled: currentCategory === 'collection' && !!selectedCollectionId,
     staleTime: 30000,
     refetchOnWindowFocus: false
@@ -130,26 +91,25 @@ export function useNotes() {
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     switch (currentCategory) {
+      case 'all':
+        return notes;
+
       case 'inbox':
-        // Recent notes (last 7 days)
         return notes.filter(note => new Date(note.created_at) > sevenDaysAgo);
 
       case 'smart':
-        // AI-generated notes (have associated images or is_standalone = false)
         return notes.filter(note =>
           (note.image_ids && note.image_ids.length > 0) ||
           note.is_standalone === false
         );
 
       case 'manual':
-        // User-created notes (no images and is_standalone = true)
         return notes.filter(note =>
           (!note.image_ids || note.image_ids.length === 0) &&
           note.is_standalone !== false
         );
 
       case 'daily':
-        // Daily/journal notes (title pattern matching)
         return notes.filter(note =>
           note.title?.startsWith('Daily Note') ||
           note.title?.match(/^\d{4}-\d{2}-\d{2}/) ||
@@ -157,22 +117,18 @@ export function useNotes() {
         );
 
       case 'favorites':
-        // Favorited notes (needs backend field - placeholder)
         return notes.filter(note => note.is_favorite);
 
       case 'review':
-        // AI-generated notes that need review (have images, possibly need attention)
         return notes.filter(note =>
           (note.image_ids && note.image_ids.length > 0) &&
           !note.is_reviewed
         );
 
       case 'trash':
-        // Trashed notes - already filtered by separate query
         return notes;
 
       case 'collection':
-        // Collection notes - already filtered by separate query
         return notes;
 
       default:
@@ -206,6 +162,8 @@ export function useNotes() {
 
     sorted.sort((a, b) => {
       switch (sortBy) {
+        case 'custom':
+          return 0; // Custom order is applied externally by useCustomNoteOrder
         case 'title':
           return direction * (a.title || '').localeCompare(b.title || '');
         case 'created':
@@ -223,13 +181,10 @@ export function useNotes() {
 
   // Apply all filters and sorting
   const notes = useMemo(() => {
-    // Use trashedNotes when viewing trash, collectionData when viewing collection
     let filtered;
     if (currentCategory === 'trash') {
       filtered = trashedNotes;
     } else if (currentCategory === 'collection' && collectionData?.notes) {
-      // Collection notes need to be mapped to match the enhanced note structure
-      // The collection API returns minimal note info, so we need to find full notes
       const collectionNoteIds = new Set(collectionData.notes.map(n => n.id));
       filtered = rawNotes.filter(note => collectionNoteIds.has(note.id));
     } else {
@@ -244,15 +199,7 @@ export function useNotes() {
 
   // Delete note mutation
   const deleteNote = useMutation({
-    mutationFn: async (noteId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/notes/${noteId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to delete note');
-      return noteId;
-    },
+    mutationFn: (noteId) => api.delete(`/notes/${noteId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] });
     }
@@ -278,21 +225,12 @@ export function useNotes() {
 export function useNoteSearch() {
   const searchMutation = useMutation({
     mutationFn: async ({ query, limit = 50 }) => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
       const params = new URLSearchParams({
         q: query,
         type: 'note',
         limit: limit.toString()
       });
-
-      const response = await fetch(`${API_BASE}/search?${params}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Search failed');
-      return response.json();
+      return api.get(`/search?${params}`);
     }
   });
 

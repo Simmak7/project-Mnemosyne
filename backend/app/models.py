@@ -77,6 +77,7 @@ class Note(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     owner_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     is_standalone = Column(Boolean, default=True, nullable=False)  # True if note created independently
+    source = Column(String, default='manual', nullable=False, index=True)  # 'manual' | 'image_analysis' | 'document_analysis'
     embedding = Column(Vector(768), nullable=True)  # Semantic search embedding (768-dim from nomic-embed-text)
     # Favorites, Trash, and Review Status (Notes Section)
     is_favorite = Column(Boolean, default=False, nullable=False, index=True)
@@ -426,6 +427,103 @@ class NotificationPreferences(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", backref="notification_preferences")
+
+
+# ============================================
+# Document Models (PDF Analysis)
+# ============================================
+
+class Document(Base):
+    """Uploaded PDF document with AI analysis."""
+    __tablename__ = "documents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    filename = Column(String, nullable=False)
+    filepath = Column(String, nullable=False)
+    display_name = Column(String(255), nullable=True)
+    file_size = Column(Integer, nullable=True)
+    page_count = Column(Integer, nullable=True)
+    document_type = Column(String(50), nullable=True)
+    thumbnail_path = Column(String(500), nullable=True)
+    blur_hash = Column(String(32), nullable=True)
+    extracted_text = Column(Text, nullable=True)
+    extraction_method = Column(String(50), nullable=True)
+    ai_summary = Column(Text, nullable=True)
+    ai_analysis_status = Column(String(20), default="pending", nullable=False)
+    ai_analysis_result = Column(Text, nullable=True)
+    suggested_tags = Column(JSONB, default=list)
+    suggested_wikilinks = Column(JSONB, default=list)
+    summary_note_id = Column(Integer, ForeignKey("notes.id", ondelete="SET NULL"), nullable=True)
+    embedding = Column(Vector(768), nullable=True)
+    text_appended_to_note = Column(Boolean, default=False, nullable=False)
+    is_trashed = Column(Boolean, default=False, nullable=False)
+    trashed_at = Column(DateTime(timezone=True), nullable=True)
+    uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
+    processed_at = Column(DateTime(timezone=True), nullable=True)
+    approved_at = Column(DateTime(timezone=True), nullable=True)
+
+    owner = relationship("User", backref="documents")
+    summary_note = relationship("Note", foreign_keys=[summary_note_id])
+    tags = relationship("Tag", secondary="document_tags", backref="documents")
+    collections = relationship("DocumentCollection", secondary="document_collection_documents", back_populates="documents")
+
+
+class DocumentTag(Base):
+    """Junction table for document-to-tag many-to-many relationship."""
+    __tablename__ = "document_tags"
+
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True)
+    tag_id = Column(Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True)
+
+
+class DocumentChunk(Base):
+    """Chunk of document content for RAG retrieval."""
+    __tablename__ = "document_chunks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    content = Column(Text, nullable=False)
+    chunk_index = Column(Integer, nullable=False)
+    chunk_type = Column(String(20), nullable=True)
+    page_number = Column(Integer, nullable=True)
+    char_start = Column(Integer, nullable=True)
+    char_end = Column(Integer, nullable=True)
+    embedding = Column(Vector(768), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    document = relationship("Document", backref="chunks")
+
+
+# ============================================
+# Document Collections (Grouping Documents)
+# ============================================
+
+class DocumentCollection(Base):
+    """User-created collection/folder for grouping documents."""
+    __tablename__ = "document_collections"
+
+    id = Column(Integer, primary_key=True, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(255), nullable=False)
+    description = Column(Text, nullable=True)
+    icon = Column(String(50), nullable=True)
+    color = Column(String(20), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    owner = relationship("User", backref="document_collections")
+    documents = relationship("Document", secondary="document_collection_documents", back_populates="collections")
+
+
+class DocumentCollectionDocument(Base):
+    """Junction table for document-to-collection many-to-many relationship."""
+    __tablename__ = "document_collection_documents"
+
+    collection_id = Column(Integer, ForeignKey("document_collections.id", ondelete="CASCADE"), primary_key=True)
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True)
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
+    position = Column(Integer, default=0)
 
 
 # ============================================

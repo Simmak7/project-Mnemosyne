@@ -242,7 +242,10 @@ Please incorporate this context into your analysis while following all the instr
                 f"({self.llama_adapter.model_name if not use_new else self.qwen_adapter.model_name})"
             )
 
-        # Route to appropriate adapter
+        # Route to appropriate adapter (with fallback)
+        result = None
+        fell_back = False
+
         try:
             if use_new:
                 result = self.qwen_adapter.analyze_image(
@@ -250,6 +253,9 @@ Please incorporate this context into your analysis while following all the instr
                     prompt=prompt,
                     timeout=timeout
                 )
+                # Check for error result (model crash returns status="error")
+                if result.get("status") == "error":
+                    raise RuntimeError(result.get("error", "Qwen returned error"))
             else:
                 result = self.llama_adapter.analyze_image(
                     image_path=image_path,
@@ -257,37 +263,71 @@ Please incorporate this context into your analysis while following all the instr
                     timeout=timeout
                 )
 
-            # Add routing metadata
-            result["model_selection"] = model_selection.value
-            result["prompt_selection"] = prompt_selection.value if prompt_selection else "custom"
-
-            # Extract metadata based on prompt type
-            if result["status"] == "success":
+        except Exception as primary_error:
+            # Fallback: if Qwen failed, retry with Llama
+            if use_new:
+                logger.warning(
+                    f"Primary model (Qwen) failed: {str(primary_error)}. "
+                    f"Falling back to Llama."
+                )
                 try:
-                    if prompt_selection == PromptSelection.ADAPTIVE:
-                        metadata = AdaptiveVisionPrompt.extract_metadata(result["response"])
-                        result["content_metadata"] = metadata
-                        if self.log_selection:
-                            logger.info(
-                                f"[ADAPTIVE] Content type: {metadata.get('content_type', 'unknown')}, "
-                                f"tags: {len(metadata.get('tags', []))}, "
-                                f"wikilinks: {len(metadata.get('wikilinks', []))}, "
-                                f"confidence: {metadata.get('confidence', 'unknown')}"
-                            )
-                except Exception as e:
-                    logger.warning(f"Failed to extract metadata: {str(e)}")
+                    fallback_prompt = base_prompt
+                    if custom_prompt and custom_prompt.strip():
+                        fallback_prompt = f"{base_prompt}\n\nADDITIONAL CONTEXT FROM USER:\n{custom_prompt.strip()}"
 
-            return result
+                    result = self.llama_adapter.analyze_image(
+                        image_path=image_path,
+                        prompt=fallback_prompt,
+                        timeout=timeout
+                    )
+                    if result.get("status") == "error":
+                        raise RuntimeError(result.get("error", "Llama fallback returned error"))
+                    fell_back = True
+                    model_selection = ModelSelection.OLD_MODEL
+                    prompt_selection = PromptSelection.LEGACY
+                    logger.info("Fallback to Llama succeeded.")
+                except Exception as fallback_error:
+                    error_msg = f"Both models failed. Primary: {str(primary_error)}. Fallback: {str(fallback_error)}"
+                    logger.error(error_msg)
+                    return {
+                        "status": "error",
+                        "error": error_msg,
+                        "model_selection": model_selection.value,
+                        "prompt_selection": prompt_selection.value if prompt_selection else "custom"
+                    }
+            else:
+                error_msg = f"Model router error: {str(primary_error)}"
+                logger.error(error_msg, exc_info=True)
+                return {
+                    "status": "error",
+                    "error": error_msg,
+                    "model_selection": model_selection.value,
+                    "prompt_selection": prompt_selection.value if prompt_selection else "custom"
+                }
 
-        except Exception as e:
-            error_msg = f"Model router error: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            return {
-                "status": "error",
-                "error": error_msg,
-                "model_selection": model_selection.value,
-                "prompt_selection": prompt_selection.value if prompt_selection else "custom"
-            }
+        # Add routing metadata
+        result["model_selection"] = model_selection.value
+        result["prompt_selection"] = prompt_selection.value if prompt_selection else "custom"
+        if fell_back:
+            result["fell_back"] = True
+
+        # Extract metadata based on prompt type
+        if result.get("status") == "success":
+            try:
+                if prompt_selection == PromptSelection.ADAPTIVE:
+                    metadata = AdaptiveVisionPrompt.extract_metadata(result["response"])
+                    result["content_metadata"] = metadata
+                    if self.log_selection:
+                        logger.info(
+                            f"[ADAPTIVE] Content type: {metadata.get('content_type', 'unknown')}, "
+                            f"tags: {len(metadata.get('tags', []))}, "
+                            f"wikilinks: {len(metadata.get('wikilinks', []))}, "
+                            f"confidence: {metadata.get('confidence', 'unknown')}"
+                        )
+            except Exception as e:
+                logger.warning(f"Failed to extract metadata: {str(e)}")
+
+        return result
 
     def health_check(self) -> Dict[str, bool]:
         """

@@ -335,6 +335,35 @@ async def get_daily_notes(
         raise HTTPException(status_code=500, detail=f"Failed to get daily notes: {str(e)}")
 
 
+@router.get("/daily/calendar/{year}/{month}", response_model=schemas.CalendarMonthResponse)
+async def get_calendar_summary(
+    year: int,
+    month: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get lightweight calendar summary for a month.
+    Returns day-level stats without loading full note content.
+    """
+    if not (1 <= month <= 12):
+        raise HTTPException(status_code=400, detail="Month must be 1-12")
+    if not (2000 <= year <= 2100):
+        raise HTTPException(status_code=400, detail="Year must be 2000-2100")
+
+    try:
+        days = DailyNoteService.get_calendar_summary(
+            db=db, owner_id=current_user.id, year=year, month=month
+        )
+        return schemas.CalendarMonthResponse(
+            year=year, month=month,
+            days=[schemas.CalendarDaySummary(**d) for d in days]
+        )
+    except Exception as e:
+        logger.error(f"Calendar summary failed: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to get calendar summary: {str(e)}")
+
+
 @router.post("/daily/today", response_model=schemas.DailyNoteResponse)
 async def get_or_create_today_note(
     db: Session = Depends(get_db),

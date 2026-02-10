@@ -1,0 +1,247 @@
+/* JournalInsights.css */
+
+.journal-insights {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.insights-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-4, 16px) var(--ng-space-4, 16px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.insights-header h3 {
+  margin: 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-base, 1rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.insights-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ng-space-4, 16px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-5, 20px);
+}
+
+.insights-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  font-size: var(--ng-text-sm, 0.875rem);
+  text-align: center;
+  padding: var(--ng-space-6, 24px);
+}
+
+/* Stat cards grid */
+.day-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ng-space-2, 8px);
+}
+
+.day-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-3, 12px);
+  border-radius: var(--ng-radius-lg, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.day-stat-icon {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  flex-shrink: 0;
+}
+
+.day-stat--amber .day-stat-icon { color: var(--ng-accent-note, #fbbf24); }
+.day-stat--green .day-stat-icon { color: #34d399; }
+.day-stat--blue .day-stat-icon { color: #60a5fa; }
+
+.day-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-stat-value {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-base, 1rem);
+  font-weight: 700;
+  color: var(--ng-text-primary, #ffffff);
+  line-height: 1.2;
+}
+
+.day-stat-label {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Insight sections */
+.insight-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 8px);
+}
+
+.insight-section-title {
+  margin: 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 600;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.insight-empty {
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  font-style: italic;
+}
+
+/* Task items */
+.task-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.task-group--done {
+  opacity: 0.6;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--ng-transition-fast, 100ms ease-out);
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.task-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+.task-item--pending .task-icon {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+}
+
+.task-item--completed .task-icon {
+  color: #34d399;
+}
+
+.task-item--completed span {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Linked notes */
+.linked-notes-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-2, 8px);
+}
+
+.linked-note-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--ng-radius-full, 9999px);
+  background: rgba(96, 165, 250, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.linked-note-pill:hover {
+  background: rgba(96, 165, 250, 0.2);
+  border-color: #60a5fa;
+}
+
+/* Mood selector */
+.mood-selector {
+  display: flex;
+  gap: var(--ng-space-2, 8px);
+}
+
+.mood-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ng-radius-lg, 8px);
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.2));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.mood-btn:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.08));
+  transform: scale(1.1);
+}
+
+.mood-btn--active {
+  background: var(--ng-accent-note-bg, rgba(251, 191, 36, 0.15));
+  border-color: var(--ng-accent-note, #fbbf24);
+  transform: scale(1.1);
+}
+
+.mood-emoji {
+  font-size: 1.25rem;
+}
+
+.mood-current {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+}
+
+/* Light Mode */
+[data-theme="light"] .day-stat-card {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .task-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .mood-btn {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .mood-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .linked-note-pill {
+  background: rgba(96, 165, 250, 0.08);
+}

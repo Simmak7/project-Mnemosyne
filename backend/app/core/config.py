@@ -19,7 +19,8 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 # JWT Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "YOUR-SECRET-KEY-CHANGE-THIS-IN-PRODUCTION")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))  # Reduced for security
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))  # Refresh token lasts 7 days
 
 # Ollama Configuration
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
@@ -54,9 +55,10 @@ API_TITLE = "AI Notes Notetaker API"
 API_VERSION = "1.0.0"
 
 # RAG (Retrieval-Augmented Generation) Configuration
-RAG_MODEL = os.getenv("RAG_MODEL", "llama3.2:3b")  # Smaller model for fast RAG responses
-RAG_TIMEOUT = int(os.getenv("RAG_TIMEOUT", "120"))  # seconds
-RAG_MAX_CONTEXT_TOKENS = int(os.getenv("RAG_MAX_CONTEXT_TOKENS", "4000"))
+# Default: Qwen3 8B - excellent reasoning with thinking mode
+RAG_MODEL = os.getenv("RAG_MODEL", "qwen3:8b")
+RAG_TIMEOUT = int(os.getenv("RAG_TIMEOUT", "180"))  # seconds (increased for larger model)
+RAG_MAX_CONTEXT_TOKENS = int(os.getenv("RAG_MAX_CONTEXT_TOKENS", "8000"))  # Qwen3 supports 32K
 RAG_TEMPERATURE = float(os.getenv("RAG_TEMPERATURE", "0.3"))  # Lower for factual responses
 
 # Security Configuration (Phase 1: Settings)
@@ -111,10 +113,17 @@ ENABLE_HSTS = os.getenv("ENABLE_HSTS", "false").lower() == "true"
 # Environment indicator (development, staging, production)
 ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 
+# Document (PDF) Configuration
+MAX_PDF_SIZE_MB = int(os.getenv("MAX_PDF_SIZE_MB", "50"))
+DOCUMENT_UPLOAD_DIR = os.getenv("DOCUMENT_UPLOAD_DIR", "uploaded_documents")
+DOCUMENT_THUMBNAIL_DIR = os.getenv("DOCUMENT_THUMBNAIL_DIR", "uploaded_documents/thumbnails")
+DOCUMENT_VISION_FALLBACK = os.getenv("DOCUMENT_VISION_FALLBACK", "true").lower() == "true"
+
 # Mnemosyne Brain Configuration
-BRAIN_MODEL = os.getenv("BRAIN_MODEL", "llama3.2:3b")
-BRAIN_MAX_CONTEXT_TOKENS = int(os.getenv("BRAIN_MAX_CONTEXT_TOKENS", "6000"))
-BRAIN_CORE_TOKEN_BUDGET = int(os.getenv("BRAIN_CORE_TOKEN_BUDGET", "2500"))
-BRAIN_TOPIC_TOKEN_BUDGET = int(os.getenv("BRAIN_TOPIC_TOKEN_BUDGET", "3000"))
+# Default: Nemotron Nano 9B v2 - excellent for creative, personal responses (128K context)
+BRAIN_MODEL = os.getenv("BRAIN_MODEL", "mirage335/NVIDIA-Nemotron-Nano-9B-v2-virtuoso:latest")
+BRAIN_MAX_CONTEXT_TOKENS = int(os.getenv("BRAIN_MAX_CONTEXT_TOKENS", "16000"))  # Nemotron supports 128K
+BRAIN_CORE_TOKEN_BUDGET = int(os.getenv("BRAIN_CORE_TOKEN_BUDGET", "4000"))
+BRAIN_TOPIC_TOKEN_BUDGET = int(os.getenv("BRAIN_TOPIC_TOKEN_BUDGET", "6000"))
 BRAIN_TEMPERATURE = float(os.getenv("BRAIN_TEMPERATURE", "0.7"))
 BRAIN_MIN_NOTES = int(os.getenv("BRAIN_MIN_NOTES", "3"))

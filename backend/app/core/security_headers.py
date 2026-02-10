@@ -59,15 +59,25 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "form-action 'self'",
         ])
 
+    def _is_inline_preview(self, request: Request) -> bool:
+        """Check if this request is for inline document preview (iframe-safe)."""
+        return (
+            "/documents/" in request.url.path
+            and request.url.path.endswith("/file")
+            and request.query_params.get("inline") == "true"
+        )
+
     async def dispatch(self, request: Request, call_next) -> Response:
         """Add security headers to the response."""
         response = await call_next(request)
+        allow_framing = self._is_inline_preview(request)
 
         # Prevent MIME type sniffing
         response.headers["X-Content-Type-Options"] = "nosniff"
 
-        # Prevent clickjacking - DENY means page cannot be displayed in iframe
-        response.headers["X-Frame-Options"] = "DENY"
+        # Clickjacking protection
+        # Allow same-origin framing for inline document preview
+        response.headers["X-Frame-Options"] = "SAMEORIGIN" if allow_framing else "DENY"
 
         # Legacy XSS protection for older browsers
         response.headers["X-XSS-Protection"] = "1; mode=block"
@@ -88,7 +98,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         )
 
         # Content Security Policy
-        response.headers["Content-Security-Policy"] = self.csp_policy
+        # Allow same-origin framing for inline document preview
+        if allow_framing:
+            response.headers["Content-Security-Policy"] = "frame-ancestors 'self'"
+        else:
+            response.headers["Content-Security-Policy"] = self.csp_policy
 
         # HSTS - only enable in production with valid HTTPS
         if self.enable_hsts:

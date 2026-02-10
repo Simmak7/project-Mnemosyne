@@ -9,7 +9,15 @@
   left: 0;
   top: 0;
   z-index: 100;
-  transition: all 0.3s ease;
+  transition: width 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+  /* Explicit font stack — prevent inheritance jitter from body */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  /* Own GPU layer — prevents text re-rasterization when content area compositing changes */
+  transform: translateZ(0);
+  contain: layout style;
 }
 
 .sidebar-header {
@@ -32,6 +40,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 700;
+  line-height: 1.2;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -56,10 +65,12 @@
   border: none;
   border-radius: 12px;
   color: var(--text-secondary);
+  font-family: inherit;
   font-size: 15px;
   font-weight: 500;
+  line-height: 1.5;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -125,10 +136,11 @@
   border: 1px solid var(--border-color);
   border-radius: 10px;
   color: var(--text-primary);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .theme-toggle:hover {
@@ -157,7 +169,7 @@
   padding: 12px;
   background: var(--hover-bg);
   border-radius: 12px;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
   cursor: pointer;
   border: 1px solid transparent;
 }
@@ -266,10 +278,11 @@
   background: transparent;
   border: none;
   color: var(--text-primary);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease;
   text-align: left;
 }
 
@@ -342,7 +355,7 @@
   font-family: monospace;
   color: var(--text-secondary);
   opacity: 0.6;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .nav-item.search-item:hover .search-kbd {

@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-const API_BASE = 'http://localhost:8000';
+import { api } from '../../../utils/api';
 
 /**
  * Hook for fetching and managing albums
@@ -18,23 +17,7 @@ export function useAlbums() {
   } = useQuery({
     queryKey: ['albums'],
     queryFn: async () => {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/albums/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          window.location.reload();
-        }
-        throw new Error('Failed to fetch albums');
-      }
-
-      return response.json();
+      return api.get('/albums/');
     },
     staleTime: 30000
   });
@@ -42,17 +25,7 @@ export function useAlbums() {
   // Create album mutation
   const createAlbum = useMutation({
     mutationFn: async ({ name, description }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/albums/`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, description })
-      });
-      if (!response.ok) throw new Error('Failed to create album');
-      return response.json();
+      return api.post('/albums/', { name, description });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['albums'] });
@@ -62,17 +35,7 @@ export function useAlbums() {
   // Update album mutation
   const updateAlbum = useMutation({
     mutationFn: async ({ albumId, name, description, cover_image_id }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/albums/${albumId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name, description, cover_image_id })
-      });
-      if (!response.ok) throw new Error('Failed to update album');
-      return response.json();
+      return api.put(`/albums/${albumId}`, { name, description, cover_image_id });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['albums'] });
@@ -82,13 +45,7 @@ export function useAlbums() {
   // Delete album mutation
   const deleteAlbum = useMutation({
     mutationFn: async (albumId) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/albums/${albumId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error('Failed to delete album');
-      return true;
+      return api.delete(`/albums/${albumId}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['albums'] });
@@ -98,17 +55,7 @@ export function useAlbums() {
   // Add images to album mutation
   const addImagesToAlbum = useMutation({
     mutationFn: async ({ albumId, imageIds }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/albums/${albumId}/images`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ image_ids: imageIds })
-      });
-      if (!response.ok) throw new Error('Failed to add images to album');
-      return response.json();
+      return api.post(`/albums/${albumId}/images`, { image_ids: imageIds });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['albums'] });
@@ -119,13 +66,9 @@ export function useAlbums() {
   // Remove images from album mutation
   const removeImagesFromAlbum = useMutation({
     mutationFn: async ({ albumId, imageIds }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/albums/${albumId}/images`, {
+      const response = await api.fetch(`/albums/${albumId}/images`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image_ids: imageIds })
       });
       if (!response.ok) throw new Error('Failed to remove images from album');
@@ -168,16 +111,7 @@ export function useAlbumImages(albumId) {
     queryKey: ['album-images', albumId],
     queryFn: async () => {
       if (!albumId) return [];
-
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error('Not authenticated');
-
-      const response = await fetch(`${API_BASE}/albums/${albumId}/images`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch album images');
-      return response.json();
+      return api.get(`/albums/${albumId}/images`);
     },
     enabled: !!albumId,
     staleTime: 30000

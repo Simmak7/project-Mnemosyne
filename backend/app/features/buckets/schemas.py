@@ -111,5 +111,28 @@ class DailyNotesListResponse(BaseModel):
     description: str = "Daily notes organized by date"
 
 
+# ============================================================================
+# Calendar Schemas
+# ============================================================================
+
+class CalendarDaySummary(BaseModel):
+    """Summary data for a single day in the calendar view."""
+    date: str
+    has_entry: bool
+    has_content: bool
+    task_count: int = 0
+    completed_tasks: int = 0
+    capture_count: int = 0
+    wikilink_count: int = 0
+    mood: Optional[str] = None
+
+
+class CalendarMonthResponse(BaseModel):
+    """Response for calendar month summary."""
+    year: int
+    month: int
+    days: List[CalendarDaySummary]
+
+
 # Resolve forward references
 ClusterNotesResponse.model_rebuild()

@@ -21,11 +21,11 @@ import {
   Tags,
   FolderPlus,
   FileEdit,
-  Languages
+  Languages,
+  Eye
 } from 'lucide-react';
 import { UPLOAD_FLAGS } from '../utils/featureFlags';
 import { PRESETS } from '../utils/promptComposer';
-import { getAvailableModels } from '../utils/modelMapper';
 
 import './AnalysisConfig.css';
 
@@ -71,6 +71,9 @@ const DEPTH_OPTIONS = [
  */
 function AnalysisConfig({
   config,
+  visionModel,
+  hasPdfs = false,
+  hasImages = false,
   onUserPromptChange,
   onModelChange,
   onPresetChange,
@@ -84,7 +87,8 @@ function AnalysisConfig({
   configSummary,
   albumPicker
 }) {
-  const models = getAvailableModels();
+  const pdfOnly = hasPdfs && !hasImages;
+  const mixedQueue = hasPdfs && hasImages;
 
   return (
     <div className="analysis-config">
@@ -116,8 +120,27 @@ function AnalysisConfig({
 
       {/* Main content */}
       <div className="config-content">
-        {/* Intent Presets (if enabled) */}
-        {UPLOAD_FLAGS.INTENT_PRESETS && (
+        {/* PDF-only info block */}
+        {pdfOnly && (
+          <div className="config-pdf-info">
+            <FileText size={16} />
+            <div>
+              <strong>PDF Analysis</strong>
+              <p>PDFs use automatic text extraction and AI enrichment. You can review and edit suggestions before creating notes.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Mixed queue notice */}
+        {mixedQueue && (
+          <div className="config-mixed-notice">
+            <Info size={14} />
+            <span>Settings below apply to images only. PDFs use automatic analysis.</span>
+          </div>
+        )}
+
+        {/* Intent Presets (if enabled, images only) */}
+        {UPLOAD_FLAGS.INTENT_PRESETS && !pdfOnly && (
           <div className="config-section">
             <h3 className="config-section-title">Analysis Type</h3>
             <div className="config-presets">
@@ -140,175 +163,175 @@ function AnalysisConfig({
           </div>
         )}
 
-        {/* Model Selection (if enabled) */}
-        {UPLOAD_FLAGS.MODEL_SELECTION && (
-          <div className="config-section">
-            <h3 className="config-section-title">AI Model</h3>
-            <div className="config-models">
-              {models.map(model => (
-                <button
-                  key={model.key}
-                  className={`config-model ${config.model === model.key ? 'active' : ''}`}
-                  onClick={() => onModelChange(model.key)}
-                  title={model.description}
-                >
-                  <span className="model-radio">
-                    {config.model === model.key ? '●' : '○'}
-                  </span>
-                  <span className="model-label">{model.label}</span>
-                  {model.default && (
-                    <span className="model-default">Default</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* User Prompt (if enabled) */}
         {UPLOAD_FLAGS.USER_PROMPT_LAYER && (
           <div className="config-section">
             <h3 className="config-section-title">
-              Additional Instructions
+              {pdfOnly ? 'Document Instructions' : 'Global Instructions'}
               <span className="config-optional">(optional)</span>
             </h3>
             <p className="config-section-hint">
-              Add context or specific focus areas for the analysis
+              {pdfOnly
+                ? 'Additional instructions for AI analysis. These guide what the AI focuses on in the document.'
+                : 'Applied to all files. Individual files can override this via "Custom instructions" on each file card.'}
             </p>
             <textarea
               className="config-prompt-input ng-glass-inset"
               value={config.userPrompt}
               onChange={(e) => onUserPromptChange(e.target.value)}
-              placeholder="e.g., Focus on extracting text and identifying key concepts..."
+              placeholder={pdfOnly
+                ? 'e.g., Focus on key arguments and conclusions, extract any tables or data...'
+                : 'e.g., Focus on extracting text and identifying key concepts...'}
               rows={4}
             />
           </div>
         )}
 
-        {/* Advanced Options (collapsed by default) */}
-        <div className="config-section config-advanced">
-          <button
-            className="config-advanced-toggle"
-            onClick={onToggleAdvanced}
-          >
-            {config.showAdvanced ? (
-              <ChevronDown size={16} />
-            ) : (
-              <ChevronRight size={16} />
-            )}
-            <span>Advanced Options</span>
-          </button>
+        {/* Advanced Options (collapsed by default, hidden for PDF-only) */}
+        {!pdfOnly && (
+          <div className="config-section config-advanced">
+            <button
+              className="config-advanced-toggle"
+              onClick={onToggleAdvanced}
+            >
+              {config.showAdvanced ? (
+                <ChevronDown size={16} />
+              ) : (
+                <ChevronRight size={16} />
+              )}
+              <span>Advanced Options</span>
+            </button>
 
-          {config.showAdvanced && (
-            <div className="config-advanced-content">
-              {/* Analysis Depth */}
-              <div className="config-advanced-section">
-                <h4 className="config-advanced-label">
-                  <Gauge size={14} />
-                  Analysis Depth
-                </h4>
-                <div className="config-depth-options">
-                  {DEPTH_OPTIONS.map(depth => {
-                    const DepthIcon = depth.icon;
-                    const isActive = config.analysisDepth === depth.id;
-                    return (
-                      <button
-                        key={depth.id}
-                        className={`config-depth-btn ${isActive ? 'active' : ''}`}
-                        onClick={() => onDepthChange(depth.id)}
-                        title={depth.description}
-                      >
-                        <DepthIcon size={14} />
-                        {depth.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Auto-Tagging */}
-              <div className="config-advanced-section">
-                <h4 className="config-advanced-label">
-                  <Tags size={14} />
-                  Auto-Tagging
-                </h4>
-                <div className="config-toggle-row">
-                  <label className="config-toggle">
-                    <input
-                      type="checkbox"
-                      checked={config.autoTagging}
-                      onChange={(e) => onAutoTaggingChange(e.target.checked)}
-                    />
-                    <span className="config-toggle-slider"></span>
-                    <span className="config-toggle-label">
-                      Extract tags automatically
-                    </span>
-                  </label>
-                </div>
-                {config.autoTagging && (
-                  <div className="config-slider-row">
-                    <span className="config-slider-label">Max tags:</span>
-                    <input
-                      type="range"
-                      min="1"
-                      max="10"
-                      value={config.maxTags}
-                      onChange={(e) => onMaxTagsChange(parseInt(e.target.value))}
-                      className="config-slider"
-                    />
-                    <span className="config-slider-value">{config.maxTags}</span>
+            {config.showAdvanced && (
+              <div className="config-advanced-content">
+                {/* Active Vision Model */}
+                {visionModel && (
+                  <div className="config-advanced-section">
+                    <h4 className="config-advanced-label">
+                      <Eye size={14} />
+                      AI Model
+                    </h4>
+                    <div className="config-model-info-display">
+                      <span className="config-model-name">{visionModel.name}</span>
+                      {visionModel.parameters && (
+                        <span className="config-model-params">{visionModel.parameters}</span>
+                      )}
+                      <span className={`config-model-status ${visionModel.is_available ? 'active' : 'unavailable'}`}>
+                        {visionModel.is_available ? 'Active' : 'Unavailable'}
+                      </span>
+                    </div>
                   </div>
                 )}
-              </div>
 
-              {/* Album Assignment */}
-              <div className="config-advanced-section">
-                <h4 className="config-advanced-label">
-                  <FolderPlus size={14} />
-                  Album Assignment
-                </h4>
-                {albumPicker || (
+                {/* Analysis Depth */}
+                <div className="config-advanced-section">
+                  <h4 className="config-advanced-label">
+                    <Gauge size={14} />
+                    Analysis Depth
+                  </h4>
+                  <div className="config-depth-options">
+                    {DEPTH_OPTIONS.map(depth => {
+                      const DepthIcon = depth.icon;
+                      const isActive = config.analysisDepth === depth.id;
+                      return (
+                        <button
+                          key={depth.id}
+                          className={`config-depth-btn ${isActive ? 'active' : ''}`}
+                          onClick={() => onDepthChange(depth.id)}
+                          title={depth.description}
+                        >
+                          <DepthIcon size={14} />
+                          {depth.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Auto-Tagging */}
+                <div className="config-advanced-section">
+                  <h4 className="config-advanced-label">
+                    <Tags size={14} />
+                    Auto-Tagging
+                  </h4>
+                  <div className="config-toggle-row">
+                    <label className="config-toggle">
+                      <input
+                        type="checkbox"
+                        checked={config.autoTagging}
+                        onChange={(e) => onAutoTaggingChange(e.target.checked)}
+                      />
+                      <span className="config-toggle-slider"></span>
+                      <span className="config-toggle-label">
+                        Extract tags automatically
+                      </span>
+                    </label>
+                  </div>
+                  {config.autoTagging && (
+                    <div className="config-slider-row">
+                      <span className="config-slider-label">Max tags:</span>
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={config.maxTags}
+                        onChange={(e) => onMaxTagsChange(parseInt(e.target.value))}
+                        className="config-slider"
+                      />
+                      <span className="config-slider-value">{config.maxTags}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Album Assignment */}
+                <div className="config-advanced-section">
+                  <h4 className="config-advanced-label">
+                    <FolderPlus size={14} />
+                    Album Assignment
+                  </h4>
+                  {albumPicker || (
+                    <p className="config-hint">
+                      Select an album to add uploaded images
+                    </p>
+                  )}
+                </div>
+
+                {/* Note Options */}
+                <div className="config-advanced-section">
+                  <h4 className="config-advanced-label">
+                    <FileEdit size={14} />
+                    Note Options
+                  </h4>
+                  <div className="config-toggle-row">
+                    <label className="config-toggle">
+                      <input
+                        type="checkbox"
+                        checked={config.autoCreateNote}
+                        onChange={(e) => onAutoCreateNoteChange(e.target.checked)}
+                      />
+                      <span className="config-toggle-slider"></span>
+                      <span className="config-toggle-label">
+                        Auto-create note from image
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Language - Coming Soon */}
+                <div className="config-advanced-section config-coming-soon">
+                  <h4 className="config-advanced-label">
+                    <Languages size={14} />
+                    Language
+                    <span className="config-badge-soon">Coming Soon</span>
+                  </h4>
                   <p className="config-hint">
-                    Select an album to add uploaded images
+                    Multi-language analysis support
                   </p>
-                )}
-              </div>
-
-              {/* Note Options */}
-              <div className="config-advanced-section">
-                <h4 className="config-advanced-label">
-                  <FileEdit size={14} />
-                  Note Options
-                </h4>
-                <div className="config-toggle-row">
-                  <label className="config-toggle">
-                    <input
-                      type="checkbox"
-                      checked={config.autoCreateNote}
-                      onChange={(e) => onAutoCreateNoteChange(e.target.checked)}
-                    />
-                    <span className="config-toggle-slider"></span>
-                    <span className="config-toggle-label">
-                      Auto-create note from image
-                    </span>
-                  </label>
                 </div>
               </div>
-
-              {/* Language - Coming Soon */}
-              <div className="config-advanced-section config-coming-soon">
-                <h4 className="config-advanced-label">
-                  <Languages size={14} />
-                  Language
-                  <span className="config-badge-soon">Coming Soon</span>
-                </h4>
-                <p className="config-hint">
-                  Multi-language analysis support
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Info footer */}

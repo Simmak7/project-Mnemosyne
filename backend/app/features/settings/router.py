@@ -68,7 +68,9 @@ async def update_preferences(
         ui_density=data.ui_density,
         font_size=data.font_size,
         sidebar_collapsed=data.sidebar_collapsed,
-        default_view=data.default_view
+        default_view=data.default_view,
+        rag_model=data.rag_model,
+        brain_model=data.brain_model
     )
 
     if error:

@@ -91,6 +91,69 @@
   to { transform: rotate(360deg); }
 }
 
+/* Search Dropdown */
+.explore-search__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--ng-space-1, 4px);
+  background: var(--ng-charcoal-800, #1a1a1a);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-lg, 8px);
+  max-height: 240px;
+  overflow-y: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 20;
+}
+
+.explore-search__loading,
+.explore-search__empty {
+  padding: var(--ng-space-3, 12px);
+  font-size: 12px;
+  color: var(--ng-text-muted, #6b7280);
+  text-align: center;
+}
+
+.explore-search__result {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  width: 100%;
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: none;
+  border: none;
+  color: var(--ng-text-secondary, #d1d5db);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s ease;
+}
+
+.explore-search__result:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.04));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.explore-search__icon--note { color: var(--ng-accent-note, #fbbf24); }
+.explore-search__icon--tag { color: var(--ng-accent-link, #34d399); }
+.explore-search__icon--image { color: var(--ng-accent-image, #22d3ee); }
+.explore-search__icon--entity { color: var(--ng-accent-ai, #818cf8); }
+
+.explore-search__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.explore-search__type {
+  font-size: 10px;
+  color: var(--ng-text-muted, #6b7280);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
 /* Focus Info */
 .explore-view__focus-info {
   position: absolute;
@@ -270,4 +333,18 @@
 
 [data-theme="light"] .explore-view__center-btn:hover {
   color: #ffffff;
+}
+
+[data-theme="light"] .explore-search__dropdown {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .explore-search__result:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .breadcrumbs {
+  background: rgba(255, 255, 255, 0.9);
 }

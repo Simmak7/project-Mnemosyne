@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RetrievalResult:
     """Result from semantic retrieval."""
-    source_type: str  # 'note', 'chunk', 'image', 'image_chunk'
+    source_type: str  # 'note', 'chunk', 'image', 'image_chunk', 'document_chunk'
     source_id: int
     title: str
     content: str
@@ -41,6 +41,7 @@ class RetrievalConfig:
     include_notes: bool = True
     include_chunks: bool = True
     include_images: bool = True
+    include_documents: bool = True
     chunk_boost: float = 1.1  # Boost chunk results slightly (more precise)
 
 
@@ -264,6 +265,84 @@ def semantic_search_images(
         return []
 
 
+def semantic_search_document_chunks(
+    db: Session,
+    query_embedding: List[float],
+    owner_id: int,
+    config: RetrievalConfig = None
+) -> List[RetrievalResult]:
+    """
+    Search document chunks by semantic similarity.
+
+    Args:
+        db: Database session
+        query_embedding: Query embedding vector
+        owner_id: User ID for filtering
+        config: Retrieval configuration
+
+    Returns:
+        List of RetrievalResult objects sorted by similarity
+    """
+    if config is None:
+        config = RetrievalConfig()
+
+    if not config.include_documents:
+        return []
+
+    try:
+        embedding_str = '[' + ','.join(map(str, query_embedding)) + ']'
+
+        result = db.execute(text("""
+            SELECT
+                dc.id,
+                dc.document_id,
+                dc.content,
+                dc.page_number,
+                d.filename,
+                d.display_name,
+                1 - (dc.embedding <=> CAST(:query_embedding AS vector)) AS similarity
+            FROM document_chunks dc
+            JOIN documents d ON dc.document_id = d.id
+            WHERE d.owner_id = :owner_id
+              AND d.is_trashed = false
+              AND dc.embedding IS NOT NULL
+              AND (1 - (dc.embedding <=> CAST(:query_embedding AS vector))) >= :min_similarity
+            ORDER BY similarity DESC
+            LIMIT :max_results
+        """), {
+            "query_embedding": embedding_str,
+            "owner_id": owner_id,
+            "min_similarity": config.min_similarity,
+            "max_results": config.max_results
+        })
+
+        results = []
+        for row in result:
+            doc_name = row.display_name or row.filename or 'Document'
+            page_info = f" (p.{row.page_number})" if row.page_number else ""
+
+            results.append(RetrievalResult(
+                source_type='document_chunk',
+                source_id=row.id,
+                title=f"{doc_name}{page_info}",
+                content=row.content,
+                similarity=float(row.similarity),
+                retrieval_method='document_chunk',
+                metadata={
+                    'document_id': row.document_id,
+                    'page_number': row.page_number,
+                    'filename': row.filename,
+                }
+            ))
+
+        logger.debug(f"Found {len(results)} document chunks via semantic search")
+        return results
+
+    except Exception as e:
+        logger.error(f"Error in semantic document chunk search: {e}")
+        return []
+
+
 def fulltext_search_notes(
     db: Session,
     query: str,
@@ -374,6 +453,11 @@ def combined_semantic_search(
     if config.include_images:
         image_results = semantic_search_images(db, query_embedding, owner_id, config)
         results.extend(image_results)
+
+    # Search document chunks
+    if config.include_documents:
+        doc_results = semantic_search_document_chunks(db, query_embedding, owner_id, config)
+        results.extend(doc_results)
 
     # Sort by similarity
     results.sort(key=lambda x: x.similarity, reverse=True)

@@ -1,25 +1,21 @@
 """
 Notes AI Enhancement Service
 
-Provides AI-powered note enhancement features:
-- Improve Title: Generate a better, more descriptive title
-- Summarize: Create a concise summary of note content
-- Suggest Wikilinks: Find potential [[wikilink]] connections
+AI-powered: Improve Title, Summarize, Suggest Wikilinks, Regenerate.
 """
 
 import logging
 import requests
-from typing import List, Dict, Optional
+from typing import List, Dict
 from sqlalchemy.orm import Session
 
 from core import config
 
 logger = logging.getLogger(__name__)
 
-# Ollama configuration
 OLLAMA_HOST = config.OLLAMA_HOST
 RAG_MODEL = config.RAG_MODEL
-RAG_TIMEOUT = 60  # Shorter timeout for quick operations
+RAG_TIMEOUT = 60
 
 
 def call_ollama(prompt: str, system_prompt: str, max_tokens: int = 256) -> str:
@@ -32,6 +28,7 @@ def call_ollama(prompt: str, system_prompt: str, max_tokens: int = 256) -> str:
                 "prompt": prompt,
                 "system": system_prompt,
                 "stream": False,
+                "think": False,
                 "options": {
                     "temperature": 0.7,
                     "num_predict": max_tokens,
@@ -50,32 +47,29 @@ def call_ollama(prompt: str, system_prompt: str, max_tokens: int = 256) -> str:
         raise Exception("AI service unavailable")
 
 
-# ============================================
-# Improve Title
-# ============================================
-
-IMPROVE_TITLE_SYSTEM = """You are a note title generator. Given note content, generate a clear, concise, descriptive title.
+IMPROVE_TITLE_SYSTEM = """You are a note title generator. Given note content, generate a clear, concise, descriptive title that is DIFFERENT from the current one.
 
 Rules:
+- Title MUST be different from the current title
 - Title should be 3-8 words
 - Capture the main topic or theme
 - Use title case
 - No quotes, punctuation at end, or special characters
 - Be specific, not generic
+- Do NOT repeat or rephrase the current title
 
-Respond with ONLY the title, nothing else."""
+Respond with ONLY the new title, nothing else."""
 
 def improve_title(content: str, current_title: str) -> str:
     """Generate an improved title for a note."""
-    # Truncate content for prompt
     content_preview = content[:2000] if len(content) > 2000 else content
 
-    prompt = f"""Current title: {current_title}
+    prompt = f"""The current title is "{current_title}" but I need a DIFFERENT, better title.
 
 Note content:
 {content_preview}
 
-Generate a better, more descriptive title:"""
+Generate a completely new, more descriptive title (must be different from "{current_title}"):"""
 
     result = call_ollama(prompt, IMPROVE_TITLE_SYSTEM, max_tokens=50)
 
@@ -83,13 +77,25 @@ Generate a better, more descriptive title:"""
     result = result.strip('"\'').strip()
     if result.endswith('.'):
         result = result[:-1]
+    # Remove any leading "Title:" or similar prefixes
+    for prefix in ['Title:', 'New Title:', 'Suggested Title:', 'Improved Title:']:
+        if result.lower().startswith(prefix.lower()):
+            result = result[len(prefix):].strip()
+
+    # If AI returned the same title or empty, try harder
+    if not result or result.lower().strip() == current_title.lower().strip():
+        retry_prompt = f"""Read this note and create a SHORT title (3-6 words) that summarizes the key topic. Do NOT use the title "{current_title}".
+
+{content_preview[:1000]}
+
+New title:"""
+        result = call_ollama(retry_prompt, IMPROVE_TITLE_SYSTEM, max_tokens=50)
+        result = result.strip('"\'').strip()
+        if result.endswith('.'):
+            result = result[:-1]
 
     return result or current_title
 
-
-# ============================================
-# Summarize
-# ============================================
 
 SUMMARIZE_SYSTEM = """You are a note summarizer. Create a concise summary of the note content.
 
@@ -103,7 +109,6 @@ Respond with ONLY the summary, nothing else."""
 
 def summarize_note(content: str, title: str) -> str:
     """Generate a summary of a note."""
-    # Truncate content for prompt
     content_preview = content[:3000] if len(content) > 3000 else content
 
     prompt = f"""Title: {title}
@@ -116,21 +121,20 @@ Provide a concise summary:"""
     return call_ollama(prompt, SUMMARIZE_SYSTEM, max_tokens=200)
 
 
-# ============================================
-# Suggest Wikilinks
-# ============================================
-
-SUGGEST_WIKILINKS_SYSTEM = """You are a knowledge connection assistant. Given a note and a list of other note titles, suggest which existing notes could be linked using [[wikilinks]].
+SUGGEST_WIKILINKS_SYSTEM = """You are a knowledge connection assistant. Given a note and a numbered list of other note titles, suggest which existing notes should be linked.
 
 Rules:
-- Only suggest links to notes from the provided list
+- ONLY suggest notes from the numbered list below
+- Use the EXACT title as shown in the list (copy it exactly)
 - Explain briefly why each connection makes sense
 - Maximum 5 suggestions
-- Focus on meaningful semantic connections
+- Focus on meaningful semantic connections, not vague ones
 
-Respond in this format:
-1. [[Note Title]] - reason for connection
-2. [[Another Title]] - reason for connection"""
+Respond in this EXACT format (use the number and exact title from the list):
+1. [[Exact Note Title From List]] - reason for connection
+2. [[Another Exact Title From List]] - reason for connection
+
+If no meaningful connections exist, respond with: NO_CONNECTIONS"""
 
 def suggest_wikilinks(
     db: Session,
@@ -141,36 +145,40 @@ def suggest_wikilinks(
 ) -> List[Dict]:
     """Suggest potential wikilink connections for a note."""
     from features.notes.models import Note
+    from difflib import get_close_matches
 
-    # Get other notes by the user (excluding current note)
     other_notes = db.query(Note).filter(
         Note.owner_id == owner_id,
-        Note.id != note_id
+        Note.id != note_id,
+        Note.is_trashed == False
     ).limit(100).all()
 
     if not other_notes:
         return []
 
-    # Build list of available titles
-    available_titles = [n.title for n in other_notes]
-    titles_list = "\n".join(f"- {t}" for t in available_titles[:50])
+    available_titles = [n.title for n in other_notes if n.title]
+    titles_list = "\n".join(f"{i+1}. {t}" for i, t in enumerate(available_titles[:50]))
 
-    # Truncate content
     content_preview = content[:2000] if len(content) > 2000 else content
 
-    prompt = f"""Current note title: {title}
+    prompt = f"""Current note: "{title}"
 
-Current note content:
+Content:
 {content_preview}
 
-Available notes to link to:
+Available notes (use EXACT titles from this list):
 {titles_list}
 
-Suggest connections:"""
+Which of these notes are related? Suggest connections using [[exact title]]:"""
 
-    result = call_ollama(prompt, SUGGEST_WIKILINKS_SYSTEM, max_tokens=400)
+    result = call_ollama(prompt, SUGGEST_WIKILINKS_SYSTEM, max_tokens=500)
 
-    # Parse suggestions
+    if 'NO_CONNECTIONS' in result:
+        return []
+
+    title_to_note = {n.title.lower(): n for n in other_notes if n.title}
+    all_titles_lower = list(title_to_note.keys())
+
     suggestions = []
     for line in result.split('\n'):
         line = line.strip()
@@ -179,122 +187,40 @@ Suggest connections:"""
             start = line.find('[[') + 2
             end = line.find(']]')
             if start > 1 and end > start:
-                suggested_title = line[start:end]
-                # Find the note
-                for note in other_notes:
-                    if note.title.lower() == suggested_title.lower():
-                        reason = ""
-                        if ' - ' in line:
-                            reason = line.split(' - ', 1)[1]
-                        suggestions.append({
-                            "note_id": note.id,
-                            "title": note.title,
-                            "reason": reason
-                        })
-                        break
+                suggested_title = line[start:end].strip()
+
+                # Try exact match first (case-insensitive)
+                matched_note = title_to_note.get(suggested_title.lower())
+
+                # Try fuzzy match if exact match fails
+                if not matched_note and all_titles_lower:
+                    close = get_close_matches(
+                        suggested_title.lower(),
+                        all_titles_lower,
+                        n=1,
+                        cutoff=0.6
+                    )
+                    if close:
+                        matched_note = title_to_note.get(close[0])
+
+                if matched_note:
+                    # Avoid duplicates
+                    if any(s['note_id'] == matched_note.id for s in suggestions):
+                        continue
+                    reason = ""
+                    if ' - ' in line:
+                        reason = line.split(' - ', 1)[1].strip()
+                    suggestions.append({
+                        "note_id": matched_note.id,
+                        "title": matched_note.title,
+                        "reason": reason
+                    })
 
     return suggestions[:5]
 
 
-# ============================================
-# Regenerate from Source Image
-# ============================================
-
-def regenerate_from_source(db: Session, note_id: int, owner_id: int) -> Dict:
-    """
-    Re-analyze the linked image and regenerate note content.
-
-    Args:
-        db: Database session
-        note_id: ID of the note to regenerate
-        owner_id: Owner ID for authorization
-
-    Returns:
-        Dict with new_content and new_title
-    """
-    from features.notes.models import Note
-    from model_router import ModelRouter
-    from sqlalchemy.orm import joinedload
-
-    # Get the note with its linked images (eager load the images relationship)
-    note = db.query(Note).options(
-        joinedload(Note.images)
-    ).filter(
-        Note.id == note_id,
-        Note.owner_id == owner_id
-    ).first()
-
-    if not note:
-        raise ValueError("Note not found")
-
-    # Use the images relationship directly
-    linked_images = note.images
-
-    if not linked_images:
-        raise ValueError("No linked images found for this note. The note must be linked to at least one image.")
-
-    # Use the first linked image
-    image = linked_images[0]
-
-    if not image.filepath:
-        raise ValueError(f"Image file path not found for image ID {image.id}")
-
-    # Check if file exists - handle both absolute and relative paths
-    from pathlib import Path
-    import os
-    from core import config
-
-    image_path = Path(image.filepath)
-
-    # If path doesn't exist as-is, try with upload dir prefix
-    if not image_path.exists():
-        # Try as relative to upload dir
-        alt_path = Path(config.UPLOAD_DIR) / image.filepath
-        if alt_path.exists():
-            image_path = alt_path
-        else:
-            # Try extracting just the filename and looking in upload dir
-            filename_only = Path(image.filepath).name
-            alt_path = Path(config.UPLOAD_DIR) / filename_only
-            if alt_path.exists():
-                image_path = alt_path
-            else:
-                raise ValueError(f"Image file no longer exists at path: {image.filepath}")
-
-    # Use ModelRouter to re-analyze the image
-    router = ModelRouter(ollama_host=OLLAMA_HOST)
-
-    resolved_path = str(image_path)
-    logger.info(f"Regenerating analysis for note {note_id} from image {image.id} at {resolved_path}")
-
-    result = router.analyze_image(
-        image_path=resolved_path,
-        timeout=120  # Slightly longer timeout for regeneration
-    )
-
-    if result.get("status") != "success":
-        error_msg = result.get("error", "Unknown error from model router")
-        raise Exception(f"AI analysis failed: {error_msg}")
-
-    new_content = result.get("response", "")
-
-    # Extract a new title from the content
-    from features.images.tasks import generate_note_title, extract_image_metadata
-    metadata = extract_image_metadata(resolved_path)
-    new_title = generate_note_title(new_content, image.filename, metadata)
-
-    logger.info(f"Regenerated content for note {note_id}: {len(new_content)} chars")
-
-    return {
-        "new_content": new_content,
-        "new_title": new_title,
-        "image_id": image.id
-    }
-
-
-# ============================================
-# Enhance All (Combined)
-# ============================================
+# Re-export from split module
+from features.notes.ai_regenerate import regenerate_from_source  # noqa: F401
 
 def enhance_note(
     db: Session,

@@ -54,6 +54,7 @@ def call_ollama_generate(prompt: str, system: str = "", model: str = None) -> st
                 "prompt": prompt,
                 "system": system,
                 "stream": False,
+                "think": False,
                 "options": {
                     "temperature": temperature,
                     "num_predict": 2048,

@@ -136,7 +136,7 @@ function TimelineScrubber({ markers, activeMarker, onMarkerClick }) {
       onMouseDown={handleMouseDown}
     >
       <div className="scrubber-track">
-        {Object.entries(markersByYear).map(([year, yearMarkers]) => (
+        {Object.entries(markersByYear).sort(([a], [b]) => Number(b) - Number(a)).map(([year, yearMarkers]) => (
           <div key={year} className="year-group">
             <div className="year-label">{year}</div>
             <div className="month-markers">

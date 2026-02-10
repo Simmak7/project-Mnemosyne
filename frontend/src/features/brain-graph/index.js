@@ -16,7 +16,7 @@ export { MediaView } from './views/MediaView';
 export { PathFinderView } from './views/PathFinderView';
 
 // Hooks
-export { useGraphData } from './hooks/useGraphData';
+export { useLocalGraph, useMapGraph, useGraphStats } from './hooks/useGraphData';
 export { useGraphState } from './hooks/useGraphState';
 export { useGraphLayout } from './hooks/useGraphLayout';
 export { useGraphFilters } from './hooks/useGraphFilters';

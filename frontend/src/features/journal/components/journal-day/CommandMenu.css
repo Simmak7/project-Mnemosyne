@@ -1,0 +1,113 @@
+/* CommandMenu.css */
+
+.command-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--ng-space-2, 8px);
+  background: var(--ng-charcoal-900, #1a1a2e);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-lg, 8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 200;
+  overflow: hidden;
+  animation: ng-fade-up var(--ng-duration-fast, 100ms) var(--ng-ease-out, ease-out);
+}
+
+.command-menu-header {
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  background: var(--ng-charcoal-800, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.command-menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  width: 100%;
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  transition: background var(--ng-transition-fast, 100ms ease-out);
+  text-align: left;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+}
+
+.command-menu-item:hover,
+.command-menu-item--selected {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+}
+
+.command-menu-item--selected {
+  border-left-color: var(--ng-accent-ai, #818cf8);
+}
+
+.command-menu-icon {
+  color: var(--ng-accent-ai, #818cf8);
+  flex-shrink: 0;
+}
+
+.command-menu-name {
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+  font-family: var(--ng-font-mono, 'JetBrains Mono', monospace);
+}
+
+.command-menu-desc {
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  margin-left: auto;
+}
+
+.command-menu-hint {
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  font-size: 10px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  background: var(--ng-charcoal-800, rgba(255, 255, 255, 0.03));
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  display: flex;
+  gap: var(--ng-space-2, 8px);
+}
+
+.command-menu-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 4px;
+  background: var(--ng-charcoal-700, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-sm, 4px);
+  font-family: var(--ng-font-mono, 'JetBrains Mono', monospace);
+  font-size: 10px;
+}
+
+/* Light Mode */
+[data-theme="light"] .command-menu {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .command-menu-header {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .command-menu-item:hover,
+[data-theme="light"] .command-menu-item--selected {
+  background: rgba(129, 140, 248, 0.1);
+}
+
+[data-theme="light"] .command-menu-hint {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .command-menu-hint kbd {
+  background: var(--ng-slate-200, #e2e8f0);
+}

@@ -1,0 +1,572 @@
+.document-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.document-header {
+  padding: 16px 24px 12px;
+  flex-shrink: 0;
+}
+
+.document-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.document-header-title h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--ng-text-primary, #e4e4e7);
+  margin: 0;
+}
+
+.document-header-icon {
+  color: var(--ng-accent-ai, #fb7185);
+}
+
+.document-panel-group {
+  flex: 1;
+  min-height: 0;
+}
+
+.document-list-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0 12px;
+}
+
+.document-detail-panel {
+  height: 100%;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+
+.document-resize-handle {
+  width: 4px;
+  background: transparent;
+  transition: background 0.15s;
+  cursor: col-resize;
+}
+
+.document-resize-handle:hover,
+.document-resize-handle[data-resize-handle-active] {
+  background: var(--ng-accent-ai, #fb7185);
+}
+
+/* ============================================
+   Header count badge
+   ============================================ */
+.document-header-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--ng-accent-ai, #fb7185);
+  background: rgba(251, 113, 133, 0.12);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ============================================
+   Redesigned Filter Tabs
+   ============================================ */
+.document-filter-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 8px 0;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.document-filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  color: var(--ng-text-secondary, #a1a1aa);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.document-filter-tab:hover {
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-1px);
+}
+
+/* Count badge inside tabs */
+.filter-tab-count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ng-text-muted, #71717a);
+  min-width: 18px;
+  text-align: center;
+}
+
+/* --- Neutral (All) --- */
+.document-filter-tab--neutral.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--ng-text-primary, #e4e4e7);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+.document-filter-tab--neutral.active .filter-tab-count {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ng-text-primary, #e4e4e7);
+}
+
+/* --- Amber (Needs Review) --- */
+.document-filter-tab--amber.active {
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.1);
+}
+
+.document-filter-tab--amber.active .filter-tab-count {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+}
+
+/* --- Green (Completed) --- */
+.document-filter-tab--green.active {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.1);
+}
+
+.document-filter-tab--green.active .filter-tab-count {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+/* --- Red (Failed) --- */
+.document-filter-tab--red.active {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.1);
+}
+
+.document-filter-tab--red.active .filter-tab-count {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* ============================================
+   Collections Section
+   ============================================ */
+.document-collections-section {
+  flex-shrink: 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 2px;
+}
+
+.collections-section-header-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.collections-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  color: var(--ng-text-secondary, #a1a1aa);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.collections-section-header:hover {
+  color: var(--ng-text-primary, #e4e4e7);
+}
+
+.collections-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ng-text-muted, #71717a);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.collections-add-btn:hover {
+  background: rgba(251, 113, 133, 0.12);
+  color: #fb7185;
+}
+
+.collections-header-count {
+  font-size: 0.6rem;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ng-text-muted, #71717a);
+}
+
+.collections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 0;
+}
+
+.collection-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ng-text-secondary, #a1a1aa);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.collection-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ng-text-primary, #e4e4e7);
+}
+
+.collection-item.active {
+  background: rgba(251, 113, 133, 0.1);
+  color: #fb7185;
+}
+
+.collection-item-icon {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.collection-item-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collection-doc-count {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 1px 5px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ng-text-muted, #71717a);
+  flex-shrink: 0;
+}
+
+.collection-item.active .collection-doc-count {
+  background: rgba(251, 113, 133, 0.15);
+  color: #fb7185;
+}
+
+.collection-item-delete {
+  display: none;
+  padding: 2px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ng-text-muted, #71717a);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.collection-item:hover .collection-item-delete {
+  display: flex;
+}
+
+.collection-item-delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Inline create collection form */
+.collection-create-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px;
+}
+
+.collection-create-input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ng-text-primary, #e4e4e7);
+  font-size: 0.76rem;
+  font-family: inherit;
+}
+
+.collection-create-input:focus {
+  outline: none;
+  border-color: rgba(251, 113, 133, 0.5);
+}
+
+.collection-create-input::placeholder {
+  color: var(--ng-text-muted, #71717a);
+}
+
+.collection-create-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ng-text-muted, #71717a);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+
+.collection-create-btn.confirm:hover {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #34d399;
+}
+
+.collection-create-btn.cancel:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.collection-create-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.collections-empty-hint {
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  color: var(--ng-text-muted, #71717a);
+}
+
+/* ============================================
+   Toolbar
+   ============================================ */
+.document-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.document-search-input {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ng-text-primary, #e4e4e7);
+  font-size: 0.78rem;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.document-search-input::placeholder {
+  color: var(--ng-text-muted, #71717a);
+}
+
+.document-search-input:focus {
+  outline: none;
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.document-toolbar-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.document-select {
+  flex: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.04));
+  color: var(--ng-text-secondary, #a1a1aa);
+  font-size: 0.72rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.document-select option {
+  background: var(--ng-surface-1, #1a1a2e);
+  color: var(--ng-text-primary, #e4e4e7);
+}
+
+.document-select:focus {
+  outline: none;
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.document-sort-order {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ng-text-secondary, #a1a1aa);
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.document-sort-order:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ng-text-primary, #e4e4e7);
+}
+
+/* Empty state */
+.document-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--ng-text-muted, #71717a);
+}
+
+.document-empty-state p {
+  font-size: 0.85rem;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .document-filter-tab {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="light"] .document-filter-tab:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .document-filter-tab--neutral.active {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.12);
+  color: #18181b;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .document-filter-tab--neutral.active .filter-tab-count {
+  background: rgba(0, 0, 0, 0.08);
+  color: #18181b;
+}
+
+[data-theme="light"] .document-filter-tab--amber.active {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: #b45309;
+  box-shadow: 0 0 8px rgba(217, 119, 6, 0.08);
+}
+
+[data-theme="light"] .document-filter-tab--amber.active .filter-tab-count {
+  background: rgba(217, 119, 6, 0.15);
+  color: #b45309;
+}
+
+[data-theme="light"] .document-filter-tab--green.active {
+  background: rgba(5, 150, 105, 0.12);
+  border-color: rgba(5, 150, 105, 0.25);
+  color: #047857;
+  box-shadow: 0 0 8px rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .document-filter-tab--green.active .filter-tab-count {
+  background: rgba(5, 150, 105, 0.15);
+  color: #047857;
+}
+
+[data-theme="light"] .document-filter-tab--red.active {
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: #dc2626;
+  box-shadow: 0 0 8px rgba(220, 38, 38, 0.08);
+}
+
+[data-theme="light"] .document-filter-tab--red.active .filter-tab-count {
+  background: rgba(220, 38, 38, 0.15);
+  color: #dc2626;
+}
+
+[data-theme="light"] .filter-tab-count {
+  background: rgba(0, 0, 0, 0.05);
+  color: #71717a;
+}
+
+[data-theme="light"] .document-select option {
+  background: #ffffff;
+  color: #18181b;
+}
+
+[data-theme="light"] .collection-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .collection-item.active {
+  background: rgba(251, 113, 133, 0.08);
+}
+
+[data-theme="light"] .collections-section-header:hover {
+  color: #18181b;
+}
+
+[data-theme="light"] .collections-add-btn:hover {
+  background: rgba(251, 113, 133, 0.1);
+}
+
+[data-theme="light"] .document-collections-section {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .collection-create-input {
+  border-color: rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.03);
+  color: #18181b;
+}
+
+[data-theme="light"] .collection-create-btn {
+  border-color: rgba(0, 0, 0, 0.1);
+}

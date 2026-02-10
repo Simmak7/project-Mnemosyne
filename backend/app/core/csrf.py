@@ -40,6 +40,7 @@ CSRF_EXEMPT_PATHS = {
     "/login",
     "/login/2fa",
     "/register",
+    "/auth/refresh",
     "/health",
     "/",
     "/docs",
@@ -129,8 +130,13 @@ class CSRFMiddleware(BaseHTTPMiddleware):
         if method not in CSRF_PROTECTED_METHODS or self._is_exempt(path):
             response = await call_next(request)
 
-            # Generate new CSRF token if one doesn't exist
-            if not self._get_csrf_from_cookie(request):
+            # Get existing token or generate new one
+            existing_token = self._get_csrf_from_cookie(request)
+            if existing_token:
+                # Always send existing token in header so frontend can access it
+                response.headers[CSRF_HEADER_NAME] = existing_token
+            else:
+                # Generate new CSRF token if one doesn't exist
                 token = generate_csrf_token()
                 set_csrf_cookie(response, token, self.secure_cookies)
                 response.headers[CSRF_HEADER_NAME] = token

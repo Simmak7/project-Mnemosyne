@@ -1,0 +1,114 @@
+/* OpenTasksPanel.css */
+
+.open-tasks-panel {
+  border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  padding-top: var(--ng-space-3, 12px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.open-tasks-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  width: 100%;
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.open-tasks-header:hover {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.open-tasks-header .insight-section-title {
+  flex: 1;
+  text-align: left;
+  margin: 0;
+}
+
+.open-tasks-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 12px);
+  margin-top: var(--ng-space-2, 8px);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.open-tasks-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.open-tasks-date-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ng-accent-note, #fbbf24);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.open-tasks-date-label:hover {
+  color: #f59e0b;
+  text-decoration: underline;
+}
+
+.open-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--ng-transition-fast, 100ms ease-out);
+}
+
+.open-task-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+.open-task-circle {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.open-task-text {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-primary, #ffffff);
+  line-height: 1.4;
+}
+
+/* Light Mode */
+[data-theme="light"] .open-task-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .open-tasks-date-label {
+  color: #d97706;
+}
+
+[data-theme="light"] .open-tasks-date-label:hover {
+  color: #b45309;
+}

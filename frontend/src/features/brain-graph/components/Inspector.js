@@ -5,15 +5,16 @@
  * Also shows "Why Connected?" for edges.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   X, FileText, Tag, Image, Sparkles, ExternalLink,
-  Maximize2, Pin, PinOff, ArrowRight, ArrowLeft, Calendar,
-  Route, Target, Link2
+  Maximize2, Pin, PinOff, Calendar, Route, Target, Link2,
+  ChevronDown, ChevronUp, FileScan
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 import { getNodeColor } from '../utils/nodeRendering';
-import { getEdgeLabel, getEdgeColor } from '../utils/edgeRendering';
+import { formatDate, getNodeId, getNodePath } from '../utils/nodeHelpers';
+import { EdgeDetails } from './EdgeDetails';
+import { BacklinksSection } from './BacklinksSection';
 import './Inspector.css';
 
 // Icon mapping for node types
@@ -22,11 +23,46 @@ const NODE_ICONS = {
   tag: Tag,
   image: Image,
   media: Image,
+  document: FileScan,
   entity: Sparkles,
 };
 
 // API base for image thumbnails
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+
+// Edge type display config
+const EDGE_TYPE_CONFIG = {
+  wikilink: { label: 'Wikilinks', color: '#e5e7eb' },
+  tag: { label: 'Tags', color: '#34d399' },
+  image: { label: 'Images', color: '#22d3ee' },
+  source: { label: 'Sources', color: '#fb7185' },
+  semantic: { label: 'Semantic', color: '#818cf8' },
+  mentions: { label: 'Mentions', color: '#a78bfa' },
+  session: { label: 'Session', color: '#9ca3af' },
+};
+
+function ExcerptBlock({ metadata }) {
+  const [expanded, setExpanded] = useState(false);
+  const hasMore = metadata.full_excerpt && metadata.full_excerpt.length > (metadata.excerpt?.length || 0);
+  const text = expanded ? metadata.full_excerpt : metadata.excerpt;
+
+  return (
+    <div className="inspector__excerpt-wrapper">
+      <p className={`inspector__excerpt ${!expanded ? 'inspector__excerpt--collapsed' : ''}`}>
+        {text}
+      </p>
+      {hasMore && (
+        <button
+          className="inspector__excerpt-toggle"
+          onClick={() => setExpanded(prev => !prev)}
+        >
+          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function Inspector({
   selectedNode,
@@ -37,6 +73,7 @@ export function Inspector({
   onPin,
   onFindPath,
   onSetFocus,
+  edgeBreakdown,
   isPinned,
 }) {
   // Nothing selected
@@ -106,6 +143,28 @@ export function Inspector({
         </section>
       )}
 
+      {/* Document details */}
+      {type === 'document' && selectedNode.metadata && (
+        <section className="inspector__section">
+          <div className="inspector__meta-row">
+            <FileScan size={14} />
+            <span>{selectedNode.metadata.documentType || 'PDF'}</span>
+          </div>
+          {selectedNode.metadata.pageCount && (
+            <div className="inspector__meta-row">
+              <FileText size={14} />
+              <span>{selectedNode.metadata.pageCount} pages</span>
+            </div>
+          )}
+          {selectedNode.metadata.summaryNoteId && (
+            <div className="inspector__meta-row">
+              <Link2 size={14} />
+              <span>Summary note #{selectedNode.metadata.summaryNoteId}</span>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Metadata */}
       <section className="inspector__section">
         <h4 className="inspector__section-title">Details</h4>
@@ -126,9 +185,7 @@ export function Inspector({
 
         {/* Excerpt for notes */}
         {selectedNode.metadata?.excerpt && (
-          <p className="inspector__excerpt">
-            {selectedNode.metadata.excerpt}
-          </p>
+          <ExcerptBlock metadata={selectedNode.metadata} />
         )}
 
         {/* Description for images */}
@@ -143,45 +200,38 @@ export function Inspector({
       <section className="inspector__section">
         <h4 className="inspector__section-title">Connections</h4>
 
-        {/* Total connections (from val or connections property) */}
+        {/* Total connections */}
         {(selectedNode.connections > 0 || selectedNode.val > 0) && (
           <div className="inspector__connection-row">
             <Link2 size={14} />
-            <span>{selectedNode.connections || selectedNode.val} total connections</span>
+            <span>{selectedNode.connections || selectedNode.val} total</span>
           </div>
         )}
 
-        {/* Outgoing links if available */}
-        {selectedNode.outLinks > 0 && (
-          <div className="inspector__connection-row">
-            <ArrowRight size={14} />
-            <span>{selectedNode.outLinks} outgoing links</span>
-          </div>
-        )}
+        {/* Breakdown by edge type */}
+        {edgeBreakdown && Object.entries(edgeBreakdown)
+          .sort(([, a], [, b]) => b - a)
+          .map(([edgeType, count]) => {
+            const cfg = EDGE_TYPE_CONFIG[edgeType] || { label: edgeType, color: '#9ca3af' };
+            return (
+              <div key={edgeType} className="inspector__connection-row">
+                <span className="inspector__edge-dot" style={{ background: cfg.color }} />
+                <span>{count} {cfg.label}</span>
+              </div>
+            );
+          })
+        }
 
-        {/* Incoming links if available */}
-        {selectedNode.inLinks > 0 && (
-          <div className="inspector__connection-row">
-            <ArrowLeft size={14} />
-            <span>{selectedNode.inLinks} backlinks</span>
-          </div>
-        )}
-
-        {/* Tags count if available */}
-        {selectedNode.tags?.length > 0 && (
-          <div className="inspector__connection-row">
-            <Tag size={14} />
-            <span>{selectedNode.tags.length} tags</span>
-          </div>
-        )}
-
-        {/* Show message if no connection data */}
-        {!selectedNode.connections && !selectedNode.val && !selectedNode.outLinks && !selectedNode.inLinks && (
-          <p className="inspector__empty-connections">
-            Select node to see connections
-          </p>
+        {!selectedNode.connections && !selectedNode.val && !edgeBreakdown && (
+          <p className="inspector__empty-connections">No connections found</p>
         )}
       </section>
+
+      {/* Backlinks */}
+      <BacklinksSection
+        nodeId={selectedNode.id}
+        onFocusNode={(id) => onSetFocus?.({ id })}
+      />
 
       {/* Actions */}
       <section className="inspector__section">
@@ -235,78 +285,6 @@ export function Inspector({
       </section>
     </div>
   );
-}
-
-// Edge details sub-component
-function EdgeDetails({ edge, onClose }) {
-  const colors = getEdgeColor(edge);
-
-  return (
-    <>
-      <div className="inspector__header">
-        <h3 className="inspector__title">Connection</h3>
-        <button className="inspector__close" onClick={onClose}>
-          <X size={16} />
-        </button>
-      </div>
-
-      <div
-        className="inspector__type-badge"
-        style={{ backgroundColor: colors.glow, color: colors.highlight }}
-      >
-        {edge.type}
-      </div>
-
-      <section className="inspector__section">
-        <h4 className="inspector__section-title">Why Connected?</h4>
-        <p className="inspector__excerpt">
-          {getEdgeLabel(edge)}
-        </p>
-        {edge.weight && (
-          <div className="inspector__meta-row">
-            <span>Strength: {Math.round(edge.weight * 100)}%</span>
-          </div>
-        )}
-      </section>
-
-      {edge.evidence?.snippets?.length > 0 && (
-        <section className="inspector__section">
-          <h4 className="inspector__section-title">Evidence</h4>
-          {edge.evidence.snippets.map((snippet, i) => (
-            <p key={i} className="inspector__snippet">{snippet}</p>
-          ))}
-        </section>
-      )}
-    </>
-  );
-}
-
-// Helper functions
-function formatDate(dateStr) {
-  try {
-    return formatDistanceToNow(new Date(dateStr), { addSuffix: true });
-  } catch {
-    return dateStr;
-  }
-}
-
-function getNodeId(node) {
-  // Extract numeric ID from node ID (e.g., "image-123" -> "123")
-  if (!node?.id) return '';
-  const [, ...idParts] = node.id.split('-');
-  return idParts.join('-');
-}
-
-function getNodePath(node) {
-  // Node IDs use format "type-id" (e.g., "note-123", "image-456")
-  const [type, ...idParts] = node.id.split('-');
-  const id = idParts.join('-'); // Rejoin in case ID contains hyphens
-  switch (type) {
-    case 'note': return `/notes/${id}`;
-    case 'image': return `/gallery?image=${id}`;
-    case 'tag': return `/tags/${encodeURIComponent(id)}`;
-    default: return '/';
-  }
 }
 
 export default Inspector;

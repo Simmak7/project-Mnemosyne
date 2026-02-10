@@ -349,6 +349,22 @@
   color: #f87171;
 }
 
+/* Model used indicator */
+.message-model-used {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.message-model-used svg {
+  opacity: 0.5;
+}
+
 /* Empty State */
 .chat-empty-state {
   display: flex;

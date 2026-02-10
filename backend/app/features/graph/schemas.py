@@ -167,17 +167,21 @@ class TypedNodeMetadata(BaseModel):
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
     excerpt: Optional[str] = None
+    full_excerpt: Optional[str] = None
     thumbnail: Optional[str] = None
     color: Optional[str] = None
     community_id: Optional[int] = None
     note_count: Optional[int] = None
+    document_type: Optional[str] = None
+    page_count: Optional[int] = None
+    summary_note_id: Optional[int] = None
 
 
 class TypedGraphNode(BaseModel):
     """
     Node in the typed knowledge graph.
 
-    Node types: 'note', 'tag', 'image', 'collection', 'entity', 'session'
+    Node types: 'note', 'tag', 'image', 'document', 'collection', 'entity', 'session'
     Node ID format: '{type}-{id}' (e.g., 'note-123', 'tag-456')
     """
     id: str = Field(..., description="Format: 'note-{id}', 'tag-{id}', etc.")

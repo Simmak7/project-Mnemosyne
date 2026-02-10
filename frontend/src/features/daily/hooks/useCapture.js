@@ -7,6 +7,8 @@ import { useState, useCallback } from 'react';
  * - /todo → Creates checkbox item (task list)
  * - /img → Opens image picker (placeholder)
  * - /link → Opens note picker (wikilink)
+ * - /tag → Adds a tag to the note
+ * - /mood → Sets mood for the day
  *
  * @param {Function} onCapture - Callback to handle captured content: (type, content) => void
  * @returns {Object} { capture, isCapturing, parseCommand }
@@ -17,47 +19,50 @@ export function useCapture(onCapture) {
   /**
    * Parse text for quick commands
    * @param {string} text - Raw input text
-   * @returns {Object} { type: 'text' | 'todo' | 'img' | 'link', content: string }
+   * @returns {Object} { type, content }
    */
   const parseCommand = useCallback((text) => {
     const trimmed = text.trim();
 
-    // Check for /todo command - return raw task text, formatting done in appendContent
+    // Check for /todo command
     if (trimmed.startsWith('/todo ')) {
-      return {
-        type: 'todo',
-        content: trimmed.slice(6).trim(),
-      };
+      return { type: 'todo', content: trimmed.slice(6).trim() };
     }
 
     // Check for /img command (placeholder for future)
     if (trimmed === '/img' || trimmed.startsWith('/img ')) {
-      return {
-        type: 'img',
-        content: trimmed.slice(4).trim() || '',
-      };
+      return { type: 'img', content: trimmed.slice(4).trim() || '' };
     }
 
-    // Check for /link command (placeholder for future)
+    // Check for /link command
     if (trimmed === '/link' || trimmed.startsWith('/link ')) {
       const noteTitle = trimmed.slice(5).trim();
       if (noteTitle) {
-        return {
-          type: 'link',
-          content: `[[${noteTitle}]]`,
-        };
+        return { type: 'link', content: `[[${noteTitle}]]` };
       }
-      return {
-        type: 'link',
-        content: '',
-      };
+      return { type: 'link', content: '' };
+    }
+
+    // Check for /tag command
+    if (trimmed.startsWith('/tag ')) {
+      const tagName = trimmed.slice(5).trim().toLowerCase();
+      if (tagName) {
+        return { type: 'tag', content: tagName };
+      }
+      return { type: 'tag', content: '' };
+    }
+
+    // Check for /mood command
+    if (trimmed.startsWith('/mood ')) {
+      const mood = trimmed.slice(6).trim();
+      if (mood) {
+        return { type: 'mood', content: mood };
+      }
+      return { type: 'mood', content: '' };
     }
 
     // Default: plain text
-    return {
-      type: 'text',
-      content: trimmed,
-    };
+    return { type: 'text', content: trimmed };
   }, []);
 
   /**
@@ -74,7 +79,6 @@ export function useCapture(onCapture) {
 
       // Handle special command types
       if (parsed.type === 'img') {
-        // TODO: Open image picker dialog
         if (process.env.NODE_ENV === 'development') {
           console.log('Image picker not yet implemented');
         }
@@ -82,10 +86,17 @@ export function useCapture(onCapture) {
       }
 
       if (parsed.type === 'link' && !parsed.content) {
-        // TODO: Open note picker dialog
         if (process.env.NODE_ENV === 'development') {
           console.log('Note picker not yet implemented');
         }
+        return;
+      }
+
+      if (parsed.type === 'tag' && !parsed.content) {
+        return;
+      }
+
+      if (parsed.type === 'mood' && !parsed.content) {
         return;
       }
 

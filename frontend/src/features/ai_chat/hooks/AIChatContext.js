@@ -17,7 +17,7 @@ const SETTINGS_KEY = 'mnemosyne_ai_chat_settings';
 
 // Default settings
 const defaultSettings = {
-  model: 'llama3.1:8b',
+  model: 'llama3.2:3b',
   temperature: 0.7,
   maxSources: 10,
   includeImages: true,

@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Hash, Plus, X } from 'lucide-react';
 import NoteContentRenderer from '../../../components/common/NoteContentRenderer';
-
-const API_BASE = 'http://localhost:8000';
+import { api } from '../../../utils/api';
 
 /**
  * NoteContentTab - Content tab showing note body and tags
@@ -21,19 +20,11 @@ function NoteContentTab({ note, onWikilinkClick, onTagClick }) {
     if (!cleanTagName) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/notes/${note.id}/tags/${encodeURIComponent(cleanTagName)}`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        // API returns { status: "success", tag_id: id, tag_name: name }
-        setTags(prev => [...prev, { id: result.tag_id, name: result.tag_name }]);
-        setTagInput('');
-        setIsAddingTag(false);
-      }
+      const result = await api.post(`/notes/${note.id}/tags/${encodeURIComponent(cleanTagName)}`);
+      // API returns { status: "success", tag_id: id, tag_name: name }
+      setTags(prev => [...prev, { id: result.tag_id, name: result.tag_name }]);
+      setTagInput('');
+      setIsAddingTag(false);
     } catch (err) {
       console.error('Error adding tag:', err);
     }
@@ -42,15 +33,8 @@ function NoteContentTab({ note, onWikilinkClick, onTagClick }) {
   // Remove tag from note
   const removeTag = useCallback(async (tagId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/notes/${note.id}/tags/${tagId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        setTags(prev => prev.filter(t => t.id !== tagId));
-      }
+      await api.delete(`/notes/${note.id}/tags/${tagId}`);
+      setTags(prev => prev.filter(t => t.id !== tagId));
     } catch (err) {
       console.error('Error removing tag:', err);
     }

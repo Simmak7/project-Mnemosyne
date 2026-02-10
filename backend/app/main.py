@@ -43,6 +43,8 @@ from features.collections.router import router as collections_router
 from features.brain.router import router as brain_router
 from features.mnemosyne_brain.router import router as mnemosyne_router
 from features.mnemosyne_brain.router_chat import router as mnemosyne_chat_router
+from features.documents.router import router as documents_router
+from features.document_collections.router import router as document_collections_router
 
 # Legacy imports (to be migrated to features)
 import models
@@ -86,6 +88,38 @@ try:
     logger.info("Database migrations completed")
 except Exception as e:
     logger.error(f"Migration failed (non-critical): {str(e)}", exc_info=True)
+
+# Run performance indexes migration
+try:
+    from migrations.add_performance_indexes import upgrade as add_performance_indexes
+    add_performance_indexes()
+    logger.info("Performance indexes migration completed")
+except Exception as e:
+    logger.warning(f"Performance indexes migration skipped: {str(e)}")
+
+# Run documents migration
+try:
+    from migrations.add_documents_table import upgrade as add_documents_tables
+    add_documents_tables()
+    logger.info("Documents migration completed")
+except Exception as e:
+    logger.warning(f"Documents migration skipped: {str(e)}")
+
+# Run document collections migration
+try:
+    from migrations.add_document_collections import upgrade as add_document_collections
+    add_document_collections()
+    logger.info("Document collections migration completed")
+except Exception as e:
+    logger.warning(f"Document collections migration skipped: {str(e)}")
+
+# Run note source migration
+try:
+    from migrations.add_note_source import upgrade as add_note_source
+    add_note_source()
+    logger.info("Note source migration completed")
+except Exception as e:
+    logger.warning(f"Note source migration skipped: {str(e)}")
 
 # Rate limiting configuration
 limiter = Limiter(key_func=get_remote_address)
@@ -145,10 +179,12 @@ def get_db():
     finally:
         db.close()
 
-# Create upload directory
+# Create upload directories
 try:
     os.makedirs(config.UPLOAD_DIR, exist_ok=True)
-    logger.info(f"Upload directory ready: {config.UPLOAD_DIR}")
+    os.makedirs(config.DOCUMENT_UPLOAD_DIR, exist_ok=True)
+    os.makedirs(config.DOCUMENT_THUMBNAIL_DIR, exist_ok=True)
+    logger.info(f"Upload directories ready: {config.UPLOAD_DIR}, {config.DOCUMENT_UPLOAD_DIR}")
 except Exception as e:
     logger.error(f"Failed to create upload directory: {str(e)}", exc_info=True)
     raise
@@ -330,6 +366,16 @@ app.include_router(
 app.include_router(
     mnemosyne_chat_router,
     tags=["Mnemosyne Brain Chat"]
+)
+
+app.include_router(
+    documents_router,
+    tags=["Documents"]
+)
+
+app.include_router(
+    document_collections_router,
+    tags=["Document Collections"]
 )
 
 logger.info("Phase 3 routers registered: buckets (feature), rag_chat (feature)")

@@ -135,8 +135,8 @@ function FileDropZone({ onFilesAdded, disabled = false }) {
             </p>
             <p className="drop-zone-subtitle">
               {UPLOAD_FLAGS.MULTI_FILE_UPLOAD
-                ? 'Select multiple images at once'
-                : 'Select an image to analyze'
+                ? 'Select multiple images or PDFs at once'
+                : 'Select a file to analyze'
               }
             </p>
           </div>
@@ -155,7 +155,7 @@ function FileDropZone({ onFilesAdded, disabled = false }) {
           </div>
 
           <p className="drop-zone-limit">
-            Max 10MB per file • JPG, PNG, GIF, WebP
+            Images: 10MB max • PDFs: 50MB max • JPG, PNG, GIF, WebP, PDF
           </p>
         </div>
       </div>

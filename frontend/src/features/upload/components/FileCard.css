@@ -254,6 +254,33 @@
 }
 
 /* ----------------------------------------
+   Clickable completed document
+   ---------------------------------------- */
+
+.file-card-clickable {
+  cursor: pointer;
+}
+
+.file-card-clickable:hover {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.04);
+}
+
+.file-card-navigate-hint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: var(--ng-accent-link, #34d399);
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.file-card-clickable:hover .file-card-navigate-hint {
+  opacity: 1;
+}
+
+/* ----------------------------------------
    Progress Bar
    ---------------------------------------- */
 

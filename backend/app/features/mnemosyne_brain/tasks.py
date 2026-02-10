@@ -110,6 +110,35 @@ def evolve_memory_task(self, user_id: int, conversation_id: int):
 @celery_app.task(
     bind=True,
     base=DatabaseTask,
+    name="features.mnemosyne_brain.tasks.update_conversation_summary_task",
+    max_retries=2,
+    default_retry_delay=30,
+)
+def update_conversation_summary_task(self, conversation_id: int):
+    """
+    Async task to update conversation summary.
+
+    Called after responses when messages_since_summary >= 5.
+    """
+    from features.mnemosyne_brain.models.brain_conversation import BrainConversation
+    from features.mnemosyne_brain.services.conversation_summarizer import (
+        should_update_summary,
+        update_conversation_summary,
+    )
+
+    logger.info(f"Checking summary update for conversation {conversation_id}")
+
+    try:
+        conversation = self.db.query(BrainConversation).get(conversation_id)
+        if conversation and should_update_summary(conversation):
+            update_conversation_summary(self.db, conversation)
+    except Exception as e:
+        logger.error(f"Summary update failed: {e}")
+
+
+@celery_app.task(
+    bind=True,
+    base=DatabaseTask,
     name="features.mnemosyne_brain.tasks.mark_brain_stale_task",
     max_retries=1,
     default_retry_delay=10,

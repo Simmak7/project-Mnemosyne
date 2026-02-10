@@ -4,7 +4,7 @@
  * Right: Analysis configuration
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import { Upload, Sparkles } from 'lucide-react';
 
@@ -23,7 +23,7 @@ import './UploadLayout.css';
  * @param {object} props
  * @param {function} props.onUploadSuccess - Callback when a file completes
  */
-function UploadLayout({ onUploadSuccess }) {
+function UploadLayout({ onUploadSuccess, onNavigateToDocument }) {
   // Upload queue state
   const {
     files,
@@ -60,8 +60,13 @@ function UploadLayout({ onUploadSuccess }) {
     setAutoCreateNote,
     resetConfig,
     isModified,
-    getConfigSummary
+    getConfigSummary,
+    visionModel
   } = useAnalysisConfig();
+
+  // Compute file type flags for conditional config display
+  const hasPdfs = useMemo(() => files.some(f => f.file?.type === 'application/pdf'), [files]);
+  const hasImages = useMemo(() => files.some(f => f.file?.type?.startsWith('image/')), [files]);
 
   // Handle file drop/selection
   const handleFilesAdded = useCallback((newFiles) => {
@@ -105,7 +110,7 @@ function UploadLayout({ onUploadSuccess }) {
           <h1>Neural Studio</h1>
         </div>
         <p className="upload-header-subtitle">
-          Upload images for AI-powered analysis and note generation
+          Upload images and documents for AI-powered analysis and note generation
         </p>
       </div>
 
@@ -136,6 +141,7 @@ function UploadLayout({ onUploadSuccess }) {
                 onClearAll={clearAll}
                 isProcessing={isProcessing}
                 onSetCustomPrompt={setFileCustomPrompt}
+                onNavigateToDocument={onNavigateToDocument}
               />
             )}
           </div>
@@ -153,6 +159,9 @@ function UploadLayout({ onUploadSuccess }) {
         >
           <AnalysisConfig
             config={config}
+            visionModel={visionModel}
+            hasPdfs={hasPdfs}
+            hasImages={hasImages}
             onUserPromptChange={setUserPrompt}
             onModelChange={setModel}
             onPresetChange={setPreset}

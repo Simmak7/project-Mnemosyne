@@ -3,18 +3,27 @@ Typed Graph Builder Service
 
 Builds typed graph data from database models.
 Converts notes, tags, images, and their relationships into TypedNode/TypedEdge format.
-
-Phase 1: Full implementation with actual database queries.
 """
 
-from typing import List, Dict, Optional, Any, Set
+from typing import List, Dict, Optional, Set
 from collections import deque
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 import models
 from features.graph.wikilink_parser import extract_wikilinks, parse_wikilink, create_slug
-from .graph_index import TypedNode, TypedEdge, TypedGraphData, NodeType, EdgeType
+from .graph_index import TypedNode, TypedEdge, TypedGraphData
+from .graph_factories import (
+    note_to_typed_node,
+    tag_to_typed_node,
+    image_to_typed_node,
+    document_to_typed_node,
+    create_wikilink_edge,
+    create_tag_edge,
+    create_image_edge,
+    create_source_edge,
+    create_semantic_edge,
+)
 
 
 class TypedGraphBuilder:
@@ -35,13 +44,6 @@ class TypedGraphBuilder:
         graph = builder.build_full_graph()
         graph = builder.build_local_graph("note-123", depth=2)
     """
-
-    # Edge weight constants
-    WEIGHT_WIKILINK = 1.0  # Explicit links are strongest
-    WEIGHT_TAG = 0.7  # Shared tags are medium-strong
-    WEIGHT_IMAGE = 0.6  # Image references
-    WEIGHT_SESSION = 0.2  # Same-day creation (weak)
-    # Semantic weights are dynamic (0.3 - 0.9 based on similarity)
 
     def __init__(self, db: Session, user_id: int):
         """Initialize builder for a user."""
@@ -95,37 +97,50 @@ class TypedGraphBuilder:
 
         # Create note nodes and edges
         for note in notes:
-            nodes.append(self.note_to_typed_node(note))
+            nodes.append(note_to_typed_node(note))
 
             # Wikilink edges
             linked_ids = self._resolve_wikilinks(note)
             for target_id in linked_ids:
                 if target_id in note_ids and target_id != note.id:
-                    edges.append(self.create_wikilink_edge(note.id, target_id))
+                    edges.append(create_wikilink_edge(note.id, target_id))
 
             # Tag edges
             for tag in note.tags:
                 if tag.id in tag_ids:
-                    edges.append(self.create_tag_edge(note.id, tag.id))
+                    edges.append(create_tag_edge(note.id, tag.id))
 
             # Image edges
             for image in note.images:
                 if image.id in image_ids:
-                    edges.append(self.create_image_edge(note.id, image.id))
+                    edges.append(create_image_edge(note.id, image.id))
 
         # Create tag nodes
         for tag in tags:
-            nodes.append(self.tag_to_typed_node(tag, tag_note_counts.get(tag.id, 0)))
+            nodes.append(tag_to_typed_node(tag, tag_note_counts.get(tag.id, 0)))
 
         # Create image nodes
         for image in images:
-            nodes.append(self.image_to_typed_node(image))
+            nodes.append(image_to_typed_node(image))
 
         # Add reverse image edges (image → note) for bidirectional visualization
         for image in images:
             for note in image.notes:
                 if note.id in note_ids and note.owner_id == self.user_id:
-                    edges.append(self.create_image_edge(note.id, image.id, reverse=True))
+                    edges.append(create_image_edge(note.id, image.id, reverse=True))
+
+        # Load completed documents with summary notes
+        documents = self.db.query(models.Document).filter(
+            models.Document.owner_id == self.user_id,
+            models.Document.is_trashed == False,
+            models.Document.ai_analysis_status == "completed",
+            models.Document.summary_note_id.isnot(None),
+        ).all()
+
+        for doc in documents:
+            nodes.append(document_to_typed_node(doc))
+            if doc.summary_note_id in note_ids:
+                edges.append(create_source_edge(doc.id, doc.summary_note_id))
 
         # Add semantic edges if requested
         if include_semantic:
@@ -162,7 +177,7 @@ class TypedGraphBuilder:
             TypedGraphData with neighborhood nodes and edges
         """
         if layers is None:
-            layers = ["notes", "tags"]
+            layers = ["notes", "tags", "documents"]
 
         # Parse center node ID
         node_type, node_db_id = self._parse_node_id(center_node_id)
@@ -255,7 +270,7 @@ class TypedGraphBuilder:
                 models.Note.id == db_id,
                 models.Note.owner_id == self.user_id
             ).first()
-            return self.note_to_typed_node(note) if note else None
+            return note_to_typed_node(note) if note else None
 
         elif node_type == "tag":
             tag = self.db.query(models.Tag).filter(
@@ -269,7 +284,7 @@ class TypedGraphBuilder:
                     models.Tag.id == db_id,
                     models.Note.owner_id == self.user_id
                 ).count()
-                return self.tag_to_typed_node(tag, note_count)
+                return tag_to_typed_node(tag, note_count)
             return None
 
         elif node_type == "image":
@@ -277,7 +292,14 @@ class TypedGraphBuilder:
                 models.Image.id == db_id,
                 models.Image.owner_id == self.user_id
             ).first()
-            return self.image_to_typed_node(image) if image else None
+            return image_to_typed_node(image) if image else None
+
+        elif node_type == "document":
+            doc = self.db.query(models.Document).filter(
+                models.Document.id == db_id,
+                models.Document.owner_id == self.user_id
+            ).first()
+            return document_to_typed_node(doc) if doc else None
 
         return None
 
@@ -303,26 +325,37 @@ class TypedGraphBuilder:
             if "notes" in layers:
                 linked_ids = self._resolve_wikilinks(note)
                 for target_id in linked_ids:
-                    edge = self.create_wikilink_edge(note.id, target_id)
+                    edge = create_wikilink_edge(note.id, target_id)
                     neighbors.append((f"note-{target_id}", edge))
 
                 # Backlinks (incoming)
                 backlink_ids = self._get_backlinks(note)
                 for source_id in backlink_ids:
-                    edge = self.create_wikilink_edge(source_id, note.id)
+                    edge = create_wikilink_edge(source_id, note.id)
                     neighbors.append((f"note-{source_id}", edge))
 
             # Tags
             if "tags" in layers:
                 for tag in note.tags:
-                    edge = self.create_tag_edge(note.id, tag.id)
+                    edge = create_tag_edge(note.id, tag.id)
                     neighbors.append((f"tag-{tag.id}", edge))
 
             # Images
             if "images" in layers:
                 for image in note.images:
-                    edge = self.create_image_edge(note.id, image.id)
+                    edge = create_image_edge(note.id, image.id)
                     neighbors.append((f"image-{image.id}", edge))
+
+            # Source documents (reverse lookup: documents that created this note)
+            if "documents" in layers:
+                source_docs = self.db.query(models.Document).filter(
+                    models.Document.summary_note_id == db_id,
+                    models.Document.owner_id == self.user_id,
+                    models.Document.is_trashed == False,
+                ).all()
+                for doc in source_docs:
+                    edge = create_source_edge(doc.id, note.id)
+                    neighbors.append((f"document-{doc.id}", edge))
 
         elif node_type == "tag":
             # Notes with this tag
@@ -334,7 +367,7 @@ class TypedGraphBuilder:
                     models.Note.owner_id == self.user_id
                 ).all()
                 for note in notes:
-                    edge = self.create_tag_edge(note.id, db_id)
+                    edge = create_tag_edge(note.id, db_id)
                     neighbors.append((f"note-{note.id}", edge))
 
         elif node_type == "image":
@@ -348,8 +381,19 @@ class TypedGraphBuilder:
                 ).all()
                 for note in notes:
                     # Use reverse=True to create image→note edge (bidirectional)
-                    edge = self.create_image_edge(note.id, db_id, reverse=True)
+                    edge = create_image_edge(note.id, db_id, reverse=True)
                     neighbors.append((f"note-{note.id}", edge))
+
+        elif node_type == "document":
+            # Summary note linked to this document
+            if "notes" in layers:
+                doc = self.db.query(models.Document).filter(
+                    models.Document.id == db_id,
+                    models.Document.owner_id == self.user_id
+                ).first()
+                if doc and doc.summary_note_id:
+                    edge = create_source_edge(db_id, doc.summary_note_id)
+                    neighbors.append((f"note-{doc.summary_note_id}", edge))
 
         # Semantic neighbors (for any node type)
         if "semantic" in layers:
@@ -368,7 +412,6 @@ class TypedGraphBuilder:
 
         try:
             from features.graph.models import SemanticEdge
-            from sqlalchemy import or_
 
             node_type, db_id = self._parse_node_id(node_id)
             if not node_type or not db_id:
@@ -394,7 +437,7 @@ class TypedGraphBuilder:
                     # This node is target, neighbor is source
                     neighbor_id = f"{edge.source_type}-{edge.source_id}"
 
-                typed_edge = self.create_semantic_edge(
+                typed_edge = create_semantic_edge(
                     edge.source_type,
                     edge.source_id,
                     edge.target_type,
@@ -473,7 +516,7 @@ class TypedGraphBuilder:
             ).all()
 
             return [
-                self.create_semantic_edge(
+                create_semantic_edge(
                     edge.source_type,
                     edge.source_id,
                     edge.target_type,
@@ -491,107 +534,8 @@ class TypedGraphBuilder:
             "note": "notes",
             "tag": "tags",
             "image": "images",
+            "document": "documents",
             "collection": "collections",
         }
         layer_name = layer_map.get(node_type, node_type + "s")
         return layer_name in layers
-
-    # Node conversion methods
-    def note_to_typed_node(self, note: Any) -> TypedNode:
-        """Convert a Note model to TypedNode."""
-        return TypedNode(
-            id=f"note-{note.id}",
-            type=NodeType.NOTE,
-            title=note.title or "Untitled",
-            metadata={
-                "slug": note.slug,
-                "created_at": note.created_at.isoformat() if note.created_at else None,
-                "updated_at": note.updated_at.isoformat() if note.updated_at else None,
-                "excerpt": (note.content or "")[:100],
-                "community_id": note.community_id,
-            }
-        )
-
-    def tag_to_typed_node(self, tag: Any, note_count: int = 0) -> TypedNode:
-        """Convert a Tag model to TypedNode."""
-        return TypedNode(
-            id=f"tag-{tag.id}",
-            type=NodeType.TAG,
-            title=tag.name,
-            metadata={
-                "note_count": note_count,
-                "created_at": tag.created_at.isoformat() if tag.created_at else None,
-            }
-        )
-
-    def image_to_typed_node(self, image: Any) -> TypedNode:
-        """Convert an Image model to TypedNode."""
-        return TypedNode(
-            id=f"image-{image.id}",
-            type=NodeType.IMAGE,
-            title=image.display_name or image.filename,
-            metadata={
-                "filename": image.filename,
-                "thumbnail": image.blur_hash,
-                "width": image.width,
-                "height": image.height,
-                "uploaded_at": image.uploaded_at.isoformat() if image.uploaded_at else None,
-            }
-        )
-
-    # Edge creation methods
-    def create_wikilink_edge(self, source_note_id: int, target_note_id: int) -> TypedEdge:
-        """Create a wikilink edge between two notes."""
-        return TypedEdge(
-            source=f"note-{source_note_id}",
-            target=f"note-{target_note_id}",
-            type=EdgeType.WIKILINK,
-            weight=self.WEIGHT_WIKILINK,
-        )
-
-    def create_tag_edge(self, note_id: int, tag_id: int) -> TypedEdge:
-        """Create a tag assignment edge."""
-        return TypedEdge(
-            source=f"note-{note_id}",
-            target=f"tag-{tag_id}",
-            type=EdgeType.TAG,
-            weight=self.WEIGHT_TAG,
-        )
-
-    def create_image_edge(self, note_id: int, image_id: int, reverse: bool = False) -> TypedEdge:
-        """Create a note-image reference edge.
-
-        Args:
-            note_id: The note ID
-            image_id: The image ID
-            reverse: If True, creates image→note edge instead of note→image
-        """
-        if reverse:
-            return TypedEdge(
-                source=f"image-{image_id}",
-                target=f"note-{note_id}",
-                type=EdgeType.IMAGE,
-                weight=self.WEIGHT_IMAGE,
-            )
-        return TypedEdge(
-            source=f"note-{note_id}",
-            target=f"image-{image_id}",
-            type=EdgeType.IMAGE,
-            weight=self.WEIGHT_IMAGE,
-        )
-
-    def create_semantic_edge(
-        self,
-        source_type: str,
-        source_id: int,
-        target_type: str,
-        target_id: int,
-        similarity: float
-    ) -> TypedEdge:
-        """Create a semantic similarity edge."""
-        return TypedEdge(
-            source=f"{source_type}-{source_id}",
-            target=f"{target_type}-{target_id}",
-            type=EdgeType.SEMANTIC,
-            weight=similarity,
-        )

@@ -5,9 +5,9 @@ Endpoints for building brain, managing brain files, and checking status.
 """
 
 import logging
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from slowapi import Limiter
@@ -22,6 +22,11 @@ from features.mnemosyne_brain.models.brain_file import BrainFile
 from features.mnemosyne_brain.models.brain_build_log import BrainBuildLog
 from features.mnemosyne_brain import schemas
 from features.mnemosyne_brain.services.topic_generator import compute_content_hash
+from features.mnemosyne_brain.services.topic_selector import (
+    select_topics,
+    _compute_keyword_score,
+    _compute_embedding_score,
+)
 
 logger = logging.getLogger(__name__)
 limiter = Limiter(key_func=get_remote_address)
@@ -277,3 +282,128 @@ async def get_brain_status(
         notes_count=note_count,
         min_notes_required=min_notes,
     )
+
+
+# ============================================
+# Topic Selection Endpoints (Phase 4)
+# ============================================
+
+def _get_user_preferences(db: Session, user_id: int) -> models.UserPreferences:
+    """Get or create user preferences."""
+    prefs = db.query(models.UserPreferences).filter(
+        models.UserPreferences.user_id == user_id
+    ).first()
+    if not prefs:
+        prefs = models.UserPreferences(user_id=user_id)
+        db.add(prefs)
+        db.commit()
+        db.refresh(prefs)
+    return prefs
+
+
+@router.get("/topics/scores", response_model=schemas.TopicScoresResponse)
+async def get_topic_scores(
+    query: Optional[str] = Query(None, description="Query to score topics against"),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Get all topics with relevance scores for a query.
+
+    Returns topics sorted by score, indicating which would be auto-selected.
+    """
+    # Get all topic files
+    topics = (
+        db.query(BrainFile)
+        .filter(
+            BrainFile.owner_id == current_user.id,
+            BrainFile.file_type == "topic",
+        )
+        .all()
+    )
+
+    # Get pinned topics
+    prefs = _get_user_preferences(db, current_user.id)
+    pinned = prefs.pinned_brain_topics or []
+
+    # Generate embedding if query provided
+    query_embedding = None
+    if query:
+        try:
+            from embeddings import generate_embedding
+            query_embedding = generate_embedding(query)
+        except Exception:
+            pass
+
+    # Score each topic
+    scored_topics = []
+    query_lower = (query or "").lower()
+    query_words = set(query_lower.split()) if query else set()
+
+    for topic in topics:
+        if query:
+            keyword_score = _compute_keyword_score(query_words, query_lower, topic)
+            embedding_score = _compute_embedding_score(query_embedding, topic)
+            score = (keyword_score * 0.3) + (embedding_score * 0.7)
+        else:
+            score = 0.0
+
+        scored_topics.append(schemas.TopicScoreItem(
+            file_key=topic.file_key,
+            title=topic.title or topic.file_key,
+            token_count=topic.token_count_approx or len(topic.content or "") // 4,
+            score=round(score, 3),
+            is_auto_selected=score >= 0.05 if query else False,
+            is_pinned=topic.file_key in pinned,
+        ))
+
+    # Sort by score (pinned first, then by score)
+    scored_topics.sort(key=lambda x: (not x.is_pinned, -x.score))
+
+    # Calculate token budget info
+    core_tokens = getattr(config, "BRAIN_CORE_TOKEN_BUDGET", 2500)
+    max_context = getattr(config, "BRAIN_MAX_CONTEXT_TOKENS", 6000)
+    topic_budget = max_context - core_tokens - 500  # 500 for prompt overhead
+
+    return schemas.TopicScoresResponse(
+        topics=scored_topics,
+        pinned=pinned,
+        token_budget=topic_budget,
+        core_tokens_used=core_tokens,
+    )
+
+
+@router.post("/topics/pin", response_model=schemas.PinnedTopicsResponse)
+@limiter.limit("30/minute")
+async def pin_topic(
+    request: Request,
+    body: schemas.PinTopicRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Pin or unpin a topic for always-loading."""
+    prefs = _get_user_preferences(db, current_user.id)
+
+    pinned = set(prefs.pinned_brain_topics or [])
+
+    if body.pin:
+        # Verify topic exists
+        topic = (
+            db.query(BrainFile)
+            .filter(
+                BrainFile.owner_id == current_user.id,
+                BrainFile.file_key == body.topic_key,
+            )
+            .first()
+        )
+        if not topic:
+            raise HTTPException(status_code=404, detail=f"Topic '{body.topic_key}' not found")
+        pinned.add(body.topic_key)
+    else:
+        pinned.discard(body.topic_key)
+
+    prefs.pinned_brain_topics = list(pinned)
+    db.commit()
+
+    logger.info(f"User {current_user.id} {'pinned' if body.pin else 'unpinned'} topic '{body.topic_key}'")
+    return schemas.PinnedTopicsResponse(pinned=list(pinned))

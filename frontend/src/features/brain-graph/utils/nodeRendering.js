@@ -41,6 +41,11 @@ export const NODE_COLORS = {
     glow: 'rgba(129, 140, 248, 0.3)',
     border: 'rgba(129, 140, 248, 0.6)',
   },
+  document: {
+    base: '#fb7185', // Rose
+    glow: 'rgba(251, 113, 133, 0.3)',
+    border: 'rgba(251, 113, 133, 0.6)',
+  },
   collection: {
     base: '#f472b6', // Pink
     glow: 'rgba(244, 114, 182, 0.3)',
@@ -118,7 +123,7 @@ export function renderNode(ctx, node, globalScale, state = {}) {
   if (isPinned) {
     ctx.beginPath();
     ctx.arc(node.x, node.y - size - 4, 3, 0, 2 * Math.PI);
-    ctx.fillStyle = isLightTheme() ? '#374151' : '#f9fafb';
+    ctx.fillStyle = state.isLight ? '#374151' : '#f9fafb';
     ctx.fill();
   }
 
@@ -142,9 +147,8 @@ export function renderNodeLabel(ctx, node, globalScale, state = {}) {
   ctx.save();
 
   // Theme-aware colors for legibility
-  const lightMode = isLightTheme();
-  const bgColor = lightMode ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
-  const textColor = lightMode ? '#1f2937' : '#f9fafb';
+  const bgColor = state.isLight ? 'rgba(255, 255, 255, 0.9)' : 'rgba(0, 0, 0, 0.8)';
+  const textColor = state.isLight ? '#1f2937' : '#f9fafb';
 
   // Background for legibility
   ctx.font = `${fontSize}px Inter, sans-serif`;
@@ -178,6 +182,30 @@ function truncateLabel(text, maxLength) {
 }
 
 /**
+ * Render image node as a circular thumbnail with border
+ * Returns true if drawn, false if image not available
+ */
+export function renderImageNode(ctx, node, size, img) {
+  if (!img || !img.complete || !img.naturalWidth) return false;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
+  ctx.clip();
+  ctx.drawImage(img, node.x - size, node.y - size, size * 2, size * 2);
+  ctx.restore();
+
+  // Border ring
+  ctx.beginPath();
+  ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
+  ctx.strokeStyle = NODE_COLORS.image.base;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  return true;
+}
+
+/**
  * Get node icon based on type (for future SVG icons)
  */
 export function getNodeIcon(node) {
@@ -190,6 +218,7 @@ export function getNodeIcon(node) {
     tag: 'tag',
     image: 'image',
     media: 'image',
+    document: 'file-scan',
     entity: 'sparkles',
     collection: 'folder',
   };

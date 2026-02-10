@@ -69,19 +69,54 @@
   display: flex;
   align-items: center;
   gap: var(--ng-space-2, 8px);
+  width: 100%;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ng-text-tertiary, #9ca3af);
-  margin-bottom: var(--ng-space-2, 8px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   padding-bottom: var(--ng-space-2, 8px);
+  transition: color 0.15s ease;
+}
+
+.map-view__legend-header:hover {
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Only show divider when expanded */
+.map-view__legend:not(.is-collapsed) .map-view__legend-header {
+  margin-bottom: var(--ng-space-2, 8px);
   border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.map-view__legend.is-collapsed .map-view__legend-header {
+  padding-bottom: 0;
+}
+
+.map-view__legend-chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.map-view__legend-chevron.is-rotated {
+  transform: rotate(-90deg);
+}
+
+.map-view__legend-hint {
+  font-size: 10px;
+  color: var(--ng-text-muted, #6b7280);
+  line-height: 1.4;
+  margin-bottom: var(--ng-space-2, 8px);
+  max-width: 180px;
 }
 
 .map-view__legend-items {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--ng-space-1, 4px);
   max-width: 180px;
 }
@@ -108,11 +143,23 @@
   border-radius: 50%;
 }
 
-.map-view__legend-count {
+.map-view__legend-label {
   font-size: 11px;
   font-weight: 500;
   color: var(--ng-text-secondary, #d1d5db);
+  flex: 1;
+}
+
+.map-view__legend-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ng-text-muted, #6b7280);
   font-variant-numeric: tabular-nums;
+}
+
+.map-view__legend-item.is-active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--community-color, var(--ng-glass-border));
 }
 
 /* Stats Panel */

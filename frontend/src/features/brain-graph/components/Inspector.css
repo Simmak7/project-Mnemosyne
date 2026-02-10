@@ -139,6 +139,39 @@
   border-left: 2px solid var(--ng-accent-ai, #818cf8);
 }
 
+/* Excerpt expand/collapse */
+.inspector__excerpt-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1, 4px);
+}
+
+.inspector__excerpt--collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.inspector__excerpt-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  background: none;
+  border: none;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 0;
+  align-self: flex-start;
+  transition: opacity 0.15s ease;
+}
+
+.inspector__excerpt-toggle:hover {
+  opacity: 0.8;
+}
+
 /* Connection Rows */
 .inspector__connection-row {
   display: flex;
@@ -151,6 +184,14 @@
 
 .inspector__connection-row svg {
   color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+/* Edge type dot */
+.inspector__edge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
   flex-shrink: 0;
 }
 
@@ -244,10 +285,63 @@
   background: var(--ng-slate-200, #e2e8f0);
 }
 
+[data-theme="light"] .inspector__excerpt-toggle {
+  color: var(--ng-accent-ai, #6366f1);
+}
+
 [data-theme="light"] .inspector__snippet {
   background: var(--ng-slate-100, #f1f5f9);
 }
 
 [data-theme="light"] .inspector__image-preview {
   background: var(--ng-slate-100, #f1f5f9);
+}
+
+/* Backlinks */
+.inspector__backlinks-loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--ng-space-2, 8px);
+}
+
+.inspector__backlinks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inspector__backlink-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-2, 8px);
+  background: none;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-secondary, #d1d5db);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.inspector__backlink-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.04));
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.inspector__backlink-item svg {
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+.inspector__backlink-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+[data-theme="light"] .inspector__backlink-item:hover {
+  background: rgba(0, 0, 0, 0.05);
 }

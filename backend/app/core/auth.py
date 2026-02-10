@@ -23,8 +23,9 @@ from core.database import SessionLocal
 from core import config
 import models
 
-# Cookie name for JWT token
+# Cookie names for JWT tokens
 AUTH_COOKIE_NAME = "access_token"
+REFRESH_COOKIE_NAME = "refresh_token"
 
 # Password hashing configuration
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -52,19 +53,46 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
+        expire = datetime.utcnow() + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "type": "access"})
     encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
     return encoded_jwt
 
 
-def verify_token(token: str) -> Optional[str]:
-    """Verify a JWT token and return the username."""
+def create_refresh_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+    """Create a JWT refresh token (longer-lived than access token)."""
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire, "type": "refresh"})
+    encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
+    return encoded_jwt
+
+
+def verify_token(token: str, expected_type: str = "access") -> Optional[str]:
+    """
+    Verify a JWT token and return the username.
+
+    Args:
+        token: The JWT token to verify
+        expected_type: Expected token type ("access" or "refresh")
+
+    Returns:
+        Username if valid, None otherwise
+    """
     try:
         payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             return None
+
+        # Check token type matches expected
+        token_type = payload.get("type", "access")  # Default to access for backward compatibility
+        if token_type != expected_type:
+            return None
+
         # Check if this is a temp token requiring 2FA
         if payload.get("requires_2fa"):
             return None  # Don't accept temp tokens as full auth
@@ -224,6 +252,26 @@ def set_auth_cookie(response, token: str, secure: bool = False) -> None:
     )
 
 
+def set_refresh_cookie(response, token: str, secure: bool = False) -> None:
+    """
+    Set the refresh token cookie on a response.
+
+    Args:
+        response: FastAPI response object
+        token: JWT refresh token to set
+        secure: Whether to set the Secure flag (True for HTTPS in production)
+    """
+    response.set_cookie(
+        key=REFRESH_COOKIE_NAME,
+        value=token,
+        httponly=True,  # Prevent JavaScript access
+        samesite="strict",  # Strict for refresh token (more secure)
+        secure=secure,  # Only send over HTTPS in production
+        max_age=config.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,  # Days to seconds
+        path="/",  # Available to all paths for refresh
+    )
+
+
 def clear_auth_cookie(response) -> None:
     """
     Clear the authentication cookie on a response (for logout).
@@ -233,5 +281,18 @@ def clear_auth_cookie(response) -> None:
     """
     response.delete_cookie(
         key=AUTH_COOKIE_NAME,
+        path="/",
+    )
+
+
+def clear_refresh_cookie(response) -> None:
+    """
+    Clear the refresh token cookie on a response (for logout).
+
+    Args:
+        response: FastAPI response object
+    """
+    response.delete_cookie(
+        key=REFRESH_COOKIE_NAME,
         path="/",
     )

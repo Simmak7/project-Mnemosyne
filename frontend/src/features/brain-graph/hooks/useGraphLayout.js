@@ -6,59 +6,7 @@
  */
 
 import { useState, useCallback, useRef, useMemo } from 'react';
-
-// Layout preset configurations (synced with layoutPresets.js)
-// Key differences: tight < explore < map < cluster (increasing spread)
-export const LAYOUT_PRESETS = {
-  tight: {
-    name: 'Tight',
-    description: 'Dense, minimal spacing',
-    physics: {
-      charge: -40,            // Very low repulsion - nodes stay close
-      linkDistance: 25,       // Very short links
-      linkStrength: 0.95,     // Very strong links
-      centerStrength: 0.2,    // Strong center pull
-      velocityDecay: 0.6,
-      alphaDecay: 0.035,
-    },
-  },
-  explore: {
-    name: 'Explore',
-    description: 'Compact layout for local navigation',
-    physics: {
-      charge: -80,            // Moderate repulsion
-      linkDistance: 50,       // Short links
-      linkStrength: 0.8,      // Strong links
-      centerStrength: 0.15,   // Good center pull
-      velocityDecay: 0.5,
-      alphaDecay: 0.03,
-    },
-  },
-  map: {
-    name: 'Map',
-    description: 'Spread layout for overview',
-    physics: {
-      charge: -200,           // High repulsion - nodes spread out
-      linkDistance: 120,      // Long links
-      linkStrength: 0.4,      // Weaker links allow spreading
-      centerStrength: 0.08,   // Light center pull
-      velocityDecay: 0.4,
-      alphaDecay: 0.02,
-    },
-  },
-  cluster: {
-    name: 'Cluster',
-    description: 'Maximum spread for structure',
-    physics: {
-      charge: -350,           // Very high repulsion - maximum spread
-      linkDistance: 150,      // Very long links
-      linkStrength: 0.3,      // Weak links for freedom
-      centerStrength: 0.05,   // Minimal center pull
-      velocityDecay: 0.35,
-      alphaDecay: 0.015,
-    },
-  },
-};
+import { LAYOUT_PRESETS } from '../utils/layoutPresets';
 
 // Default zoom limits
 const ZOOM_LIMITS = { min: 0.1, max: 5 };
@@ -76,9 +24,10 @@ export function useGraphLayout(initialPreset = 'explore') {
   // Ref to force graph instance
   const graphRef = useRef(null);
 
-  // Get current physics config
+  // Get current physics config from canonical presets
   const physics = useMemo(() => {
-    return LAYOUT_PRESETS[preset]?.physics || LAYOUT_PRESETS.explore.physics;
+    const p = LAYOUT_PRESETS[preset] || LAYOUT_PRESETS.explore;
+    return p.physics;
   }, [preset]);
 
   // Change layout preset

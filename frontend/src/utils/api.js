@@ -23,21 +23,19 @@ export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 // CSRF token storage (refreshed on each request that returns a new token)
 let csrfToken = null;
 
+// Track if CSRF has been initialized
+let csrfInitialized = false;
+let csrfInitPromise = null;
+
+// Token refresh state (prevents multiple concurrent refresh attempts)
+let refreshPromise = null;
+let isRefreshing = false;
+
 /**
- * Get the current CSRF token from cookie or memory
+ * Get the current CSRF token from memory
  */
 function getCsrfToken() {
-  // First check memory
-  if (csrfToken) return csrfToken;
-
-  // Then check cookie (for page reloads)
-  const match = document.cookie.match(/csrf_token=([^;]+)/);
-  if (match) {
-    csrfToken = match[1];
-    return csrfToken;
-  }
-
-  return null;
+  return csrfToken;
 }
 
 /**
@@ -47,6 +45,7 @@ function updateCsrfToken(response) {
   const newToken = response.headers.get('X-CSRF-Token');
   if (newToken) {
     csrfToken = newToken;
+    csrfInitialized = true;
   }
 }
 
@@ -60,9 +59,112 @@ function buildUrl(path) {
 }
 
 /**
+ * Initialize CSRF token by making a GET request
+ * This should be called before any state-changing requests
+ */
+async function initCsrf() {
+  // If already initialized, return immediately
+  if (csrfInitialized && csrfToken) {
+    return csrfToken;
+  }
+
+  // If initialization is in progress, wait for it
+  if (csrfInitPromise) {
+    return csrfInitPromise;
+  }
+
+  // Start initialization
+  csrfInitPromise = (async () => {
+    try {
+      // Make a simple GET request to get the CSRF token
+      const response = await fetch(buildUrl('/health'), {
+        method: 'GET',
+        credentials: 'include',
+      });
+      updateCsrfToken(response);
+      return csrfToken;
+    } catch (error) {
+      console.warn('Failed to initialize CSRF token:', error);
+      return null;
+    } finally {
+      csrfInitPromise = null;
+    }
+  })();
+
+  return csrfInitPromise;
+}
+
+/**
+ * Ensure CSRF token is available before state-changing requests
+ */
+async function ensureCsrf() {
+  if (!csrfToken) {
+    await initCsrf();
+  }
+}
+
+/**
+ * Refresh the access token using the refresh token cookie.
+ * Prevents multiple concurrent refresh attempts.
+ *
+ * @returns {Promise<boolean>} True if refresh succeeded, false otherwise
+ */
+async function refreshAccessToken() {
+  // If already refreshing, wait for that attempt
+  if (refreshPromise) {
+    return refreshPromise;
+  }
+
+  // Start refresh attempt
+  isRefreshing = true;
+  refreshPromise = (async () => {
+    try {
+      const response = await fetch(buildUrl('/auth/refresh'), {
+        method: 'POST',
+        credentials: 'include', // Include cookies (refresh token)
+        headers: {
+          'X-CSRF-Token': csrfToken || '',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update stored access token if frontend stores it
+        if (data.access_token) {
+          localStorage.setItem('token', data.access_token);
+        }
+        // Update CSRF token from response
+        updateCsrfToken(response);
+        return true;
+      }
+
+      // Refresh failed - token might be expired or revoked
+      return false;
+    } catch (error) {
+      console.warn('Token refresh failed:', error);
+      return false;
+    } finally {
+      refreshPromise = null;
+      isRefreshing = false;
+    }
+  })();
+
+  return refreshPromise;
+}
+
+/**
+ * Dispatch auth logout event for centralized handling
+ */
+function dispatchAuthLogout(reason = 'session_expired') {
+  window.dispatchEvent(new CustomEvent('auth:logout', {
+    detail: { reason, timestamp: Date.now() }
+  }));
+}
+
+/**
  * Base fetch wrapper with authentication and error handling
  */
-async function fetchWithAuth(path, options = {}) {
+async function fetchWithAuth(path, options = {}, isRetry = false) {
   const url = buildUrl(path);
 
   // Default headers
@@ -73,6 +175,8 @@ async function fetchWithAuth(path, options = {}) {
   // Add CSRF token for state-changing requests
   const method = (options.method || 'GET').toUpperCase();
   if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+    // Ensure CSRF token is available
+    await ensureCsrf();
     const token = getCsrfToken();
     if (token) {
       headers['X-CSRF-Token'] = token;
@@ -92,6 +196,25 @@ async function fetchWithAuth(path, options = {}) {
     // Update CSRF token from response
     updateCsrfToken(response);
 
+    // Handle 401 Unauthorized - attempt token refresh
+    if (response.status === 401 && !isRetry && !isRefreshing) {
+      // Don't retry refresh endpoint itself
+      if (path.includes('/auth/refresh')) {
+        dispatchAuthLogout('refresh_failed');
+        return response;
+      }
+
+      // Attempt to refresh the token
+      const refreshed = await refreshAccessToken();
+      if (refreshed) {
+        // Retry the original request with new token
+        return fetchWithAuth(path, options, true);
+      }
+
+      // Refresh failed - dispatch logout event
+      dispatchAuthLogout('session_expired');
+    }
+
     return response;
   } catch (error) {
     // Network error
@@ -104,6 +227,11 @@ async function fetchWithAuth(path, options = {}) {
  * API client with convenience methods
  */
 export const api = {
+  /**
+   * Initialize CSRF token (call on app startup or before first POST)
+   */
+  initCsrf,
+
   /**
    * GET request
    */
@@ -195,6 +323,28 @@ export const api = {
   },
 
   /**
+   * PATCH request with JSON body
+   */
+  async patch(path, data = {}, options = {}) {
+    const response = await fetchWithAuth(path, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      body: JSON.stringify(data),
+      ...options,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: response.statusText }));
+      throw new ApiError(response.status, error.detail || error.error || 'Request failed');
+    }
+
+    return response.json();
+  },
+
+  /**
    * DELETE request
    */
   async delete(path, options = {}) {
@@ -228,6 +378,21 @@ export const api = {
    */
   clearAuth() {
     csrfToken = null;
+    csrfInitialized = false;
+    refreshPromise = null;
+    isRefreshing = false;
+  },
+
+  /**
+   * Manually trigger token refresh (call proactively before expiration)
+   */
+  refreshToken: refreshAccessToken,
+
+  /**
+   * Check if token refresh is currently in progress
+   */
+  isRefreshing() {
+    return isRefreshing;
   },
 };
 

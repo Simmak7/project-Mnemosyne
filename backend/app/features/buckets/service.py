@@ -410,6 +410,65 @@ class DailyNoteService:
         }
 
     @staticmethod
+    def get_calendar_summary(
+        db: Session,
+        owner_id: int,
+        year: int,
+        month: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Get lightweight calendar summary for a month.
+        Returns list of day summaries without loading full content.
+        """
+        import re
+        prefix = f"Daily Note - {year}-{month:02d}"
+
+        stmt = select(Note).where(
+            Note.owner_id == owner_id,
+            Note.title.like(f"{prefix}%")
+        )
+        result = db.execute(stmt)
+        notes = result.scalars().all()
+
+        task_re = re.compile(r'^[\s]*-\s*\[([ xX])\]', re.MULTILINE)
+        capture_re = re.compile(r'^[\s]*-\s*\[\d{2}:\d{2}\]', re.MULTILINE)
+        wikilink_re = re.compile(r'\[\[([^\]|]+)(?:\|[^\]]+)?\]\]')
+        mood_re = re.compile(r'^Mood:\s*(.+)$', re.MULTILINE)
+
+        summaries = []
+        for note in notes:
+            date_str = note.title.replace("Daily Note - ", "").strip()
+            content = note.content or ""
+            tasks = task_re.findall(content)
+            task_count = len(tasks)
+            completed = sum(1 for t in tasks if t.lower() == 'x')
+            captures = len(capture_re.findall(content))
+            wikilink_count = len(wikilink_re.findall(content))
+            mood_match = mood_re.search(content)
+            mood = mood_match.group(1).strip() if mood_match else None
+            template_lines = {"Morning Notes", "Tasks", "Evening Reflection",
+                              "Add your tasks here..."}
+            has_content = any(
+                line.strip() and line.strip().lstrip('#').strip() not in template_lines
+                and not line.strip().startswith('#daily-note')
+                for line in content.split('\n')
+                if line.strip()
+            )
+
+            summaries.append({
+                "date": date_str,
+                "has_entry": True,
+                "has_content": has_content,
+                "task_count": task_count,
+                "completed_tasks": completed,
+                "capture_count": captures,
+                "wikilink_count": wikilink_count,
+                "mood": mood,
+            })
+
+        return summaries
+
+    @staticmethod
     def _get_or_create_daily_tag(db: Session, owner_id: int) -> Tag:
         """Get or create the daily-note tag."""
         tag_name = "daily-note"

@@ -21,42 +21,32 @@ export const LAYOUT_PRESETS = {
     description: 'Dense, compact spacing',
     icon: 'minimize',
     physics: {
-      chargeStrength: -200,       // Similar to old Map - good spacing
-      linkDistance: 120,          // Medium links
-      linkStrength: 0.5,          // Moderate links
-      centerStrength: 0.12,       // Good center pull
-      velocityDecay: 0.5,
-      alphaDecay: 0.025,
+      chargeStrength: -30,        // D3 default — nodes stay close
+      linkDistance: 30,           // Short links
+      linkStrength: 0.7,          // Strong links pull together
+      centerStrength: 0.03,       // Very gentle center pull
+      velocityDecay: 0.7,        // High friction — prevents orbiting
+      alphaDecay: 0.03,
       alphaMin: 0.001,
     },
-    display: {
-      showLabels: 'hover',
-      nodeScale: 0.9,
-      edgeOpacity: 0.6,
-      curvedEdges: false,
-    },
+    display: { showLabels: 'hover', nodeScale: 0.9, edgeOpacity: 0.6, curvedEdges: false },
   },
 
   explore: {
     id: 'explore',
     name: 'Explore',
-    description: 'Spread layout for navigation',
+    description: 'Balanced layout for navigation',
     icon: 'compass',
     physics: {
-      chargeStrength: -350,       // Similar to old Cluster - well spread
-      linkDistance: 150,          // Long links
-      linkStrength: 0.35,         // Moderate-weak links for spreading
-      centerStrength: 0.08,       // Light center pull
-      velocityDecay: 0.4,
-      alphaDecay: 0.02,
+      chargeStrength: -60,        // Gentle repulsion — readable spacing
+      linkDistance: 60,           // Medium links
+      linkStrength: 0.5,          // Moderate links
+      centerStrength: 0.03,       // Very gentle — prevents orbiting
+      velocityDecay: 0.7,        // High friction — kills rotation fast
+      alphaDecay: 0.05,          // Fast cooling — settles quickly
       alphaMin: 0.001,
     },
-    display: {
-      showLabels: 'hover',
-      nodeScale: 1.0,
-      edgeOpacity: 0.5,
-      curvedEdges: false,
-    },
+    display: { showLabels: 'hover', nodeScale: 1.0, edgeOpacity: 0.5, curvedEdges: false },
   },
 
   map: {
@@ -65,20 +55,15 @@ export const LAYOUT_PRESETS = {
     description: 'Wide layout for overview',
     icon: 'map',
     physics: {
-      chargeStrength: -500,       // High repulsion - nodes spread wide
-      linkDistance: 200,          // Very long links
-      linkStrength: 0.25,         // Weak links for maximum spreading
-      centerStrength: 0.05,       // Minimal center pull
-      velocityDecay: 0.35,
-      alphaDecay: 0.015,
+      chargeStrength: -120,       // Moderate repulsion — see structure
+      linkDistance: 80,           // Medium-long links
+      linkStrength: 0.3,          // Weaker links allow spreading
+      centerStrength: 0.05,       // Gentle center pull
+      velocityDecay: 0.45,
+      alphaDecay: 0.022,
       alphaMin: 0.001,
     },
-    display: {
-      showLabels: 'none',
-      nodeScale: 0.8,
-      edgeOpacity: 0.4,
-      curvedEdges: false,
-    },
+    display: { showLabels: 'none', nodeScale: 0.8, edgeOpacity: 0.4, curvedEdges: false },
   },
 
   cluster: {
@@ -87,20 +72,15 @@ export const LAYOUT_PRESETS = {
     description: 'Maximum spread for structure',
     icon: 'layers',
     physics: {
-      chargeStrength: -700,       // Very high repulsion - maximum spread
-      linkDistance: 250,          // Very long links
-      linkStrength: 0.2,          // Very weak links for freedom
-      centerStrength: 0.03,       // Very minimal center pull
-      velocityDecay: 0.3,
-      alphaDecay: 0.012,
+      chargeStrength: -200,       // Strong repulsion — max spread
+      linkDistance: 120,          // Long links
+      linkStrength: 0.2,          // Weak links for freedom
+      centerStrength: 0.03,       // Minimal center pull
+      velocityDecay: 0.4,
+      alphaDecay: 0.018,
       alphaMin: 0.001,
     },
-    display: {
-      showLabels: 'hover',
-      nodeScale: 1.0,
-      edgeOpacity: 0.5,
-      curvedEdges: true,
-    },
+    display: { showLabels: 'hover', nodeScale: 1.0, edgeOpacity: 0.5, curvedEdges: true },
   },
 };
 

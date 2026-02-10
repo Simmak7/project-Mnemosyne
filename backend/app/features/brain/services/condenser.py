@@ -184,6 +184,7 @@ class SemanticCondenser:
                     "model": self.model,
                     "prompt": prompt,
                     "stream": False,
+                    "think": False,
                     "options": {
                         "temperature": 0.1,  # Low temp for consistent extraction
                         "num_predict": 2000

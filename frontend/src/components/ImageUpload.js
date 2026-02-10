@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, FileImage } from 'lucide-react';
+import { api } from '../utils/api';
 import './ImageUpload.css';
 
 function ImageUpload({ onUploadSuccess }) {
@@ -112,19 +113,8 @@ function ImageUpload({ onUploadSuccess }) {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setMessage('Please login first');
-        setMessageType('error');
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('http://localhost:8000/upload-image/', {
+      const response = await api.fetch('/upload-image/', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -139,13 +129,8 @@ function ImageUpload({ onUploadSuccess }) {
         }
         onUploadSuccess(data);
       } else if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
         setMessage('Session expired. Please login again.');
         setMessageType('error');
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
       } else {
         const errorData = await response.json();
         setMessage(`Upload failed: ${errorData.detail}`);

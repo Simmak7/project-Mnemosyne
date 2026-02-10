@@ -23,7 +23,7 @@
 }
 
 .settings-modal {
-  background: var(--card-bg);
+  background: var(--bg-primary);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 90%;
@@ -281,6 +281,88 @@
   }
 }
 
+/* AI Model Selection */
+.model-select-item {
+  grid-column: span 1;
+}
+
+.model-select-item label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.model-select-item .label-icon {
+  color: var(--accent-color, #667eea);
+}
+
+.model-info {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 4px;
+  padding: 6px 8px;
+  background: rgba(var(--accent-color-rgb, 102, 126, 234), 0.1);
+  border-radius: 6px;
+  border-left: 2px solid var(--accent-color, #667eea);
+}
+
+/* 3-column layout for AI models (RAG, Brain, Vision) */
+.settings-section:has(.model-select-item) .settings-appearance-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 900px) {
+  .settings-section:has(.model-select-item) .settings-appearance-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .settings-section:has(.model-select-item) .settings-appearance-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Read-only model display (for vision model) */
+.model-readonly-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  min-height: 38px;
+}
+
+.model-readonly-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.model-readonly-params {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.model-readonly-status {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.model-readonly-status.available {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.model-readonly-status.unavailable {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+}
+
 .settings-readonly-hint {
   font-size: 12px;
   color: var(--text-tertiary, #888);
@@ -297,16 +379,16 @@
 
 .inline-edit input {
   padding: 8px 12px;
-  border: 1px solid var(--border-color, #ddd);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 14px;
-  background: var(--input-bg, #fff);
-  color: #333;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .inline-edit input:focus {
   outline: none;
-  border-color: var(--primary-color, #667eea);
+  border-color: var(--accent-color);
   box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
 }
 
@@ -338,7 +420,7 @@
 }
 
 .modal-content {
-  background: var(--card-bg);
+  background: var(--bg-primary);
   border-radius: 16px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
   width: 90%;
@@ -426,7 +508,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-size: 14px;
-  background: var(--bg-color);
+  background: var(--bg-primary);
   color: var(--text-primary);
   transition: all 0.2s ease;
 }
@@ -644,7 +726,7 @@
   font-family: monospace;
   border: 2px solid var(--border-color);
   border-radius: 12px;
-  background: var(--bg-color);
+  background: var(--bg-primary);
   color: var(--text-primary);
   margin-bottom: 16px;
 }
@@ -762,6 +844,19 @@
 .btn-danger.btn-small {
   padding: 6px 12px;
   font-size: 12px;
+}
+
+/* Coming Soon badge */
+.settings-coming-soon-badge {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--hover-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* ==========================================

@@ -104,6 +104,7 @@ def call_ollama_generate(
                 "prompt": prompt,
                 "system": system_prompt,
                 "stream": False,
+                "think": False,
                 "options": {
                     "temperature": RAG_TEMPERATURE,
                     "num_predict": 1024,  # Max tokens to generate
@@ -147,6 +148,7 @@ def call_ollama_stream(
                 "prompt": prompt,
                 "system": system_prompt,
                 "stream": True,
+                "think": False,
                 "options": {
                     "temperature": RAG_TEMPERATURE,
                     "num_predict": 1024,

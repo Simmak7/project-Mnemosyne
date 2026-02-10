@@ -3,8 +3,11 @@ Ranking module for RAG system.
 
 Implements Reciprocal Rank Fusion (RRF) for combining results
 from multiple retrieval methods with different scoring scales.
+
+Includes smart image boosting based on query type.
 """
 
+import re
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -16,23 +19,140 @@ from .retrieval import RetrievalResult
 logger = logging.getLogger(__name__)
 
 
+# Image query detection patterns
+IMAGE_KEYWORDS = {
+    'image', 'images', 'picture', 'pictures', 'photo', 'photos',
+    'photograph', 'photographs', 'screenshot', 'screenshots',
+    'diagram', 'diagrams', 'illustration', 'visual', 'visuals'
+}
+
+IMAGE_PHRASES = [
+    r'show\s+me',
+    r'what\s+does\s+.+\s+look\s+like',
+    r'any\s+(pictures?|photos?|images?)\s+of',
+    r'see\s+(the|my|a)\s+',
+]
+
+# Document query detection patterns
+DOCUMENT_KEYWORDS = {
+    'document', 'documents', 'pdf', 'pdfs', 'report', 'reports',
+    'contract', 'contracts', 'paper', 'papers', 'file', 'files',
+    'article', 'articles', 'manual', 'manuals', 'invoice', 'invoices',
+}
+
+DOCUMENT_PHRASES = [
+    r'in\s+(the|my|a)\s+(document|pdf|report|contract)',
+    r'from\s+(the|my|a)\s+(document|pdf|report)',
+    r'uploaded\s+(document|pdf|file)',
+]
+
+
+def detect_image_query(query: str) -> bool:
+    """
+    Detect if query is specifically asking for images/visuals.
+
+    Returns True if query contains image-related keywords or patterns.
+    """
+    query_lower = query.lower()
+
+    # Check keywords
+    words = set(re.findall(r'\b\w+\b', query_lower))
+    if words & IMAGE_KEYWORDS:
+        return True
+
+    # Check phrases
+    for pattern in IMAGE_PHRASES:
+        if re.search(pattern, query_lower):
+            return True
+
+    return False
+
+
+def detect_document_query(query: str) -> bool:
+    """
+    Detect if query is asking about document/PDF content.
+
+    Returns True if query contains document-related keywords or patterns.
+    """
+    query_lower = query.lower()
+
+    words = set(re.findall(r'\b\w+\b', query_lower))
+    if words & DOCUMENT_KEYWORDS:
+        return True
+
+    for pattern in DOCUMENT_PHRASES:
+        if re.search(pattern, query_lower):
+            return True
+
+    return False
+
+
 @dataclass
 class RankingConfig:
     """Configuration for result ranking."""
     rrf_k: int = 60  # RRF constant (typical range: 10-100)
 
     # Method weights (should sum to ~1.0 for interpretability)
-    semantic_weight: float = 0.4
-    chunk_weight: float = 0.25
-    wikilink_weight: float = 0.2
-    fulltext_weight: float = 0.1
-    image_weight: float = 0.05
+    # Updated: Image weight increased from 0.05 to 0.20 for better visibility
+    semantic_weight: float = 0.35
+    chunk_weight: float = 0.20
+    wikilink_weight: float = 0.15
+    fulltext_weight: float = 0.10
+    image_weight: float = 0.20  # 4x increase from original 0.05
 
     # Boost factors
     recency_boost: bool = True
     recency_half_life_days: int = 30  # Notes lose half relevance after this
 
+    # Image slot reservation
+    min_image_slots: int = 2  # Reserve slots for images in top results
+    image_min_threshold: float = 0.15  # Minimum score for reserved images
+
     max_results: int = 20
+
+
+def get_dynamic_config(query: str, base_config: RankingConfig = None) -> RankingConfig:
+    """
+    Get ranking config with dynamic weights based on query type.
+
+    If query is image-focused, boost image weight significantly.
+    """
+    if base_config is None:
+        base_config = RankingConfig()
+
+    if detect_image_query(query):
+        # Image-focused query: boost image weight to 40%
+        return RankingConfig(
+            rrf_k=base_config.rrf_k,
+            semantic_weight=0.25,
+            chunk_weight=0.15,
+            wikilink_weight=0.10,
+            fulltext_weight=0.10,
+            image_weight=0.40,  # Boosted for image queries
+            recency_boost=base_config.recency_boost,
+            recency_half_life_days=base_config.recency_half_life_days,
+            min_image_slots=4,  # More image slots for image queries
+            image_min_threshold=0.10,
+            max_results=base_config.max_results,
+        )
+
+    if detect_document_query(query):
+        # Document-focused query: boost document chunk weight
+        return RankingConfig(
+            rrf_k=base_config.rrf_k,
+            semantic_weight=0.25,
+            chunk_weight=0.30,  # Boost chunk weight for doc queries
+            wikilink_weight=0.10,
+            fulltext_weight=0.15,
+            image_weight=0.10,
+            recency_boost=base_config.recency_boost,
+            recency_half_life_days=base_config.recency_half_life_days,
+            min_image_slots=1,
+            image_min_threshold=0.15,
+            max_results=base_config.max_results,
+        )
+
+    return base_config
 
 
 @dataclass
@@ -75,6 +195,7 @@ def reciprocal_rank_fusion(
     method_weights = {
         'semantic': config.semantic_weight,
         'chunk_semantic': config.chunk_weight,
+        'document_chunk': config.chunk_weight,  # Document chunks same weight as note chunks
         'wikilink': config.wikilink_weight,
         'fulltext': config.fulltext_weight,
         'image_tag': config.image_weight,
@@ -195,6 +316,7 @@ def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
         Deduplicated results
     """
     seen_notes: Set[int] = set()
+    seen_documents: Set[int] = set()
     deduplicated: List[RankedResult] = []
 
     for rr in results:
@@ -209,6 +331,12 @@ def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
             if rr.result.source_id in seen_notes:
                 continue
             seen_notes.add(rr.result.source_id)
+        elif rr.result.source_type == 'document_chunk':
+            doc_id = rr.result.metadata.get('document_id')
+            if doc_id and doc_id in seen_documents:
+                continue
+            if doc_id:
+                seen_documents.add(doc_id)
 
         deduplicated.append(rr)
 
@@ -220,13 +348,79 @@ def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
     return deduplicated
 
 
+def ensure_image_slots(
+    ranked: List[RankedResult],
+    config: RankingConfig
+) -> List[RankedResult]:
+    """
+    Ensure minimum number of images in top results if relevant images exist.
+
+    Strategy:
+    1. Count images in top 10 results
+    2. If fewer than min_image_slots, promote best images from lower ranks
+    3. Insert promoted images at positions 5-7 (middle of results)
+    """
+    top_n = min(10, len(ranked))
+    top_results = ranked[:top_n]
+
+    # Count images in top results
+    image_count = sum(
+        1 for r in top_results
+        if r.result.source_type == 'image'
+    )
+
+    if image_count >= config.min_image_slots:
+        return ranked  # Already enough images
+
+    # Find best images not in top results
+    images_outside = [
+        r for r in ranked[top_n:]
+        if r.result.source_type == 'image'
+        and r.final_score >= config.image_min_threshold
+    ]
+
+    if not images_outside:
+        return ranked  # No images to promote
+
+    # Promote images to reserved slots
+    slots_needed = config.min_image_slots - image_count
+    to_promote = images_outside[:slots_needed]
+
+    if not to_promote:
+        return ranked
+
+    # Remove promoted images from their current positions
+    promoted_keys = {
+        (r.result.source_type, r.result.source_id)
+        for r in to_promote
+    }
+    new_ranked = [
+        r for r in ranked
+        if (r.result.source_type, r.result.source_id) not in promoted_keys
+    ]
+
+    # Insert at middle positions (5-7)
+    insert_pos = min(5, len(new_ranked))
+    for img in to_promote:
+        new_ranked.insert(insert_pos, img)
+        insert_pos += 1
+
+    # Re-assign ranks
+    for i, r in enumerate(new_ranked):
+        r.rank = i + 1
+
+    logger.info(f"Image slot reservation: promoted {len(to_promote)} images to top results")
+    return new_ranked
+
+
 def merge_and_rank(
     semantic_results: List[RetrievalResult],
     chunk_results: List[RetrievalResult],
     graph_results: List[RetrievalResult],
     fulltext_results: List[RetrievalResult],
     image_results: List[RetrievalResult],
-    config: RankingConfig = None
+    config: RankingConfig = None,
+    query: str = None
 ) -> List[RankedResult]:
     """
     Convenience function to merge all result types and rank.
@@ -238,10 +432,17 @@ def merge_and_rank(
         fulltext_results: Results from full-text search
         image_results: Results from image retrieval
         config: Ranking configuration
+        query: Original query (for dynamic weight adjustment)
 
     Returns:
         Combined and ranked results
     """
+    # Get dynamic config based on query type
+    if query and config is None:
+        config = get_dynamic_config(query)
+    elif config is None:
+        config = RankingConfig()
+
     result_lists = {
         'semantic': semantic_results,
         'chunk_semantic': chunk_results,
@@ -264,6 +465,9 @@ def merge_and_rank(
 
     # Deduplicate
     ranked = deduplicate_results(ranked)
+
+    # Apply image slot reservation
+    ranked = ensure_image_slots(ranked, config)
 
     return ranked
 

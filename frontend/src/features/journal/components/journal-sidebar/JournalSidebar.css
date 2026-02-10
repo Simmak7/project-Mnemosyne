@@ -1,0 +1,267 @@
+/* JournalSidebar.css */
+
+.journal-sidebar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.journal-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-4, 16px) var(--ng-space-3, 12px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.journal-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.journal-sidebar-title h3 {
+  margin: 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-base, 1rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.journal-sidebar-collapse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.journal-sidebar-collapse:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+/* Today button */
+.journal-today-btn {
+  margin: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  padding: var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-lg, 8px);
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid #fbbf24;
+  color: #fbbf24;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  text-align: center;
+}
+
+.journal-today-btn:hover {
+  background: #fbbf24;
+  color: #1a1a1a;
+}
+
+.journal-today-btn:active {
+  background: #f59e0b;
+  color: #1a1a1a;
+}
+
+/* Divider */
+.journal-sidebar-divider {
+  height: 1px;
+  background: var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  margin: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+}
+
+/* Entry list container - scrollable */
+.journal-sidebar-entries {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Entry list */
+.entry-list {
+  padding: 0 var(--ng-space-3, 12px) var(--ng-space-3, 12px);
+}
+
+.entry-list-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-2, 8px) 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  font-weight: 600;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.entry-list-loading,
+.entry-list-empty {
+  padding: var(--ng-space-4, 16px) 0;
+  text-align: center;
+  font-size: var(--ng-text-sm, 0.875rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+}
+
+.entry-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* Entry list item */
+.entry-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.entry-list-item:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+.entry-list-item--selected {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.entry-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ng-space-2, 8px);
+}
+
+.entry-date {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.entry-relative {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 1px 6px;
+  border-radius: var(--ng-radius-full, 9999px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.entry-preview {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Caption: intentional summary shown in amber */
+.entry-preview--caption {
+  color: var(--ng-accent-note, #fbbf24);
+  font-weight: 500;
+}
+
+.entry-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  margin-top: 1px;
+}
+
+.entry-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 0 4px;
+  border-radius: var(--ng-radius-sm, 4px);
+  line-height: 16px;
+}
+
+.entry-badge--tasks {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.entry-badge--captures {
+  color: var(--ng-accent-note, #fbbf24);
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.entry-badge--mood {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+/* Light Mode */
+[data-theme="light"] .journal-sidebar-header {
+  border-bottom-color: var(--ng-glass-border);
+}
+
+[data-theme="light"] .journal-today-btn {
+  background: rgba(217, 119, 6, 0.08);
+  border-color: #d97706;
+  color: #d97706;
+}
+
+[data-theme="light"] .journal-today-btn:hover {
+  background: #d97706;
+  color: #ffffff;
+}
+
+[data-theme="light"] .journal-today-btn:active {
+  background: #b45309;
+  color: #ffffff;
+}
+
+[data-theme="light"] .entry-list-item--selected {
+  background: rgba(217, 119, 6, 0.08);
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+[data-theme="light"] .entry-relative {
+  color: #b45309;
+  background: rgba(217, 119, 6, 0.1);
+}
+
+[data-theme="light"] .entry-preview--caption {
+  color: #d97706;
+}
+
+[data-theme="light"] .entry-badge--tasks {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.08);
+}
+
+[data-theme="light"] .entry-badge--captures {
+  color: #d97706;
+  background: rgba(217, 119, 6, 0.08);
+}

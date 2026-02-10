@@ -99,18 +99,26 @@ def assemble_context(
     topic_tokens = 0
     topics_matched = []
 
+    # Batch load all topic files in one query (prevents N+1)
+    topic_keys = [ts.file_key for ts in topic_scores]
+    if topic_keys:
+        topic_files = (
+            db.query(BrainFile)
+            .filter(
+                BrainFile.owner_id == user_id,
+                BrainFile.file_key.in_(topic_keys),
+            )
+            .all()
+        )
+        topic_file_map = {f.file_key: f for f in topic_files}
+    else:
+        topic_file_map = {}
+
     for ts in topic_scores:
         if topic_tokens >= topic_budget:
             break
 
-        topic_file = (
-            db.query(BrainFile)
-            .filter(
-                BrainFile.owner_id == user_id,
-                BrainFile.file_key == ts.file_key,
-            )
-            .first()
-        )
+        topic_file = topic_file_map.get(ts.file_key)
         if not topic_file:
             continue
 
@@ -188,3 +196,50 @@ def format_conversation_history(
         content = msg.get("content", "")[:500]
         parts.append(f"{role.capitalize()}: {content}")
     return "\n\n".join(parts)
+
+
+def format_conversation_history_tiered(
+    messages: List[Dict],
+    conversation_summary: Optional[str] = None,
+) -> str:
+    """
+    Format conversation history with tiered approach.
+
+    Tier 1: Recent 5 messages - full content (up to 1000 chars each)
+    Tier 2: Older messages (6-15) - condensed (200 chars each)
+    Tier 3: Archive summary - single paragraph from LLM summarization
+
+    Args:
+        messages: List of {"role": str, "content": str} dicts
+        conversation_summary: Pre-computed summary of older messages
+
+    Returns:
+        Formatted string for inclusion in system prompt
+    """
+    parts = []
+
+    # Tier 3: Archive summary (if exists)
+    if conversation_summary:
+        parts.append(f"[Previous conversation summary]\n{conversation_summary}")
+
+    # Split messages into tiers
+    recent = messages[-5:] if len(messages) > 5 else messages
+    older = messages[-15:-5] if len(messages) > 5 else []
+
+    # Tier 2: Older messages (condensed)
+    if older:
+        older_text = "\n".join([
+            f"{m['role'].capitalize()}: {m['content'][:200]}..."
+            for m in older
+        ])
+        parts.append(f"[Earlier in this conversation]\n{older_text}")
+
+    # Tier 1: Recent messages (full)
+    if recent:
+        recent_text = "\n\n".join([
+            f"{m['role'].capitalize()}: {m['content'][:1000]}"
+            for m in recent
+        ])
+        parts.append(f"[Recent messages]\n{recent_text}")
+
+    return "\n\n---\n\n".join(parts) if parts else ""

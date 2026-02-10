@@ -1,0 +1,245 @@
+/**
+ * RebuildPanel.css - Graph Intelligence rebuild controls
+ */
+
+/* Collapsible header */
+.rebuild-panel__header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0 0 var(--ng-space-2, 8px) 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+  cursor: pointer;
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.rebuild-panel__header:hover {
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.rebuild-panel__chevron {
+  margin-left: auto;
+  transition: transform 0.2s ease;
+}
+
+.rebuild-panel__chevron.is-rotated {
+  transform: rotate(-90deg);
+}
+
+/* Content area */
+.rebuild-panel__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 12px);
+}
+
+/* Card for each rebuild section */
+.rebuild-panel__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1-5, 6px);
+  padding: var(--ng-space-2, 8px);
+  background: var(--ng-charcoal-800, rgba(255, 255, 255, 0.02));
+  border-radius: var(--ng-radius-md, 6px);
+  border: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.rebuild-panel__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Stats row */
+.rebuild-panel__stats {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.rebuild-panel__stats-sep {
+  color: var(--ng-divider, rgba(255, 255, 255, 0.1));
+}
+
+/* Threshold slider */
+.rebuild-panel__threshold {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rebuild-panel__label {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+.rebuild-panel__label-hint {
+  margin-left: var(--ng-space-1, 4px);
+  color: var(--ng-text-tertiary, #9ca3af);
+  font-weight: 400;
+  font-size: 10px;
+}
+
+/* Description text */
+.rebuild-panel__description {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+/* Actions row */
+.rebuild-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-1-5, 6px);
+  align-items: center;
+}
+
+/* Confirm dialog inline */
+.rebuild-panel__confirm {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1-5, 6px);
+  font-size: 11px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+/* Buttons */
+.rebuild-panel__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-1-5, 6px);
+  padding: var(--ng-space-1-5, 6px) var(--ng-space-3, 12px);
+  background: var(--ng-charcoal-700, #262626);
+  border: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-secondary, #d1d5db);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.rebuild-panel__btn:hover:not(:disabled) {
+  background: var(--ng-charcoal-600, #2e2e2e);
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.rebuild-panel__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rebuild-panel__btn--full {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.1));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.2));
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.rebuild-panel__btn--full:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.15);
+}
+
+/* Secondary variant (outline-style) */
+.rebuild-panel__btn--secondary {
+  background: transparent;
+  border-color: var(--ng-divider, rgba(255, 255, 255, 0.08));
+  color: var(--ng-text-muted, #6b7280);
+  font-size: 11px;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+}
+
+.rebuild-panel__btn--secondary:hover:not(:disabled) {
+  color: var(--ng-text-secondary, #d1d5db);
+  border-color: var(--ng-divider, rgba(255, 255, 255, 0.15));
+}
+
+/* Danger variant (red) */
+.rebuild-panel__btn--danger {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #f87171;
+  font-size: 11px;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+}
+
+.rebuild-panel__btn--danger:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.2);
+}
+
+/* Hint text */
+.rebuild-panel__hint {
+  font-size: 10px;
+  color: var(--ng-text-muted, #6b7280);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Toast feedback */
+.rebuild-panel__toast {
+  font-size: 11px;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-sm, 4px);
+  text-align: center;
+  animation: rebuild-toast-in 0.2s ease;
+}
+
+.rebuild-panel__toast.is-success {
+  background: rgba(52, 211, 153, 0.1);
+  color: #34d399;
+}
+
+.rebuild-panel__toast.is-error {
+  background: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+}
+
+@keyframes rebuild-toast-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.is-spinning { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* Light mode */
+[data-theme="light"] .rebuild-panel__card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .rebuild-panel__btn {
+  background: var(--ng-slate-100, #f1f5f9);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .rebuild-panel__btn:hover:not(:disabled) {
+  background: var(--ng-slate-200, #e2e8f0);
+}
+
+[data-theme="light"] .rebuild-panel__btn--secondary {
+  background: transparent;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .rebuild-panel__btn--danger {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.2);
+  color: #dc2626;
+}

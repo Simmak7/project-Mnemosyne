@@ -3,20 +3,20 @@
  * Extracted from ImageUpload.js for reuse
  */
 
-// Maximum file size in bytes (10MB)
+// Maximum file size in bytes (10MB for images, 50MB for PDFs)
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+export const MAX_PDF_SIZE = 50 * 1024 * 1024;
 
 // Allowed MIME types
 export const ALLOWED_TYPES = {
-  // Images (currently supported)
+  // Images
   'image/jpeg': { ext: '.jpg', label: 'JPEG Image', icon: 'image' },
   'image/png': { ext: '.png', label: 'PNG Image', icon: 'image' },
   'image/gif': { ext: '.gif', label: 'GIF Image', icon: 'image' },
   'image/webp': { ext: '.webp', label: 'WebP Image', icon: 'image' },
 
-  // Documents (future support - disabled by default)
-  // 'application/pdf': { ext: '.pdf', label: 'PDF Document', icon: 'document' },
-  // 'text/plain': { ext: '.txt', label: 'Text File', icon: 'document' },
+  // Documents
+  'application/pdf': { ext: '.pdf', label: 'PDF Document', icon: 'document' },
 };
 
 /**
@@ -41,9 +41,10 @@ export function validateFile(file) {
     };
   }
 
-  // Check file size
-  if (file.size > MAX_FILE_SIZE) {
-    const sizeMB = (MAX_FILE_SIZE / (1024 * 1024)).toFixed(0);
+  // Check file size (PDFs get higher limit)
+  const maxSize = file.type === 'application/pdf' ? MAX_PDF_SIZE : MAX_FILE_SIZE;
+  if (file.size > maxSize) {
+    const sizeMB = (maxSize / (1024 * 1024)).toFixed(0);
     return {
       valid: false,
       error: `File size exceeds ${sizeMB}MB limit`

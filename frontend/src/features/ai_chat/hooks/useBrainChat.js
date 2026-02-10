@@ -7,16 +7,7 @@
 
 import { useCallback, useRef } from 'react';
 import { useAIChatContext, useAIChatActions } from './AIChatContext';
-
-const API_BASE = 'http://localhost:8000';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : '',
-  };
-};
+import { api } from '../../../utils/api';
 
 export function useBrainChat() {
   const { state } = useAIChatContext();
@@ -37,22 +28,11 @@ export function useBrainChat() {
     actions.addMessage(userMessage);
 
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/query`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          query,
-          conversation_id: state.conversationId,
-          auto_create_conversation: true,
-        }),
+      const data = await api.post('/mnemosyne/query', {
+        query,
+        conversation_id: state.conversationId,
+        auto_create_conversation: true,
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Request failed: ${response.status}`);
-      }
-
-      const data = await response.json();
 
       const assistantMessage = {
         id: Date.now() + 1,
@@ -60,6 +40,7 @@ export function useBrainChat() {
         content: data.answer,
         brainFilesUsed: data.brain_files_used,
         topicsMatched: data.topics_matched,
+        modelUsed: data.model_used,
         isBrainMode: true,
         timestamp: new Date().toISOString(),
       };
@@ -115,9 +96,12 @@ export function useBrainChat() {
     let accumulatedContent = '';
 
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/query/stream`, {
+      // Use api.fetch for streaming requests with proper CSRF handling
+      const response = await api.fetch('/mnemosyne/query/stream', {
         method: 'POST',
-        headers: getAuthHeaders(),
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           query,
           conversation_id: state.conversationId,
@@ -127,7 +111,8 @@ export function useBrainChat() {
       });
 
       if (!response.ok) {
-        throw new Error(`Request failed: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Request failed: ${response.status}`);
       }
 
       const reader = response.body.getReader();
@@ -156,6 +141,7 @@ export function useBrainChat() {
                 brainMeta = {
                   brainFilesUsed: data.brain_files_used || [],
                   topicsMatched: data.topics_matched || [],
+                  modelUsed: data.model_used,
                 };
                 actions.setBrainFilesUsed(brainMeta.brainFilesUsed);
                 actions.setTopicsMatched(brainMeta.topicsMatched);
@@ -165,6 +151,10 @@ export function useBrainChat() {
                 if (data.metadata?.conversation_id &&
                     data.metadata.conversation_id !== state.conversationId) {
                   actions.setConversation(data.metadata.conversation_id);
+                }
+                // Also capture model_used from metadata
+                if (data.metadata?.model_used) {
+                  brainMeta.modelUsed = data.metadata.model_used;
                 }
                 break;
 
@@ -176,6 +166,7 @@ export function useBrainChat() {
                   content: accumulatedContent,
                   brainFilesUsed: brainMeta.brainFilesUsed,
                   topicsMatched: brainMeta.topicsMatched,
+                  modelUsed: brainMeta.modelUsed,
                   isBrainMode: true,
                   isStreaming: false,
                 });
@@ -218,23 +209,13 @@ export function useBrainChat() {
   }, []);
 
   const listConversations = useCallback(async (skip = 0, limit = 50) => {
-    const response = await fetch(
-      `${API_BASE}/mnemosyne/conversations?skip=${skip}&limit=${limit}`,
-      { headers: getAuthHeaders() }
-    );
-    if (!response.ok) throw new Error('Failed to list brain conversations');
-    return await response.json();
+    return await api.get(`/mnemosyne/conversations?skip=${skip}&limit=${limit}`);
   }, []);
 
   const loadConversation = useCallback(async (id) => {
     actions.setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/mnemosyne/conversations/${id}`, {
-        headers: getAuthHeaders(),
-      });
-      if (!response.ok) throw new Error('Failed to load brain conversation');
-
-      const data = await response.json();
+      const data = await api.get(`/mnemosyne/conversations/${id}`);
       actions.setConversation(data.id);
 
       const formattedMessages = (data.messages || []).map(msg => ({
@@ -261,11 +242,7 @@ export function useBrainChat() {
   }, [actions]);
 
   const deleteConversation = useCallback(async (id) => {
-    const response = await fetch(`${API_BASE}/mnemosyne/conversations/${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders(),
-    });
-    if (!response.ok) throw new Error('Failed to delete brain conversation');
+    await api.delete(`/mnemosyne/conversations/${id}`);
     if (id === state.conversationId) {
       actions.clearMessages();
     }
@@ -273,13 +250,7 @@ export function useBrainChat() {
   }, [state.conversationId, actions]);
 
   const updateConversation = useCallback(async (id, updates) => {
-    const response = await fetch(`${API_BASE}/mnemosyne/conversations/${id}`, {
-      method: 'PUT',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(updates),
-    });
-    if (!response.ok) throw new Error('Failed to update brain conversation');
-    return await response.json();
+    return await api.put(`/mnemosyne/conversations/${id}`, updates);
   }, []);
 
   return {

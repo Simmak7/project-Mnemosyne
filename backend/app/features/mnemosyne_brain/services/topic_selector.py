@@ -36,6 +36,7 @@ def select_topics(
     query_embedding: Optional[List[float]] = None,
     max_topics: int = 5,
     token_budget: int = None,
+    pinned_topics: Optional[List[str]] = None,
 ) -> List[TopicScore]:
     """
     Select the most relevant topic files for a query.
@@ -47,12 +48,15 @@ def select_topics(
         query_embedding: Pre-computed query embedding (768-dim)
         max_topics: Maximum topics to return
         token_budget: Max total tokens across selected topics
+        pinned_topics: List of topic keys to always include
 
     Returns:
         Sorted list of TopicScore (highest first)
     """
     if token_budget is None:
         token_budget = getattr(config, "BRAIN_TOPIC_TOKEN_BUDGET", 3000)
+
+    pinned_topics = pinned_topics or []
 
     # Fetch all topic files
     topic_files = (
@@ -67,16 +71,52 @@ def select_topics(
     if not topic_files:
         return []
 
+    # Build topic map
+    topic_map = {tf.file_key: tf for tf in topic_files}
+
     # Score each topic
-    scored: List[TopicScore] = []
     query_lower = query.lower()
     query_words = set(query_lower.split())
 
-    for tf in topic_files:
+    # FIRST: Always include pinned topics
+    selected: List[TopicScore] = []
+    tokens_used = 0
+
+    for key in pinned_topics:
+        tf = topic_map.get(key)
+        if not tf:
+            continue
+
+        token_count = tf.token_count_approx or 0
+        if tokens_used + token_count > token_budget:
+            continue
+
         keyword_score = _compute_keyword_score(query_words, query_lower, tf)
         embedding_score = _compute_embedding_score(query_embedding, tf)
+        combined = (keyword_score * 0.3) + (embedding_score * 0.7)
 
-        # Combined score: keyword (0.3) + embedding (0.7)
+        selected.append(TopicScore(
+            file_key=tf.file_key,
+            title=tf.title,
+            score=max(combined, 1.0),  # Pinned topics get max score
+            keyword_score=keyword_score,
+            embedding_score=embedding_score,
+            match_method="pinned",
+            token_count=token_count,
+        ))
+        tokens_used += token_count
+
+    # THEN: Score and select remaining topics
+    remaining_budget = token_budget - tokens_used
+    remaining_slots = max_topics - len(selected)
+
+    scored: List[TopicScore] = []
+    for tf in topic_files:
+        if tf.file_key in pinned_topics:
+            continue  # Already included
+
+        keyword_score = _compute_keyword_score(query_words, query_lower, tf)
+        embedding_score = _compute_embedding_score(query_embedding, tf)
         combined = (keyword_score * 0.3) + (embedding_score * 0.7)
 
         if combined < 0.05:
@@ -101,11 +141,9 @@ def select_topics(
     # Sort by score descending
     scored.sort(key=lambda x: x.score, reverse=True)
 
-    # Select within token budget
-    selected = []
-    tokens_used = 0
-    for topic in scored[:max_topics * 2]:  # Consider more than max in case of budget
-        if len(selected) >= max_topics:
+    # Fill remaining slots within budget
+    for topic in scored:
+        if len(selected) >= max_topics + len(pinned_topics):
             break
         if tokens_used + topic.token_count > token_budget:
             continue
@@ -114,7 +152,7 @@ def select_topics(
 
     logger.info(
         f"Selected {len(selected)} topics for query "
-        f"(scores: {[f'{t.file_key}={t.score:.2f}' for t in selected]})"
+        f"(pinned: {len(pinned_topics)}, scores: {[f'{t.file_key}={t.score:.2f}' for t in selected]})"
     )
     return selected
 

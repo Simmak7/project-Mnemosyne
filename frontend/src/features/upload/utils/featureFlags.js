@@ -14,8 +14,8 @@ export const UPLOAD_FLAGS = {
 
   // Advanced features (disabled by default, opt-in)
   PER_FILE_CONFIG: true,        // Per-file custom prompts (collapsed)
-  MODEL_SELECTION: true,        // Model picker for AI selection
-  DOCUMENT_SUPPORT: false,      // PDF/TXT support (enable when backend ready)
+  MODEL_SELECTION: false,       // Replaced with real model display in Advanced Options
+  DOCUMENT_SUPPORT: true,       // PDF support (backend ready)
   INTENT_PRESETS: true,         // Preset buttons for analysis type
 
   // Experimental

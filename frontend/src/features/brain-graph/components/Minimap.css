@@ -1,0 +1,57 @@
+/**
+ * Minimap.css - Graph minimap overlay
+ */
+
+.graph-minimap {
+  position: absolute;
+  bottom: var(--ng-space-4, 16px);
+  right: var(--ng-space-4, 16px);
+  z-index: 50;
+}
+
+.graph-minimap__toggle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ng-glass-bg-solid, rgba(10, 10, 10, 0.8));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-muted, #9ca3af);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.graph-minimap__toggle:hover {
+  color: var(--ng-text-primary, #f9fafb);
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.08));
+}
+
+.graph-minimap__toggle--active {
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.graph-minimap__canvas {
+  display: block;
+  width: 150px;
+  height: 100px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-md, 6px);
+  cursor: crosshair;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  margin-bottom: 4px;
+}
+
+.graph-minimap__canvas:hover {
+  opacity: 1;
+}
+
+[data-theme="light"] .graph-minimap__canvas {
+  background: rgba(255, 255, 255, 0.7);
+}

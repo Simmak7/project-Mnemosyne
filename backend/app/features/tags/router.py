@@ -49,15 +49,19 @@ async def get_tags(
     try:
         tags = TagService.get_tags_by_user(db, owner_id=current_user.id)
         logger.info(f"Retrieved {len(tags)} tags for user {current_user.username}")
-        # Build response with note counts
+        # Build response with note counts (exclude trashed notes)
         result = []
         for tag in tags:
+            note_count = sum(
+                1 for note in (tag.notes or [])
+                if not getattr(note, 'is_trashed', False)
+            )
             tag_dict = {
                 "id": tag.id,
                 "name": tag.name,
                 "created_at": tag.created_at,
                 "owner_id": tag.owner_id,
-                "note_count": len(tag.notes) if tag.notes else 0
+                "note_count": note_count
             }
             result.append(TagResponse(**tag_dict))
         return result

@@ -63,6 +63,7 @@ class RAGQueryResponse(BaseModel):
     confidence_level: str  # 'high', 'medium', 'low'
     conversation_id: Optional[int] = None
     message_id: Optional[int] = None
+    model_used: Optional[str] = None  # Which model generated this response
 
 
 class RAGStreamChunk(BaseModel):

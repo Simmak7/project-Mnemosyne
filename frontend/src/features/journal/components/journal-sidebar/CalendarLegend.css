@@ -1,0 +1,46 @@
+/* CalendarLegend.css */
+
+.calendar-legend {
+  padding: 0 var(--ng-space-3, 12px) var(--ng-space-2, 8px);
+}
+
+.calendar-legend-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 4px);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: var(--ng-space-1, 4px) 0;
+  transition: color var(--ng-transition-fast, 100ms ease-out);
+}
+
+.calendar-legend-toggle:hover {
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.calendar-legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  padding-top: var(--ng-space-2, 8px);
+  animation: ng-fade-up var(--ng-duration-fast, 100ms) var(--ng-ease-out, ease-out);
+}
+
+.calendar-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.calendar-legend-label {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+}

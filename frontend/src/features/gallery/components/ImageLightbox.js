@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   X,
   ChevronLeft,
@@ -200,7 +201,7 @@ function ImageLightbox({
     });
   };
 
-  return (
+  return createPortal(
     <div className="lightbox-overlay" onClick={handleBackdropClick}>
       {/* Navigation buttons */}
       <button
@@ -219,30 +220,11 @@ function ImageLightbox({
         <ChevronRight size={32} />
       </button>
 
-      {/* Close button */}
-      <button
-        className="lightbox-close"
-        onClick={onClose}
-        aria-label="Close"
-      >
-        <X size={24} />
-      </button>
-
       {/* Main content */}
       <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
-        {/* Image container */}
-        <div className="lightbox-image-container">
-          <img
-            src={`http://localhost:8000/image/${image.id}`}
-            alt={image.filename}
-            className="lightbox-image"
-          />
-        </div>
-
-        {/* Info panel */}
-        <div className="lightbox-info">
-          {/* Header with actions */}
-          <div className="lightbox-header">
+        {/* Top bar: title + actions */}
+        <div className="lightbox-top-bar">
+          <div className="lightbox-title-area">
             {isEditing ? (
               <div className="lightbox-title-edit">
                 <input
@@ -260,7 +242,7 @@ function ImageLightbox({
                   onClick={handleSaveRename}
                   title="Save (Enter)"
                 >
-                  <Check size={18} />
+                  <Check size={16} />
                 </button>
               </div>
             ) : (
@@ -273,138 +255,150 @@ function ImageLightbox({
                   onClick={handleStartEditing}
                   title="Rename (R)"
                 >
-                  <Pencil size={14} />
+                  <Pencil size={13} />
                 </button>
-              </div>
-            )}
-            <div className="lightbox-actions">
-              {/* Retry button for failed images */}
-              {isFailed && (
-                <button
-                  className="action-btn retry"
-                  onClick={handleRetryClick}
-                  title="Retry AI analysis"
-                >
-                  <RefreshCw size={18} />
-                </button>
-              )}
-              <button
-                className={`action-btn ${localFavorite ? 'active' : ''}`}
-                onClick={handleFavoriteClick}
-                title={localFavorite ? 'Remove from favorites' : 'Add to favorites'}
-              >
-                <Heart size={18} fill={localFavorite ? 'currentColor' : 'none'} />
-              </button>
-              <button
-                ref={albumBtnRef}
-                className="action-btn album"
-                onClick={handleAlbumClick}
-                title="Add to album"
-              >
-                <FolderPlus size={18} />
-              </button>
-              {showAlbumPicker && (
-                <AlbumPicker
-                  imageIds={[image.id]}
-                  onClose={() => setShowAlbumPicker(false)}
-                  anchorRect={albumBtnRect}
-                />
-              )}
-              {onNavigateToAI && (
-                <button
-                  className="action-btn ai"
-                  onClick={handleAskAI}
-                  title="Ask AI about this image"
-                >
-                  <MessageSquare size={18} />
-                </button>
-              )}
-              <button
-                className="action-btn delete"
-                onClick={onDelete}
-                title="Delete"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
-          </div>
-
-          {/* Metadata */}
-          <div className="lightbox-meta">
-            {/* Date */}
-            <div className="meta-row">
-              <Calendar size={14} className="meta-icon" />
-              <span className="meta-label">Uploaded</span>
-              <span className="meta-value">{formatDate(image.uploaded_at)}</span>
-            </div>
-
-            {/* Status */}
-            <div className="meta-row">
-              <span className={`status-badge ${image.ai_analysis_status}`}>
-                {image.ai_analysis_status}
-              </span>
-            </div>
-
-            {/* Tags */}
-            {image.tags && image.tags.length > 0 && (
-              <div className="meta-section">
-                <div className="meta-section-header">
-                  <Tag size={14} />
-                  <span>Tags</span>
-                </div>
-                <div className="lightbox-tags">
-                  {image.tags.map(tag => (
-                    <span key={tag.id} className="lightbox-tag">
-                      #{tag.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Related Notes */}
-            {image.notes && image.notes.filter(Boolean).length > 0 && (
-              <div className="meta-section">
-                <div className="meta-section-header">
-                  <FileText size={14} />
-                  <span>Generated Notes ({image.notes.filter(Boolean).length})</span>
-                </div>
-                <div className="lightbox-notes">
-                  {image.notes.filter(Boolean).map(note => (
-                    <div
-                      key={note.id}
-                      className="note-card"
-                      onClick={() => handleViewNote(note.id)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleViewNote(note.id)}
-                      role="button"
-                      tabIndex={0}
-                    >
-                      <div className="note-title">{note.title || 'Untitled Note'}</div>
-                      <div className="note-preview">
-                        {(note.content || '').substring(0, 150)}
-                        {(note.content || '').length > 150 && '...'}
-                      </div>
-                      <div className="note-card-hint">
-                        Open note <ExternalLink size={10} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             )}
           </div>
 
-          {/* Keyboard shortcuts hint */}
-          <div className="lightbox-shortcuts">
-            <span>← → Navigate</span>
-            <span>F Favorite</span>
-            <span>R Rename</span>
-            {onNavigateToAI && <span>A Ask AI</span>}
-            <span>Esc Close</span>
+          <div className="lightbox-actions">
+            {isFailed && (
+              <button
+                className="action-btn retry"
+                onClick={handleRetryClick}
+                title="Retry AI analysis"
+              >
+                <RefreshCw size={16} />
+              </button>
+            )}
+            <button
+              className={`action-btn fav ${localFavorite ? 'active' : ''}`}
+              onClick={handleFavoriteClick}
+              title={localFavorite ? 'Remove from favorites (F)' : 'Add to favorites (F)'}
+            >
+              <Heart size={16} fill={localFavorite ? 'currentColor' : 'none'} />
+            </button>
+            <button
+              ref={albumBtnRef}
+              className="action-btn album"
+              onClick={handleAlbumClick}
+              title="Add to album"
+            >
+              <FolderPlus size={16} />
+            </button>
+            {showAlbumPicker && (
+              <AlbumPicker
+                imageIds={[image.id]}
+                onClose={() => setShowAlbumPicker(false)}
+                anchorRect={albumBtnRect}
+              />
+            )}
+            {onNavigateToAI && (
+              <button
+                className="action-btn ai"
+                onClick={handleAskAI}
+                title="Ask AI about this image (A)"
+              >
+                <MessageSquare size={16} />
+              </button>
+            )}
+            <button
+              className="action-btn delete"
+              onClick={onDelete}
+              title="Delete"
+            >
+              <Trash2 size={16} />
+            </button>
+            <div className="lightbox-actions-divider" />
+            <button
+              className="action-btn close"
+              onClick={onClose}
+              title="Close (Esc)"
+            >
+              <X size={16} />
+            </button>
           </div>
         </div>
+
+        {/* Main area: image + sidebar */}
+        <div className="lightbox-main">
+          <div className="lightbox-image-container">
+            <img
+              src={`http://localhost:8000/image/${image.id}`}
+              alt={image.filename}
+              className="lightbox-image"
+            />
+          </div>
+
+          {/* Info sidebar */}
+          <div className="lightbox-sidebar">
+            <div className="lightbox-meta">
+              <div className="meta-row">
+                <Calendar size={13} className="meta-icon" />
+                <span className="meta-label">Uploaded</span>
+                <span className="meta-value">{formatDate(image.uploaded_at)}</span>
+              </div>
+
+              {image.tags && image.tags.length > 0 && (
+                <div className="meta-section">
+                  <div className="meta-section-header">
+                    <Tag size={13} />
+                    <span>Tags</span>
+                  </div>
+                  <div className="lightbox-tags">
+                    {image.tags.map(tag => (
+                      <span key={tag.id} className="lightbox-tag">
+                        #{tag.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {image.notes && image.notes.filter(Boolean).length > 0 && (
+                <div className="meta-section">
+                  <div className="meta-section-header">
+                    <FileText size={13} />
+                    <span>Notes ({image.notes.filter(Boolean).length})</span>
+                  </div>
+                  <div className="lightbox-notes">
+                    {image.notes.filter(Boolean).map(note => (
+                      <div
+                        key={note.id}
+                        className="note-card"
+                        onClick={() => handleViewNote(note.id)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleViewNote(note.id)}
+                        role="button"
+                        tabIndex={0}
+                      >
+                        <div className="note-title">{note.title || 'Untitled Note'}</div>
+                        <div className="note-preview">
+                          {(note.content || '').substring(0, 120)}
+                          {(note.content || '').length > 120 && '...'}
+                        </div>
+                        <div className="note-card-hint">
+                          Open note <ExternalLink size={10} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Keyboard shortcuts - full width bottom */}
+        <div className="lightbox-shortcuts">
+          <span>← → Navigate</span>
+          <span>F Favorite</span>
+          <span>R Rename</span>
+          {onNavigateToAI && <span>A Ask AI</span>}
+          <span>Esc Close</span>
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

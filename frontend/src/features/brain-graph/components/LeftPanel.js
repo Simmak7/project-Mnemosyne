@@ -6,17 +6,21 @@
  */
 
 import React from 'react';
-import { FileText, Tag, Image, Sparkles, Link2, Brain, SlidersHorizontal } from 'lucide-react';
+import { FileText, Tag, Image, Sparkles, Link2, Brain, SlidersHorizontal, FileScan } from 'lucide-react';
+import { RebuildPanel } from './RebuildPanel';
 import './LeftPanel.css';
+import './RebuildPanel.css';
 
 // Icon mapping
 const ICONS = {
   notes: FileText,
   tags: Tag,
   images: Image,
+  documents: FileScan,
   entities: Sparkles,
   wikilink: Link2,
   tag: Tag,
+  source: FileScan,
   semantic: Brain,
   mentions: Sparkles,
 };
@@ -164,6 +168,9 @@ export function LeftPanel({ filters, layout, currentView }) {
           </div>
         </section>
       )}
+
+      {/* Graph Intelligence - Rebuild Controls */}
+      <RebuildPanel />
     </div>
   );
 }

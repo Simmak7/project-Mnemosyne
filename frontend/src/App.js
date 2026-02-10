@@ -1,484 +1,177 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 
-// Neural Glass Design System (Phase 2)
+// Neural Glass Design System
 import './styles/neural-glass/index.css';
 
-// API utility for centralized URL configuration
-import { API_URL, api } from './utils/api';
+// Hooks
+import { useAuth } from './hooks/useAuth';
+import { useTheme } from './hooks/useTheme';
+import { useAppNavigation } from './hooks/useAppNavigation';
 
-// Feature imports (fractal architecture)
+// Config
+import { getFeatureFlags, PAGE_INFO } from './config/featureFlags';
+
+// Feature imports
 import { Login, EmailVerification } from './features/auth';
 
-// Component imports (legacy - to be migrated to features)
+// Component imports
 import Sidebar from './components/Sidebar';
 import ImageUpload from './components/ImageUpload';
 import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 
-// Lazy load heavy components to reduce initial bundle size
+// Lazy load heavy components
 const VirtualizedImageGallery = lazy(() => import('./components/virtualized/VirtualizedImageGallery'));
-// New Immich-inspired gallery (Phase 1)
 const GalleryLayout = lazy(() => import('./features/gallery').then(m => ({ default: m.GalleryLayout })));
-// New 3-pane notes layout (Phase 1)
 const NoteLayout = lazy(() => import('./features/notes').then(m => ({ default: m.NoteLayout })));
 const VirtualizedNoteList = lazy(() => import('./components/virtualized/VirtualizedNoteList'));
-// Graph feature (migrated to fractal architecture)
 const KnowledgeGraph = lazy(() => import('./features/graph/components/KnowledgeGraph'));
-// New Brain Graph (Phase 3-4)
 const BrainGraph = lazy(() => import('./features/brain-graph').then(m => ({ default: m.BrainGraph })));
-const AIChat = lazy(() => import('./components/AIChat'));
-// RAG Chat feature (migrated to fractal architecture)
 const RAGChat = lazy(() => import('./features/rag_chat/components/RAGChat'));
-// New AI Chat with 3-pane layout (Phase 1)
 const AIChatLayout = lazy(() => import('./features/ai_chat').then(m => ({ default: m.AIChatLayout })));
 const WorkspaceLayout = lazy(() => import('./components/workspace/WorkspaceLayout'));
-// New Neural Studio Upload (2-pane layout)
+const JournalLayout = lazy(() => import('./features/journal').then(m => ({ default: m.JournalLayout })));
 const UploadLayout = lazy(() => import('./features/upload').then(m => ({ default: m.UploadLayout })));
+const DocumentLayout = lazy(() => import('./features/documents').then(m => ({ default: m.DocumentLayout })));
 
-// Create a client
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-      staleTime: 30000, // 30 seconds
-    },
+    queries: { refetchOnWindowFocus: false, retry: 1, staleTime: 30000 },
   },
 });
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [activeTab, setActiveTab] = useState('upload');
-  const [images, setImages] = useState([]);
-  const [notes, setNotes] = useState([]);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
-  });
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [selectedNoteId, setSelectedNoteId] = useState(null);
-  const [selectedImageId, setSelectedImageId] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  // AI Chat initial context for deep linking
-  const [aiChatContext, setAiChatContext] = useState(null);
+  const { isAuthenticated, username, handleLoginSuccess, handleLogout } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  const nav = useAppNavigation();
+  // Mount Brain once on first visit, keep alive across tab switches
+  const [brainMounted, setBrainMounted] = useState(false);
 
-  // Check for existing token on app load and validate it
-  useEffect(() => {
-    const validateToken = async () => {
-      const token = localStorage.getItem('token');
-      const savedUsername = localStorage.getItem('username');
-
-      if (token && savedUsername) {
-        // Validate token by calling /me endpoint
-        try {
-          const response = await fetch(`${API_URL}/me`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'include', // Include cookies for auth
-          });
-
-          if (response.ok) {
-            setIsAuthenticated(true);
-            setUsername(savedUsername);
-            // Fetch profile to get display name
-            try {
-              const profileRes = await fetch(`${API_URL}/profile`, {
-                headers: { 'Authorization': `Bearer ${token}` },
-              });
-              if (profileRes.ok) {
-                const profile = await profileRes.json();
-                if (profile.display_name) {
-                  localStorage.setItem('displayName', profile.display_name);
-                }
-              }
-            } catch (e) {
-              // Profile fetch failed, not critical
-            }
-          } else {
-            // Token is invalid, clear it
-            if (process.env.NODE_ENV === 'development') {
-              console.log('Token validation failed, clearing localStorage');
-            }
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
-          }
-        } catch (error) {
-          if (process.env.NODE_ENV === 'development') {
-            console.error('Token validation failed:', error);
-          }
-          // Network error, clear token to be safe
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-        }
-      }
-    };
-
-    validateToken();
-  }, []);
-
-  // Apply dark mode to document
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-  }, [isDarkMode]);
-
-  // Apply saved accent color and UI density on load
-  useEffect(() => {
-    const root = document.documentElement;
-
-    // Apply accent color
-    const savedAccentColor = localStorage.getItem('accentColor');
-    if (savedAccentColor) {
-      const accentColors = {
-        blue: { primary: '#3B82F6', hover: '#2563EB', light: '#DBEAFE' },
-        purple: { primary: '#8B5CF6', hover: '#7C3AED', light: '#EDE9FE' },
-        green: { primary: '#10B981', hover: '#059669', light: '#D1FAE5' },
-        orange: { primary: '#F59E0B', hover: '#D97706', light: '#FEF3C7' },
-        pink: { primary: '#EC4899', hover: '#DB2777', light: '#FCE7F3' },
-      };
-      const colors = accentColors[savedAccentColor] || accentColors.blue;
-      root.style.setProperty('--accent-color', colors.primary);
-      root.style.setProperty('--accent-hover', colors.hover);
-      root.style.setProperty('--accent-light', colors.light);
-    }
-
-    // Apply UI density
-    const savedDensity = localStorage.getItem('uiDensity');
-    if (savedDensity) {
-      const densityValues = {
-        compact: { spacing: '8px', padding: '12px', fontSize: '13px' },
-        comfortable: { spacing: '16px', padding: '16px', fontSize: '14px' },
-        spacious: { spacing: '24px', padding: '20px', fontSize: '15px' },
-      };
-      const density = densityValues[savedDensity] || densityValues.comfortable;
-      root.style.setProperty('--density-spacing', density.spacing);
-      root.style.setProperty('--density-padding', density.padding);
-      root.style.setProperty('--density-font-size', density.fontSize);
-      root.setAttribute('data-density', savedDensity);
-    }
-  }, []);
-
-  // Global keyboard shortcut for search (Cmd/Ctrl+K)
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen(true);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  const handleImageUploadSuccess = (newImage) => {
-    // Just trigger refresh - ImageGallery will fetch the updated list
-    setRefreshTrigger(refreshTrigger + 1);
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    if (tab === 'gallery') {
-      fetchImages();
-    } else if (tab === 'notes') {
-      fetchNotes();
-    }
-  };
-
-  // Navigation callback for note viewer -> graph
-  const handleNavigateToGraph = (noteId) => {
-    setActiveTab('graph');
-    // Could pass noteId to graph to highlight specific node (future enhancement)
-  };
-
-  // Navigation callback for graph -> note
-  const handleNavigateToNote = (noteId) => {
-    setActiveTab('notes');
-    setSelectedNoteId(noteId);
-    setSelectedImageId(null);
-    setSearchQuery('');
-  };
-
-  // Navigation callback for graph -> image
-  const handleNavigateToImage = (imageId) => {
-    setActiveTab('gallery');
-    setSelectedImageId(imageId);
-    setSelectedNoteId(null);
-    setSearchQuery('');
-  };
-
-  // Navigation callback for graph -> tag (filter notes by tag)
-  const handleNavigateToTag = (tagName) => {
-    setActiveTab('notes');
-    setSearchQuery(tagName); // Use searchQuery to filter by tag
-    setSelectedNoteId(null);
-    setSelectedImageId(null);
-  };
-
-  // Navigation callback for Note/Gallery -> AI Chat (deep linking)
-  const handleNavigateToAI = (context) => {
-    // context = { type: 'note' | 'image', id: number, title: string }
-    setAiChatContext(context);
-    setActiveTab('chat');
-  };
-
-  // Clear AI context after it's been consumed
-  const clearAiChatContext = () => {
-    setAiChatContext(null);
-  };
-
-  const fetchImages = async () => {
-    try {
-      const response = await fetch(`${API_URL}/images/`);
-      const data = await response.json();
-      setImages(data);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching images:', error);
-      }
-    }
-  };
-
-  const fetchNotes = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      const response = await fetch(`${API_URL}/notes-enhanced/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setNotes(data);
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching notes:', error);
-      }
-    }
-  };
-
-  const handleLoginSuccess = async (token, user) => {
-    setIsAuthenticated(true);
-    setUsername(user);
-    // Fetch profile to get display name
-    try {
-      const profileRes = await fetch(`${API_URL}/profile`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-      });
-      if (profileRes.ok) {
-        const profile = await profileRes.json();
-        if (profile.display_name) {
-          localStorage.setItem('displayName', profile.display_name);
-        }
-      }
-    } catch (e) {
-      // Profile fetch failed, not critical
-    }
-  };
-
-  const handleLogout = async () => {
-    // Call logout endpoint to clear httpOnly cookie
-    try {
-      await fetch(`${API_URL}/logout`, {
-        method: 'POST',
-        credentials: 'include', // Include cookies for auth
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-      });
-    } catch (error) {
-      // Continue with local logout even if server call fails
-      console.warn('Logout API call failed:', error);
-    }
-
-    // Clear local storage
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('displayName');
-    localStorage.removeItem('accentColor');
-    localStorage.removeItem('uiDensity');
-
-    // Clear API client state
-    api.clearAuth();
-
-    // Reset CSS variables to defaults
-    const root = document.documentElement;
-    root.style.removeProperty('--accent-color');
-    root.style.removeProperty('--accent-hover');
-    root.style.removeProperty('--accent-light');
-    root.style.removeProperty('--density-spacing');
-    root.style.removeProperty('--density-padding');
-    root.style.removeProperty('--density-font-size');
-    root.removeAttribute('data-density');
-    setIsAuthenticated(false);
-    setUsername('');
-    setActiveTab('upload');
-  };
-
-  // Handle search result click - navigate to appropriate tab and select item
-  const handleSearchResultClick = (result, query) => {
-    // Store the search query for highlighting
-    setSearchQuery(query || '');
-
-    if (result.type === 'note') {
-      setSelectedNoteId(result.id);
-      setSelectedImageId(null);
-      setActiveTab('notes');
-    } else if (result.type === 'image') {
-      setSelectedImageId(result.id);
-      setSelectedNoteId(null);
-      setActiveTab('gallery');
-    } else if (result.type === 'tag') {
-      setSelectedNoteId(null);
-      setSelectedImageId(null);
-      setActiveTab('notes');
-    }
-    setSearchOpen(false); // Close search modal after navigation
-  };
-
-  // Show login screen if not authenticated
-  // Check for email verification URL
   if (window.location.pathname === '/verify-email-change') {
     return <EmailVerification onComplete={() => window.location.href = '/'} />;
   }
-
   if (!isAuthenticated) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Feature flag for Workspace (opt-out)
-  const workspaceEnabled = localStorage.getItem('ENABLE_WORKSPACE') !== 'false';
-  // Feature flag for new Gallery (opt-in during development, will become default)
-  const newGalleryEnabled = localStorage.getItem('ENABLE_NEW_GALLERY') !== 'false';
-  // Feature flag for new Notes layout (opt-in during development)
-  const newNotesEnabled = localStorage.getItem('ENABLE_NEW_NOTES') !== 'false';
-  // Feature flag for new AI Chat layout (opt-in, becomes default)
-  const newAIChatEnabled = localStorage.getItem('ENABLE_NEW_AI_CHAT') !== 'false';
-  // Feature flag for new Neural Studio Upload (opt-in, will become default)
-  const newUploadEnabled = localStorage.getItem('ENABLE_NEW_UPLOAD') !== 'false';
-  // Feature flag for new Brain Graph (opt-in for testing Phase 3-4)
-  const newBrainGraphEnabled = localStorage.getItem('ENABLE_NEW_BRAIN_GRAPH') === 'true';
+  const flags = getFeatureFlags();
+  const tab = nav.activeTab;
+  const brainActive = tab === 'graph' && flags.newBrainGraphEnabled;
+  if (brainActive && !brainMounted) setBrainMounted(true);
 
-  // Debug log
-  console.log('Brain Graph flag:', newBrainGraphEnabled, 'activeTab:', activeTab);
-
-  const pageInfo = {
-    workspace: { title: 'Workspace', description: 'Your personal note-taking workspace' },
-    upload: { title: 'Upload Image', description: 'Upload and analyze images with AI' },
-    gallery: { title: 'Gallery', description: 'Browse and organize your photos with Immich-inspired layout' },
-    notes: { title: 'Smart Notes', description: 'AI-generated notes from your images' },
-    graph: { title: 'Brain', description: 'Your knowledge graph - visualize connections between notes and tags' },
-    chat: { title: 'Mnemosyne', description: 'Your personal AI assistant - ask questions and get answers with citations from your notes' }
+  const brainNavigate = (path) => {
+    if (path.startsWith('/notes/')) {
+      nav.handleNavigateToNote(parseInt(path.split('/')[2]));
+    } else if (path.startsWith('/gallery')) {
+      const id = new URLSearchParams(path.split('?')[1]).get('image');
+      if (id) nav.handleNavigateToImage(parseInt(id));
+    } else if (path.startsWith('/tags/')) {
+      nav.handleNavigateToTag(path.split('/')[2]);
+    } else if (path.startsWith('/documents/')) {
+      nav.handleNavigateToDocument(parseInt(path.split('/')[2]));
+    }
   };
 
   return (
     <QueryClientProvider client={queryClient}>
       <div className="App">
         <Sidebar
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
+          activeTab={tab}
+          onTabChange={nav.handleTabChange}
           username={username}
           onLogout={handleLogout}
           isDarkMode={isDarkMode}
           onToggleDarkMode={toggleDarkMode}
-          onOpenSearch={() => setSearchOpen(true)}
+          onOpenSearch={() => nav.setSearchOpen(true)}
         />
 
         <UnifiedSearch
-          isOpen={searchOpen}
-          onClose={() => setSearchOpen(false)}
-          onResultClick={handleSearchResultClick}
+          isOpen={nav.searchOpen}
+          onClose={() => nav.setSearchOpen(false)}
+          onResultClick={nav.handleSearchResultClick}
         />
 
-        <main className="main-content">
-          {/* Workspace has no wrapper - it uses full viewport */}
-          {activeTab === 'workspace' && workspaceEnabled ? (
+        {/* Main content area - hidden when Brain is active */}
+        <main className="main-content" style={brainActive ? { display: 'none' } : undefined}>
+          {tab === 'journal' && flags.journalEnabled ? (
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner size="large" message="Loading journal..." />}>
+                <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
+                  <JournalLayout
+                    onNavigateToNote={nav.handleNavigateToNote}
+                    onNavigateToImage={nav.handleNavigateToImage}
+                  />
+                </div>
+              </Suspense>
+            </ErrorBoundary>
+          ) : tab === 'workspace' && flags.workspaceEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading workspace..." />}>
                 <WorkspaceLayout />
               </Suspense>
             </ErrorBoundary>
-          ) : activeTab === 'upload' && newUploadEnabled ? (
-            /* New Neural Studio Upload - full viewport 2-pane layout */
+          ) : tab === 'upload' && flags.newUploadEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading Neural Studio..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
-                  <UploadLayout onUploadSuccess={handleImageUploadSuccess} />
+                  <UploadLayout
+                    onUploadSuccess={nav.handleImageUploadSuccess}
+                    onNavigateToDocument={nav.handleNavigateToDocument}
+                  />
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : activeTab === 'gallery' && newGalleryEnabled ? (
-            /* New Gallery - full viewport like workspace */
+          ) : tab === 'gallery' && flags.newGalleryEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading gallery..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
                   <GalleryLayout
-                    onNavigateToNote={handleNavigateToNote}
-                    onNavigateToAI={handleNavigateToAI}
-                    selectedImageId={selectedImageId}
-                    onClearSelection={() => setSelectedImageId(null)}
+                    onNavigateToNote={nav.handleNavigateToNote}
+                    onNavigateToAI={nav.handleNavigateToAI}
+                    selectedImageId={nav.selectedImageId}
+                    onClearSelection={() => nav.setSelectedImageId(null)}
                   />
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : activeTab === 'notes' && newNotesEnabled ? (
-            /* New Notes - full viewport 3-pane layout */
+          ) : tab === 'notes' && flags.newNotesEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading notes..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
                   <NoteLayout
-                    onNavigateToGraph={handleNavigateToGraph}
-                    onNavigateToImage={handleNavigateToImage}
-                    onNavigateToAI={handleNavigateToAI}
-                    selectedNoteId={selectedNoteId}
+                    onNavigateToGraph={nav.handleNavigateToGraph}
+                    onNavigateToImage={nav.handleNavigateToImage}
+                    onNavigateToAI={nav.handleNavigateToAI}
+                    onNavigateToDocument={nav.handleNavigateToDocument}
+                    selectedNoteId={nav.selectedNoteId}
                   />
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : activeTab === 'chat' && newAIChatEnabled ? (
-            /* New AI Chat - full viewport 3-pane layout */
+          ) : tab === 'documents' && flags.documentsEnabled ? (
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner size="large" message="Loading documents..." />}>
+                <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
+                  <DocumentLayout
+                    onNavigateToNote={nav.handleNavigateToNote}
+                    selectedDocumentId={nav.selectedDocumentId}
+                    onClearSelection={() => nav.setSelectedDocumentId(null)}
+                  />
+                </div>
+              </Suspense>
+            </ErrorBoundary>
+          ) : tab === 'chat' && flags.newAIChatEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading AI chat..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
                   <AIChatLayout
-                    onNavigateToNote={handleNavigateToNote}
-                    onNavigateToImage={handleNavigateToImage}
-                    initialContext={aiChatContext}
-                    onClearContext={clearAiChatContext}
-                  />
-                </div>
-              </Suspense>
-            </ErrorBoundary>
-          ) : activeTab === 'graph' && newBrainGraphEnabled ? (
-            /* New Brain Graph - Neural Glass styled graph visualization */
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner size="large" message="Loading brain graph..." />}>
-                <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
-                  <BrainGraph
-                    onNavigate={(path) => {
-                      if (path.startsWith('/notes/')) {
-                        handleNavigateToNote(parseInt(path.split('/')[2]));
-                      } else if (path.startsWith('/gallery')) {
-                        const imageId = new URLSearchParams(path.split('?')[1]).get('image');
-                        if (imageId) handleNavigateToImage(parseInt(imageId));
-                      } else if (path.startsWith('/tags/')) {
-                        handleNavigateToTag(path.split('/')[2]);
-                      }
-                    }}
-                    showLeftPanel={true}
-                    showInspector={true}
+                    onNavigateToNote={nav.handleNavigateToNote}
+                    onNavigateToImage={nav.handleNavigateToImage}
+                    initialContext={nav.aiChatContext}
+                    onClearContext={nav.clearAiChatContext}
                   />
                 </div>
               </Suspense>
@@ -486,43 +179,50 @@ function App() {
           ) : (
             <div className="content-wrapper fade-in">
               <div className="page-header">
-                <h1 className="page-title">{pageInfo[activeTab].title}</h1>
-                <p className="page-description">{pageInfo[activeTab].description}</p>
+                <h1 className="page-title">{PAGE_INFO[tab]?.title}</h1>
+                <p className="page-description">{PAGE_INFO[tab]?.description}</p>
               </div>
-
-              {activeTab === 'upload' && <ImageUpload onUploadSuccess={handleImageUploadSuccess} />}
-              {activeTab === 'gallery' && (
+              {tab === 'upload' && <ImageUpload onUploadSuccess={nav.handleImageUploadSuccess} />}
+              {tab === 'gallery' && (
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner message="Loading gallery..." />}>
                     <VirtualizedImageGallery
-                      refreshTrigger={refreshTrigger}
-                      selectedImageId={selectedImageId}
-                      onViewNote={handleNavigateToNote}
+                      refreshTrigger={nav.refreshTrigger}
+                      selectedImageId={nav.selectedImageId}
+                      onViewNote={nav.handleNavigateToNote}
                     />
                   </Suspense>
                 </ErrorBoundary>
               )}
-              {activeTab === 'notes' && (
+              {tab === 'notes' && (
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner message="Loading notes..." />}>
-                    <VirtualizedNoteList onNavigateToGraph={handleNavigateToGraph} selectedNoteId={selectedNoteId} searchQuery={searchQuery} />
+                    <VirtualizedNoteList
+                      onNavigateToGraph={nav.handleNavigateToGraph}
+                      selectedNoteId={nav.selectedNoteId}
+                      searchQuery={nav.searchQuery}
+                    />
                   </Suspense>
                 </ErrorBoundary>
               )}
-              {activeTab === 'graph' && (
+              {tab === 'graph' && (
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner message="Loading knowledge graph..." />}>
-                    <KnowledgeGraph onNavigateToNote={handleNavigateToNote} onNavigateToImage={handleNavigateToImage} onNavigateToTag={handleNavigateToTag} />
+                    <KnowledgeGraph
+                      onNavigateToNote={nav.handleNavigateToNote}
+                      onNavigateToImage={nav.handleNavigateToImage}
+                      onNavigateToTag={nav.handleNavigateToTag}
+                    />
                   </Suspense>
                 </ErrorBoundary>
               )}
-              {activeTab === 'chat' && (
+              {tab === 'chat' && (
                 <ErrorBoundary>
                   <Suspense fallback={<LoadingSpinner message="Loading AI chat..." />}>
                     <RAGChat
                       mode="standalone"
-                      onNavigateToNote={handleNavigateToNote}
-                      onNavigateToImage={handleNavigateToImage}
+                      onNavigateToNote={nav.handleNavigateToNote}
+                      onNavigateToImage={nav.handleNavigateToImage}
                     />
                   </Suspense>
                 </ErrorBoundary>
@@ -530,6 +230,27 @@ function App() {
             </div>
           )}
         </main>
+
+        {/* BrainGraph: mounted once on first visit, kept alive across tab switches.
+            Hidden via display:none, simulation paused when not active. */}
+        {brainMounted && (
+          <div
+            className="main-content ng-theme ng-ambient-bg"
+            style={{ display: brainActive ? 'block' : 'none' }}
+          >
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner size="large" message="Loading brain graph..." />}>
+                <BrainGraph
+                  initialNodeId={nav.graphFocusNodeId}
+                  isVisible={brainActive}
+                  onNavigate={brainNavigate}
+                  showLeftPanel={true}
+                  showInspector={true}
+                />
+              </Suspense>
+            </ErrorBoundary>
+          </div>
+        )}
       </div>
     </QueryClientProvider>
   );

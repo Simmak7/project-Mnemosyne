@@ -73,7 +73,9 @@ def update_user_preferences(
     ui_density: Optional[str] = None,
     font_size: Optional[str] = None,
     sidebar_collapsed: Optional[bool] = None,
-    default_view: Optional[str] = None
+    default_view: Optional[str] = None,
+    rag_model: Optional[str] = None,
+    brain_model: Optional[str] = None
 ) -> Tuple[models.UserPreferences, Optional[str]]:
     """
     Update user preferences.
@@ -87,10 +89,14 @@ def update_user_preferences(
         font_size: Font size (small/medium/large)
         sidebar_collapsed: Whether sidebar is collapsed
         default_view: Default view on login
+        rag_model: Preferred RAG model (null = use system default)
+        brain_model: Preferred Brain model (null = use system default)
 
     Returns:
         Tuple of (updated preferences, error message if any)
     """
+    from core.model_service import validate_model_id
+
     preferences = get_user_preferences(db, user)
 
     # Update fields if provided
@@ -111,6 +117,24 @@ def update_user_preferences(
 
     if default_view is not None:
         preferences.default_view = default_view
+
+    # Handle model preferences
+    # Empty string = reset to default, valid model ID = set preference
+    if rag_model is not None:
+        if rag_model == "":
+            preferences.rag_model = None
+        elif validate_model_id(rag_model):
+            preferences.rag_model = rag_model
+        else:
+            return None, f"Invalid RAG model: {rag_model}"
+
+    if brain_model is not None:
+        if brain_model == "":
+            preferences.brain_model = None
+        elif validate_model_id(brain_model):
+            preferences.brain_model = brain_model
+        else:
+            return None, f"Invalid Brain model: {brain_model}"
 
     # Update timestamp
     preferences.updated_at = datetime.now(timezone.utc)
@@ -148,6 +172,8 @@ def reset_user_preferences(db: Session, user: models.User) -> models.UserPrefere
         preferences.font_size = "medium"
         preferences.sidebar_collapsed = False
         preferences.default_view = "notes"
+        preferences.rag_model = None  # Reset to system default
+        preferences.brain_model = None  # Reset to system default
         preferences.updated_at = datetime.now(timezone.utc)
 
         db.commit()

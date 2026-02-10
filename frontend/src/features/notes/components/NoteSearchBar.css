@@ -190,6 +190,16 @@
   color: var(--ng-accent-note, #fbbf24);
 }
 
+/* Custom Order Hint */
+.custom-order-hint {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.6875rem;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
+  text-align: center;
+  padding: 2px 0;
+  font-style: italic;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .search-controls {

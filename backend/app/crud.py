@@ -96,7 +96,8 @@ def update_image_display_name(db: Session, image_id: int, display_name: str):
             raise
     return db_image
 
-def create_note(db: Session, title: str, content: str, owner_id: int | None = None):
+def create_note(db: Session, title: str, content: str, owner_id: int | None = None,
+                source: str = 'manual', is_standalone: bool = True):
     """Create a new note with auto-generated slug and extract tags."""
     from wikilink_parser import extract_hashtags
     from tasks_embeddings import generate_note_embedding_task
@@ -114,7 +115,8 @@ def create_note(db: Session, title: str, content: str, owner_id: int | None = No
         slug = f"{base_slug}-{counter}"
         counter += 1
 
-    db_note = models.Note(title=title, content=content, slug=slug, owner_id=owner_id, is_standalone=True)
+    db_note = models.Note(title=title, content=content, slug=slug, owner_id=owner_id,
+                          is_standalone=is_standalone, source=source)
     db.add(db_note)
     try:
         db.commit()

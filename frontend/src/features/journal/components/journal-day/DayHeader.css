@@ -1,0 +1,75 @@
+/* DayHeader.css */
+
+.day-header {
+  padding: var(--ng-space-4, 16px) var(--ng-space-5, 20px);
+  border-bottom: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+}
+
+.day-header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ng-space-3, 12px);
+}
+
+.day-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  flex-shrink: 0;
+}
+
+.day-nav-btn:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.day-header-center {
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+}
+
+.day-greeting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-2, 8px);
+}
+
+.day-greeting h2 {
+  margin: 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.greeting-icon {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.day-date-title {
+  margin: 0;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.day-date-sub {
+  display: block;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-xs, 0.75rem);
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  margin-top: 2px;
+}

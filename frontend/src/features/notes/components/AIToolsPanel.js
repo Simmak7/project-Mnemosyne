@@ -7,14 +7,13 @@ import {
   RefreshCw,
   Check,
   Copy,
-  ArrowRight,
+  X,
   Wand2,
   Image,
   AlertCircle
 } from 'lucide-react';
+import { api } from '../../../utils/api';
 import './AIToolsPanel.css';
-
-const API_BASE = 'http://localhost:8000';
 
 /**
  * AIToolsPanel - AI enhancement tools for notes
@@ -31,21 +30,7 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
     setErrors(prev => ({ ...prev, [key]: null }));
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/notes/${note.id}/${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'AI service error');
-      }
-
-      const data = await response.json();
+      const data = await api.post(`/notes/${note.id}/${endpoint}`);
       setResults(prev => ({ ...prev, [key]: data }));
       return data;
     } catch (err) {
@@ -58,6 +43,8 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
 
   // Improve title
   const handleImproveTitle = useCallback(async () => {
+    // Clear previous result so user sees loading state on retry
+    setResults(prev => ({ ...prev, title: null }));
     await callAI('improve-title', 'title');
   }, [callAI]);
 
@@ -66,17 +53,9 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
     if (!results.title?.improved_title) return;
 
     try {
-      const token = localStorage.getItem('token');
-      await fetch(`${API_BASE}/notes/${note.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: results.title.improved_title,
-          content: note.content
-        })
+      await api.put(`/notes/${note.id}`, {
+        title: results.title.improved_title,
+        content: note.content
       });
 
       if (onTitleUpdate) {
@@ -87,6 +66,12 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
       setErrors(prev => ({ ...prev, title: 'Failed to apply title' }));
     }
   }, [note.id, note.content, results.title, onTitleUpdate]);
+
+  // Dismiss title suggestion
+  const dismissTitle = useCallback(() => {
+    setResults(prev => ({ ...prev, title: null }));
+    setErrors(prev => ({ ...prev, title: null }));
+  }, []);
 
   // Summarize
   const handleSummarize = useCallback(async () => {
@@ -117,74 +102,60 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
       return;
     }
 
+    // Confirmation dialog
+    if (!window.confirm(
+      'Are you sure you want to regenerate this note?\n\n' +
+      'All current content will be rewritten from the source image. ' +
+      'Tags and wikilinks may be lost.'
+    )) {
+      return;
+    }
+
     setLoading(prev => ({ ...prev, regenerate: true }));
     setErrors(prev => ({ ...prev, regenerate: null }));
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE}/notes/${note.id}/regenerate?apply=true`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMsg = errorData.detail || errorData.message || 'Failed to regenerate';
-        throw new Error(errorMsg);
-      }
-
-      const data = await response.json();
+      const data = await api.post(`/notes/${note.id}/regenerate?apply=true`);
       setResults(prev => ({ ...prev, regenerate: data }));
 
-      // Trigger page refresh to show new content
-      window.location.reload();
+      // Refresh note in-place instead of reloading the whole page
+      if (onRefreshNote) {
+        onRefreshNote();
+      }
     } catch (err) {
       setErrors(prev => ({ ...prev, regenerate: err.message }));
     } finally {
       setLoading(prev => ({ ...prev, regenerate: false }));
     }
-  }, [note.id, note.image_ids]);
+  }, [note.id, note.image_ids, onRefreshNote]);
 
   // Insert wikilink into note content
   const handleInsertWikilink = useCallback(async (noteTitle, suggestionIdx) => {
     const wikilinkText = `[[${noteTitle}]]`;
 
     try {
-      const token = localStorage.getItem('token');
       // Append wikilink to the end of the note content
       const newContent = (note.content || '') + (note.content ? '\n\n' : '') + wikilinkText;
 
-      const response = await fetch(`${API_BASE}/notes/${note.id}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: note.title,
-          content: newContent
-        })
+      await api.put(`/notes/${note.id}`, {
+        title: note.title,
+        content: newContent
       });
 
-      if (response.ok) {
-        // Mark this suggestion as added
-        setResults(prev => ({
-          ...prev,
-          wikilinks: {
-            ...prev.wikilinks,
-            suggestions: prev.wikilinks.suggestions.map((s, idx) =>
-              idx === suggestionIdx ? { ...s, added: true } : s
-            )
-          }
-        }));
-
-        // Refresh the note to show updated linked_notes
-        if (onRefreshNote) {
-          onRefreshNote();
+      // Mark this suggestion as added
+      setResults(prev => ({
+        ...prev,
+        wikilinks: {
+          ...prev.wikilinks,
+          suggestions: prev.wikilinks.suggestions.map((s, idx) =>
+            idx === suggestionIdx ? { ...s, added: true } : s
+          )
         }
+      }));
+
+      // Refresh the note to show updated linked_notes
+      if (onRefreshNote) {
+        onRefreshNote();
       }
     } catch (err) {
       console.error('Failed to insert wikilink:', err);
@@ -226,6 +197,19 @@ function AIToolsPanel({ note, onTitleUpdate, onNavigateToNote, onRefreshNote }) 
                 <button className="action-btn apply" onClick={applyTitle}>
                   <Check size={12} />
                   Apply
+                </button>
+                <button
+                  className="action-btn"
+                  onClick={handleImproveTitle}
+                  disabled={loading.title}
+                  title="Try another suggestion"
+                >
+                  <RefreshCw size={12} />
+                  Retry
+                </button>
+                <button className="action-btn" onClick={dismissTitle} title="Dismiss">
+                  <X size={12} />
+                  Cancel
                 </button>
               </div>
             </div>

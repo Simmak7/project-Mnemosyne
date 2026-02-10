@@ -33,10 +33,15 @@ services:
     restart: always
     volumes:
       - ollama_data:/root/.ollama
+    environment:
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
     # No host port mapping needed - accessed via Docker internal network
     # GPU support for Ollama AI inference (RTX 5070)
     deploy:
       resources:
+        limits:
+          memory: 8G
         reservations:
           devices:
             - driver: nvidia
@@ -52,6 +57,7 @@ services:
       - ./backend/app:/app
       - ./backend/migrations:/app/migrations
       - uploaded_images:/app/uploaded_images
+      - uploaded_documents:/app/uploaded_documents
       - adapters_data:/data/adapters
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -87,6 +93,7 @@ services:
     volumes:
       - ./backend/app:/app
       - uploaded_images:/app/uploaded_images
+      - uploaded_documents:/app/uploaded_documents
       - adapters_data:/data/adapters
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -138,4 +145,5 @@ volumes:
   redis_data:
   ollama_data:
   uploaded_images:
+  uploaded_documents:
   adapters_data:

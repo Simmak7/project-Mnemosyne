@@ -3,20 +3,21 @@
  *
  * Wraps react-force-graph-2d with custom node/edge rendering.
  * Handles interactions and forwards events to parent.
+ * Rendering logic is in useCanvasRenderers hook.
  */
 
 import React, { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { forceX, forceY } from 'd3-force';
 
-import { getNodeColor, getNodeSize, renderNodeLabel } from '../utils/nodeRendering';
-import { getEdgeColor, getEdgeWidth, getEdgeDash } from '../utils/edgeRendering';
-import { buildForceConfig, getLODSettings } from '../utils/layoutPresets';
+import { getNodeSize } from '../utils/nodeRendering';
+import { buildForceConfig } from '../utils/layoutPresets';
+import { useCanvasRenderers } from '../hooks/useCanvasRenderers';
+import { GraphTooltip } from './GraphTooltip';
+import { ContextMenu } from './ContextMenu';
+import { Minimap } from './Minimap';
 
 import './GraphCanvas.css';
-
-// Animation timing constants
-const PULSE_DURATION = 2000; // 2 second pulse cycle
 
 export function GraphCanvas({
   graphData,
@@ -25,58 +26,13 @@ export function GraphCanvas({
   filters,
   width,
   height,
+  onViewChange,
 }) {
   const graphRef = useRef();
   const [tooltip, setTooltip] = useState(null);
 
-  // Use ref for hover state to avoid re-renders that cause jumping
-  const hoverRef = useRef({ nodeId: null });
-
-  // Animation ref for pulse effect (updates without React re-renders)
-  const animationRef = useRef({
-    active: false,
-    frameId: null,
-    phase: 0,
-    startTime: 0
-  });
-
-  // Animation loop for focused node pulse
-  // Note: Pulse animation updates ref only, visible during natural canvas repaints
-  useEffect(() => {
-    const needsAnimation = !!graphState.focusNodeId;
-
-    if (needsAnimation && !animationRef.current.active) {
-      animationRef.current.active = true;
-      animationRef.current.startTime = Date.now();
-
-      const animate = () => {
-        if (!animationRef.current.active) return;
-
-        const elapsed = Date.now() - animationRef.current.startTime;
-        animationRef.current.phase = (elapsed % PULSE_DURATION) / PULSE_DURATION;
-
-        // Update ref only - don't force React re-render
-        // Pulse will show during natural canvas repaints (drag, zoom, hover)
-        animationRef.current.frameId = requestAnimationFrame(animate);
-      };
-
-      animationRef.current.frameId = requestAnimationFrame(animate);
-    } else if (!needsAnimation && animationRef.current.active) {
-      animationRef.current.active = false;
-      if (animationRef.current.frameId) {
-        cancelAnimationFrame(animationRef.current.frameId);
-        animationRef.current.frameId = null;
-      }
-      animationRef.current.phase = 0;
-    }
-
-    return () => {
-      animationRef.current.active = false;
-      if (animationRef.current.frameId) {
-        cancelAnimationFrame(animationRef.current.frameId);
-      }
-    };
-  }, [graphState.focusNodeId]);
+  // Canvas rendering callbacks (paintNode, paintLink)
+  const { paintNode, paintLink, hoverRef, stopAnimation } = useCanvasRenderers(graphState, layout);
 
   // Connect layout ref
   useEffect(() => {
@@ -85,187 +41,37 @@ export function GraphCanvas({
     }
   }, [layout]);
 
-  // Apply force configuration
+  // Build force config from current preset (used for both useEffect and props)
+  const forceConfig = useMemo(() => buildForceConfig(layout.preset), [layout.preset]);
+
+  // Apply all forces imperatively from preset config
   useEffect(() => {
     if (!graphRef.current) return;
-
-    const config = buildForceConfig(layout.preset);
     const fg = graphRef.current;
-
-    // Configure basic forces
-    fg.d3Force('charge')?.strength(config.charge);
-    fg.d3Force('link')
-      ?.distance(config.link.distance)
-      ?.strength(config.link.strength);
-
-    // Add X and Y centering forces with adjustable strength
-    // forceCenter() has no strength param, so we use forceX/forceY instead
-    // This pulls ALL nodes toward center, preventing isolated nodes from flying away
-    fg.d3Force('centerX', forceX(0).strength(0.15));
-    fg.d3Force('centerY', forceY(0).strength(0.15));
-  }, [layout.preset]);
+    fg.d3Force('charge')?.strength(forceConfig.charge);
+    fg.d3Force('link')?.distance(forceConfig.link.distance)?.strength(forceConfig.link.strength);
+    // Replace default d3.forceCenter with forceX/forceY springs
+    fg.d3Force('center', null);
+    const cs = forceConfig.center.strength;
+    fg.d3Force('centerX', forceX(0).strength(cs));
+    fg.d3Force('centerY', forceY(0).strength(cs));
+    fg.d3ReheatSimulation?.();
+  }, [forceConfig]);
 
   // Filter visible nodes/edges
   const filteredData = useMemo(() => {
     if (!graphData) return { nodes: [], links: [] };
-
     const visibleNodes = graphData.nodes.filter(filters.isNodeVisible);
     const visibleNodeIds = new Set(visibleNodes.map((n) => n.id));
-
     const visibleLinks = graphData.links.filter((link) => {
       const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
       const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-
-      return (
-        visibleNodeIds.has(sourceId) &&
-        visibleNodeIds.has(targetId) &&
-        filters.isEdgeVisible(link)
-      );
+      return visibleNodeIds.has(sourceId) && visibleNodeIds.has(targetId) && filters.isEdgeVisible(link);
     });
-
     return { nodes: visibleNodes, links: visibleLinks };
   }, [graphData, filters]);
 
-  // Custom node rendering with LOD (Level of Detail)
-  const paintNode = useCallback((node, ctx, globalScale) => {
-    const isSelected = graphState.selectedNode?.id === node.id;
-    // Use ref for hover to avoid re-renders
-    const isHovered = hoverRef.current.nodeId === node.id;
-    const isFocused = graphState.focusNodeId === node.id || node.isFocus;
-    const isPinned = graphState.isPinned(node.id);
-    const isHub = node.isHub;
-
-    // Get LOD settings for current zoom level
-    const lod = getLODSettings(globalScale);
-
-    const colors = getNodeColor(node);
-    const baseSize = getNodeSize(node);
-    const size = Math.max(baseSize, lod.nodeMinSize);
-
-    // Get animation phase from ref
-    const pulseScale = Math.sin(animationRef.current.phase * Math.PI * 2) * 0.5 + 0.5;
-
-    // Draw animated pulse ring for focused node
-    if (isFocused) {
-      const pulseRadius = size + 8 + pulseScale * 12;
-      const pulseOpacity = 0.3 * (1 - pulseScale);
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, pulseRadius, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.base.replace(')', `, ${pulseOpacity})`).replace('rgb', 'rgba');
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, size + 5, 0, 2 * Math.PI);
-      ctx.strokeStyle = colors.base;
-      ctx.lineWidth = 2 + pulseScale;
-      ctx.stroke();
-    }
-
-    // Draw glow for selected/hovered nodes
-    if (isSelected || isHovered) {
-      ctx.beginPath();
-      ctx.arc(node.x, node.y, size + 8, 0, 2 * Math.PI);
-      ctx.fillStyle = colors.glow;
-      ctx.fill();
-    }
-
-    // Draw node
-    ctx.beginPath();
-    ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
-    ctx.fillStyle = isSelected || isFocused ? colors.base : colors.border;
-    ctx.fill();
-    ctx.strokeStyle = colors.base;
-    ctx.lineWidth = isSelected ? 2 : 1;
-    ctx.stroke();
-
-    // Draw pin indicator
-    if (isPinned && lod.showHubLabels) {
-      ctx.beginPath();
-      ctx.arc(node.x, node.y - size - 4, 3, 0, 2 * Math.PI);
-      ctx.fillStyle = '#f9fafb';
-      ctx.fill();
-    }
-
-    // Draw label
-    const shouldShowLabel = isSelected || isHovered || isFocused ||
-      (isHub && lod.showHubLabels) || (lod.showAllLabels && node.title);
-
-    if (shouldShowLabel && node.title) {
-      renderNodeLabel(ctx, node, globalScale, {
-        isSelected,
-        isHovered,
-        isFocused,
-        showAllLabels: lod.showAllLabels,
-      });
-    }
-  }, [graphState.selectedNode, graphState.focusNodeId, graphState.isPinned]);
-
-  // Custom link rendering
-  const paintLink = useCallback((link, ctx, globalScale) => {
-    const lod = getLODSettings(globalScale);
-
-    const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
-    const targetId = typeof link.target === 'object' ? link.target.id : link.target;
-
-    // Use ref for hover
-    const isHighlighted =
-      hoverRef.current.nodeId === sourceId ||
-      hoverRef.current.nodeId === targetId;
-    const isSelected = graphState.selectedEdge === link;
-
-    if (!lod.renderEdges && !isHighlighted && !isSelected) {
-      return;
-    }
-
-    const colors = getEdgeColor(link);
-    const baseWidth = getEdgeWidth(link);
-    const edgeWidth = Math.max(baseWidth, lod.edgeMinWidth);
-    const dash = getEdgeDash(link);
-
-    const start = link.source;
-    const end = link.target;
-
-    const useCurved = layout.edgeBundling;
-    const midX = (start.x + end.x) / 2;
-    const midY = (start.y + end.y) / 2;
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const curvature = useCurved ? Math.min(len * 0.15, 30) : 0;
-    const ctrlX = midX - (dy / len) * curvature;
-    const ctrlY = midY + (dx / len) * curvature;
-
-    // Draw glow for highlighted edges
-    if (isSelected || isHighlighted) {
-      ctx.beginPath();
-      ctx.moveTo(start.x, start.y);
-      if (useCurved) {
-        ctx.quadraticCurveTo(ctrlX, ctrlY, end.x, end.y);
-      } else {
-        ctx.lineTo(end.x, end.y);
-      }
-      ctx.strokeStyle = colors.glow;
-      ctx.lineWidth = edgeWidth + 6;
-      ctx.stroke();
-    }
-
-    // Draw edge
-    ctx.beginPath();
-    ctx.moveTo(start.x, start.y);
-    if (useCurved) {
-      ctx.quadraticCurveTo(ctrlX, ctrlY, end.x, end.y);
-    } else {
-      ctx.lineTo(end.x, end.y);
-    }
-    ctx.strokeStyle = isSelected || isHighlighted ? colors.highlight : colors.base;
-    ctx.lineWidth = isSelected ? edgeWidth + 1 : edgeWidth;
-    ctx.setLineDash(dash);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }, [graphState.selectedEdge, layout.edgeBundling]);
-
-  // Define pointer area for nodes (important for hover detection)
+  // Pointer area for nodes (hit detection)
   const nodePointerAreaPaint = useCallback((node, color, ctx) => {
     const size = getNodeSize(node);
     ctx.beginPath();
@@ -274,35 +80,57 @@ export function GraphCanvas({
     ctx.fill();
   }, []);
 
-  // Event handlers
+  // Double-click detection via timing (react-force-graph has no onNodeDoubleClick)
+  const lastClickRef = useRef({ nodeId: null, time: 0 });
+  const DOUBLE_CLICK_MS = 350;
+
   const handleNodeClick = useCallback((node, event) => {
+    const now = Date.now();
+    const last = lastClickRef.current;
+    if (last.nodeId === node.id && now - last.time < DOUBLE_CLICK_MS) {
+      // Double click detected
+      graphState.handleNodeDoubleClick(node);
+      lastClickRef.current = { nodeId: null, time: 0 };
+      return;
+    }
+    lastClickRef.current = { nodeId: node.id, time: now };
     graphState.handleNodeClick(node, event);
   }, [graphState]);
 
-  const handleNodeDoubleClick = useCallback((node) => {
-    graphState.handleNodeDoubleClick(node);
+  const handleNodeRightClick = useCallback((node, event) => {
+    event.preventDefault?.();
+    graphState.setContextMenu({ x: event.clientX || event.pageX, y: event.clientY || event.pageY, node });
   }, [graphState]);
 
-  // Handle hover without triggering React re-renders
-  // IMPORTANT: Don't call graphState.handleNodeHover - it causes re-renders that restart simulation
-  const handleNodeHover = useCallback((node, prevNode) => {
-    // Update ref only (no re-render, no state updates)
-    hoverRef.current.nodeId = node?.id || null;
+  // Throttle tooltip updates
+  const tooltipRafRef = useRef(null);
 
-    // Update tooltip (local state only - doesn't affect ForceGraph2D)
-    if (node && node.id) {
-      const [type] = node.id.split('-');
-      setTooltip({
-        x: node.x,
-        y: node.y,
-        title: node.title || node.id,
-        type: type || node.type || 'unknown',
-        connections: node.val || node.connections || 0,
+  const handleNodeHover = useCallback((node) => {
+    hoverRef.current.nodeId = node?.id || null;
+    if (tooltipRafRef.current) cancelAnimationFrame(tooltipRafRef.current);
+
+    if (node && node.id && graphRef.current) {
+      tooltipRafRef.current = requestAnimationFrame(() => {
+        const [type] = node.id.split('-');
+        const screenPos = graphRef.current?.graph2ScreenCoords(node.x, node.y);
+        if (screenPos) {
+          setTooltip({
+            x: screenPos.x, y: screenPos.y,
+            title: node.title || node.id,
+            type: type || node.type || 'unknown',
+            connections: node.val || node.connections || 0,
+            community: node.metadata?.communityId != null ? node.metadata.communityColor : null,
+            tagCount: type === 'tag' ? node.metadata?.note_count : null,
+            imageSize: node.metadata?.width ? `${node.metadata.width}\u00d7${node.metadata.height}` : null,
+            modified: node.metadata?.updated_at || node.metadata?.updatedAt,
+            depth: node.depth,
+          });
+        }
       });
     } else {
       setTooltip(null);
     }
-  }, []);
+  }, [hoverRef]);
 
   const handleLinkClick = useCallback((link) => {
     graphState.handleEdgeClick(link);
@@ -310,42 +138,31 @@ export function GraphCanvas({
 
   const handleBackgroundClick = useCallback(() => {
     graphState.clearSelection();
+    graphState.setContextMenu(null);
     setTooltip(null);
   }, [graphState]);
 
-  // Track drag start position to detect if node was actually moved
+  // Drag handlers
   const dragStartRef = useRef({ x: 0, y: 0 });
 
-  // Handle node drag start - record initial position
   const handleNodeDrag = useCallback((node) => {
     if (node && dragStartRef.current.x === 0) {
       dragStartRef.current = { x: node.x, y: node.y };
     }
   }, []);
 
-  // Handle node drag end - only pin if significantly moved
   const handleNodeDragEnd = useCallback((node) => {
     if (node) {
       const dx = node.x - dragStartRef.current.x;
       const dy = node.y - dragStartRef.current.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      // Only pin if dragged more than 10 pixels (intentional move)
-      if (distance > 10) {
+      if (Math.sqrt(dx * dx + dy * dy) > 10) {
         node.fx = node.x;
         node.fy = node.y;
       }
-      // Reset drag start
       dragStartRef.current = { x: 0, y: 0 };
     }
   }, []);
 
-  // Engine stop handler - simulation naturally settles
-  const handleEngineStop = useCallback(() => {
-    // Let simulation settle naturally
-  }, []);
-
-  // Empty state
   if (!filteredData.nodes.length) {
     return (
       <div className="graph-canvas graph-canvas--empty">
@@ -366,7 +183,7 @@ export function GraphCanvas({
         nodePointerAreaPaint={nodePointerAreaPaint}
         linkCanvasObject={paintLink}
         onNodeClick={handleNodeClick}
-        onNodeRightClick={handleNodeDoubleClick}
+        onNodeRightClick={handleNodeRightClick}
         onNodeHover={handleNodeHover}
         onNodeDrag={handleNodeDrag}
         onNodeDragEnd={handleNodeDragEnd}
@@ -377,30 +194,16 @@ export function GraphCanvas({
         enablePanInteraction={true}
         minZoom={0.1}
         maxZoom={5}
-        cooldownTicks={100}
-        onEngineStop={handleEngineStop}
+        d3AlphaDecay={forceConfig.alphaDecay}
+        d3VelocityDecay={forceConfig.velocityDecay}
+        d3AlphaMin={forceConfig.alphaMin}
+        warmupTicks={50}
+        cooldownTicks={200}
+        onEngineStop={stopAnimation}
       />
-
-      {/* Tooltip */}
-      {tooltip && (
-        <div
-          className="graph-canvas__tooltip"
-          style={{
-            left: `calc(50% + ${tooltip.x}px)`,
-            top: `calc(50% + ${tooltip.y - 40}px)`,
-          }}
-        >
-          <div className="graph-canvas__tooltip-title">{tooltip.title}</div>
-          <div className="graph-canvas__tooltip-meta">
-            <span className="graph-canvas__tooltip-type">{tooltip.type}</span>
-            {tooltip.connections > 0 && (
-              <span className="graph-canvas__tooltip-connections">
-                {tooltip.connections} connections
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+      <GraphTooltip tooltip={tooltip} />
+      <ContextMenu menu={graphState.contextMenu} graphState={graphState} onViewChange={onViewChange} />
+      <Minimap graphRef={graphRef} graphData={filteredData} layout={layout} />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, Send, Loader2, FileText } from 'lucide-react';
+import { api } from '../../../utils/api';
+import CommandMenu, { COMMANDS } from '../../journal/components/journal-day/CommandMenu';
 import './CaptureStream.css';
 
 /**
@@ -10,6 +12,7 @@ import './CaptureStream.css';
  * - Shift+Enter for multiline
  * - Auto-expands textarea
  * - Shows command hints
+ * - Slash command autocomplete menu
  * - Autocomplete for /link command
  */
 function CaptureStream({ onCapture, disabled = false, placeholder }) {
@@ -19,6 +22,8 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
   const [showLinkSuggestions, setShowLinkSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0);
   const [linkSearchQuery, setLinkSearchQuery] = useState('');
+  const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const [commandMenuIndex, setCommandMenuIndex] = useState(0);
   const textareaRef = useRef(null);
   const suggestionsRef = useRef(null);
 
@@ -34,18 +39,10 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
   // Fetch notes for autocomplete when typing /link
   useEffect(() => {
     const fetchNotes = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
       try {
-        const response = await fetch('http://localhost:8000/notes/', {
-          headers: { 'Authorization': `Bearer ${token}` },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setNotes(data);
-        }
-      } catch (err) {
+        const data = await api.get('/notes/?limit=5000');
+        setNotes(data);
+      } catch {
         // Silently fail - autocomplete is optional
       }
     };
@@ -62,24 +59,56 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
       .slice(0, 8);
   }, [notes, linkSearchQuery]);
 
-  // Check if typing /link command and extract search query
+  // Determine which dropdowns to show based on input
   useEffect(() => {
-    const trimmed = value.trim().toLowerCase();
-    if (trimmed.startsWith('/link')) {
+    const trimmed = value.trim();
+
+    // Show command menu: input is "/" or starts with "/" but no space yet
+    // Don't show when trimmed text is an exact full command (user already selected one)
+    const isExactCommand = COMMANDS.some(cmd => cmd.name === trimmed.toLowerCase());
+    if (trimmed.startsWith('/') && !trimmed.includes(' ') && !isExactCommand) {
+      const filter = trimmed.slice(1);
+      const hasMatch = COMMANDS.some(cmd =>
+        cmd.name.slice(1).startsWith(filter.toLowerCase())
+      );
+      setShowCommandMenu(hasMatch);
+      setShowLinkSuggestions(false);
+      setCommandMenuIndex(0);
+      return;
+    }
+
+    // Show link suggestions for /link command
+    if (trimmed.toLowerCase().startsWith('/link ') || trimmed.toLowerCase() === '/link') {
+      setShowCommandMenu(false);
       setShowLinkSuggestions(true);
-      const searchPart = value.trim().slice(5).trim();
+      const searchPart = trimmed.slice(5).trim();
       setLinkSearchQuery(searchPart);
       setSelectedSuggestionIndex(0);
-    } else {
-      setShowLinkSuggestions(false);
-      setLinkSearchQuery('');
+      return;
     }
+
+    // Hide all dropdowns
+    setShowCommandMenu(false);
+    setShowLinkSuggestions(false);
+    setLinkSearchQuery('');
   }, [value]);
+
+  // Get the filter text for command menu
+  const commandFilter = value.trim().startsWith('/')
+    ? value.trim().slice(1).split(' ')[0]
+    : '';
 
   // Select a note from suggestions
   const selectNote = (noteTitle) => {
     setValue(`/link ${noteTitle}`);
     setShowLinkSuggestions(false);
+    textareaRef.current?.focus();
+  };
+
+  // Select a command from command menu
+  const selectCommand = (prefix) => {
+    setValue(prefix);
+    setShowCommandMenu(false);
     textareaRef.current?.focus();
   };
 
@@ -90,7 +119,6 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
     try {
       await onCapture(value.trim());
       setValue('');
-      // Reset textarea height
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
@@ -104,20 +132,53 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
   };
 
   const handleKeyDown = (e) => {
-    const suggestions = filteredNotes();
+    // Handle command menu navigation
+    if (showCommandMenu) {
+      const filtered = COMMANDS.filter(cmd =>
+        cmd.name.slice(1).startsWith(commandFilter.toLowerCase())
+      );
+      if (filtered.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setCommandMenuIndex(prev => prev < filtered.length - 1 ? prev + 1 : 0);
+          return;
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setCommandMenuIndex(prev => prev > 0 ? prev - 1 : filtered.length - 1);
+          return;
+        }
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          selectCommand(filtered[commandMenuIndex].prefix);
+          return;
+        }
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          selectCommand(filtered[commandMenuIndex].prefix);
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setShowCommandMenu(false);
+          return;
+        }
+      }
+    }
 
-    // Handle suggestions navigation
+    // Handle link suggestions navigation
+    const suggestions = filteredNotes();
     if (showLinkSuggestions && suggestions.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSelectedSuggestionIndex((prev) =>
+        setSelectedSuggestionIndex(prev =>
           prev < suggestions.length - 1 ? prev + 1 : 0
         );
         return;
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSelectedSuggestionIndex((prev) =>
+        setSelectedSuggestionIndex(prev =>
           prev > 0 ? prev - 1 : suggestions.length - 1
         );
         return;
@@ -145,8 +206,6 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
     setValue(e.target.value);
   };
 
-  // Detect if user is typing a command
-  const isCommand = value.startsWith('/');
   const commandHint = getCommandHint(value);
 
   return (
@@ -168,8 +227,18 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
           aria-label="Quick capture input"
         />
 
-        {commandHint && (
+        {commandHint && !showCommandMenu && (
           <div className="capture-hint">{commandHint}</div>
+        )}
+
+        {/* Slash command autocomplete menu */}
+        {showCommandMenu && (
+          <CommandMenu
+            filter={commandFilter}
+            selectedIndex={commandMenuIndex}
+            onSelect={selectCommand}
+            onClose={() => setShowCommandMenu(false)}
+          />
         )}
 
         {/* Link suggestions dropdown */}
@@ -223,16 +292,20 @@ function CaptureStream({ onCapture, disabled = false, placeholder }) {
 function getCommandHint(text) {
   const trimmed = text.trim().toLowerCase();
 
-  if (trimmed === '/') {
-    return 'Commands: /todo, /link, /img';
-  }
-
   if (trimmed.startsWith('/todo')) {
     return '/todo [task] - Create a checkbox item';
   }
 
   if (trimmed.startsWith('/link')) {
     return '/link [note title] - Create a wikilink';
+  }
+
+  if (trimmed.startsWith('/tag')) {
+    return '/tag [name] - Add a tag to this note';
+  }
+
+  if (trimmed.startsWith('/mood')) {
+    return '/mood [emoji] - Set mood for today';
   }
 
   if (trimmed.startsWith('/img')) {

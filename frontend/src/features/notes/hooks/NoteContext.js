@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import { api } from '../../../utils/api';
+import { usePersistedState } from '../../../hooks/usePersistedState';
 
 /**
  * NoteContext - State management for the Notes feature
@@ -7,21 +9,17 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 const NoteContext = createContext(null);
 
 export function NoteProvider({ children, initialNoteId = null }) {
-  // Category state
-  const [currentCategory, setCurrentCategory] = useState('inbox');
+  // Persisted state - survives tab switches and page reloads
+  const [currentCategory, setCurrentCategory] = usePersistedState('notes:category', 'all');
+  const [selectedNoteId, setSelectedNoteId] = usePersistedState('notes:selectedId', null);
+  const [selectedCollectionId, setSelectedCollectionId] = usePersistedState('notes:collectionId', null);
+  const [sortBy, setSortBy] = usePersistedState('notes:sortBy', 'updated');
+  const [sortOrder, setSortOrder] = usePersistedState('notes:sortOrder', 'desc');
+  const [viewMode, setViewMode] = usePersistedState('notes:viewMode', 'list');
 
-  // Note selection state
-  const [selectedNoteId, setSelectedNoteId] = useState(initialNoteId);
-
-  // Collection state
-  const [selectedCollectionId, setSelectedCollectionId] = useState(null);
-
-  // Search and filter state
+  // Ephemeral state - resets on remount (intentional)
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTagFilter, setSelectedTagFilter] = useState(null);
-  const [sortBy, setSortBy] = useState('updated'); // 'updated' | 'created' | 'title'
-  const [sortOrder, setSortOrder] = useState('desc');
-  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
   // Data state (will be populated by API calls in Phase 2)
   const [notes, setNotes] = useState([]);
@@ -30,6 +28,7 @@ export function NoteProvider({ children, initialNoteId = null }) {
 
   // Category counts (will be fetched from API)
   const [categoryCounts, setCategoryCounts] = useState({
+    all: 0,
     inbox: 0,
     smart: 0,
     manual: 0,
@@ -42,12 +41,24 @@ export function NoteProvider({ children, initialNoteId = null }) {
   // Smart tags (popular tags auto-extracted)
   const [smartTags, setSmartTags] = useState([]);
 
-  // Update selectedNoteId when initialNoteId changes (from external navigation)
-  useEffect(() => {
-    if (initialNoteId !== null) {
+  // Skip one validation cycle after external navigation to prevent race condition
+  const [skipValidation, setSkipValidation] = useState(false);
+
+  // Sync selectedNoteId when initialNoteId changes (external navigation from Brain Graph, Journal, etc.)
+  // useLayoutEffect ensures it fires BEFORE child components render with stale value
+  // Ref starts at null so the FIRST mount with a non-null ID always triggers
+  const prevInitialId = useRef(null);
+  useLayoutEffect(() => {
+    if (initialNoteId != null && initialNoteId !== prevInitialId.current) {
       setSelectedNoteId(initialNoteId);
+      // Reset to 'all' so the note is always visible regardless of previous category filter
+      setCurrentCategory('all');
+      // Skip next validation cycle so useValidateNoteSelection doesn't clear the selection
+      // before the note list has a chance to include the target note
+      setSkipValidation(true);
     }
-  }, [initialNoteId]);
+    prevInitialId.current = initialNoteId;
+  }, [initialNoteId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch category counts on mount
   useEffect(() => {
@@ -57,36 +68,30 @@ export function NoteProvider({ children, initialNoteId = null }) {
 
   const fetchCategoryCounts = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      // Fetch notes and trash to calculate counts
-      const [notesResponse, trashResponse] = await Promise.all([
-        fetch('http://localhost:8000/notes/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch('http://localhost:8000/notes/trash/', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
+      // Use /notes-enhanced/ to get image_ids, is_standalone, is_reviewed fields
+      const [allNotes, trashedNotes] = await Promise.all([
+        api.get('/notes-enhanced/'),
+        api.get('/notes/trash/').catch(() => [])
       ]);
 
-      if (notesResponse.ok) {
-        const allNotes = await notesResponse.json();
-        const trashedNotes = trashResponse.ok ? await trashResponse.json() : [];
+      const counts = {
+        all: allNotes.length,
+        inbox: allNotes.filter(n => isRecentNote(n)).length,
+        smart: allNotes.filter(n =>
+          (n.image_ids && n.image_ids.length > 0) || n.is_standalone === false
+        ).length,
+        manual: allNotes.filter(n =>
+          (!n.image_ids || n.image_ids.length === 0) && n.is_standalone !== false
+        ).length,
+        daily: allNotes.filter(n => isDailyNote(n)).length,
+        favorites: allNotes.filter(n => n.is_favorite).length,
+        review: allNotes.filter(n =>
+          (n.image_ids && n.image_ids.length > 0) && !n.is_reviewed
+        ).length,
+        trash: trashedNotes.length
+      };
 
-        // Calculate counts based on note properties
-        const counts = {
-          inbox: allNotes.filter(n => isRecentNote(n)).length,
-          smart: allNotes.filter(n => n.source_type === 'image' || n.source_type === 'ai').length,
-          manual: allNotes.filter(n => !n.source_type || n.source_type === 'manual').length,
-          daily: allNotes.filter(n => isDailyNote(n)).length,
-          favorites: allNotes.filter(n => n.is_favorite).length,
-          review: allNotes.filter(n => needsReview(n)).length,
-          trash: trashedNotes.length
-        };
-
-        setCategoryCounts(counts);
-      }
+      setCategoryCounts(counts);
     } catch (error) {
       console.error('Error fetching category counts:', error);
     }
@@ -94,27 +99,17 @@ export function NoteProvider({ children, initialNoteId = null }) {
 
   const fetchSmartTags = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      const tags = await api.get('/tags/');
+      const smartTagsList = tags
+        .filter(tag => tag.note_count > 0)
+        .sort((a, b) => (b.note_count || 0) - (a.note_count || 0))
+        .slice(0, 10)
+        .map(tag => ({
+          name: tag.name,
+          count: tag.note_count || 0
+        }));
 
-      const response = await fetch('http://localhost:8000/tags/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const tags = await response.json();
-        // Transform to smart tags format with counts
-        const smartTagsList = tags
-          .filter(tag => tag.note_count > 0)
-          .sort((a, b) => (b.note_count || 0) - (a.note_count || 0))
-          .slice(0, 10) // Top 10 tags
-          .map(tag => ({
-            name: tag.name,
-            count: tag.note_count || 0
-          }));
-
-        setSmartTags(smartTagsList);
-      }
+      setSmartTags(smartTagsList);
     } catch (error) {
       console.error('Error fetching smart tags:', error);
     }
@@ -130,24 +125,26 @@ export function NoteProvider({ children, initialNoteId = null }) {
 
   const isDailyNote = (note) => {
     return note.title?.startsWith('Daily Note') ||
-           note.title?.match(/^\d{4}-\d{2}-\d{2}$/) ||
-           note.source_type === 'daily';
+           note.title?.match(/^\d{4}-\d{2}-\d{2}/) ||
+           note.title?.toLowerCase().includes('journal');
   };
 
-  const needsReview = (note) => {
-    // AI-generated notes that haven't been reviewed
-    const isAIGenerated = note.source_type === 'image' || note.source_type === 'ai';
-    const notReviewed = !note.is_reviewed;
-    return isAIGenerated && notReviewed;
-  };
+  // Flag to auto-open editor after selecting a newly created note
+  const [editAfterSelect, setEditAfterSelect] = useState(false);
 
   // Actions
   const selectNote = useCallback((noteId) => {
     setSelectedNoteId(noteId);
   }, []);
 
+  const selectNoteForEditing = useCallback((noteId) => {
+    setEditAfterSelect(true);
+    setSelectedNoteId(noteId);
+  }, []);
+
   const clearSelection = useCallback(() => {
     setSelectedNoteId(null);
+    setEditAfterSelect(false);
   }, []);
 
   const refreshCounts = useCallback(() => {
@@ -164,7 +161,10 @@ export function NoteProvider({ children, initialNoteId = null }) {
     // Note selection
     selectedNoteId,
     selectNote,
+    selectNoteForEditing,
     clearSelection,
+    editAfterSelect,
+    setEditAfterSelect,
 
     // Collection selection
     selectedCollectionId,
@@ -192,6 +192,10 @@ export function NoteProvider({ children, initialNoteId = null }) {
 
     // Smart tags
     smartTags,
+
+    // Validation skip (for external navigation)
+    skipValidation,
+    setSkipValidation,
 
     // Actions
     refreshCounts

@@ -54,15 +54,16 @@ class DatabaseTask(Task):
 
 
 @celery_app.task(bind=True, base=DatabaseTask, name="features.images.tasks.analyze_image")
-def analyze_image_task(self, image_id: int, image_path: str, prompt: str, album_id: int = None):
+def analyze_image_task(self, image_id: int, image_path: str, prompt: str, album_id: int = None,
+                       auto_tagging: bool = True, max_tags: int = 10, auto_create_note: bool = True):
     """
     Celery task to analyze an image with Ollama AI in the background.
 
     Task flow:
     1. Update image status to 'processing'
     2. Call AI model via ModelRouter (handles model selection)
-    3. Extract tags and wikilinks from AI response
-    4. Create note with formatted content
+    3. Extract tags and wikilinks from AI response (if auto_tagging)
+    4. Create note with formatted content (if auto_create_note)
     5. Link image to note
     6. Add tags to both image and note
     7. Add image to album (if album_id provided)
@@ -72,6 +73,9 @@ def analyze_image_task(self, image_id: int, image_path: str, prompt: str, album_
         image_path: File system path to the image
         prompt: Analysis prompt for the AI (optional, router selects if empty)
         album_id: Album ID to add image to after analysis (optional)
+        auto_tagging: Whether to extract and apply tags automatically
+        max_tags: Maximum number of tags to extract
+        auto_create_note: Whether to auto-create a note from the analysis
 
     Returns:
         dict: Task result with status and analysis text
@@ -124,109 +128,122 @@ def analyze_image_task(self, image_id: int, image_path: str, prompt: str, album_
                 extracted_tags = []
                 extracted_wikilinks = []
 
-                try:
-                    # Use adaptive prompt metadata if available
-                    content_metadata = result.get("content_metadata", {})
-
-                    if content_metadata and content_metadata.get("tags"):
-                        extracted_tags = content_metadata["tags"]
-                        logger.info(f"[Task {self.request.id}] Using adaptive prompt tags: {len(extracted_tags)} tags")
-                    else:
-                        extracted_tags = extract_tags_from_ai_response(analysis_text)
-                        logger.info(f"[Task {self.request.id}] Using legacy tag extraction: {len(extracted_tags)} tags")
-
-                    # Extract wikilinks from metadata
-                    extracted_wikilinks = content_metadata.get("wikilinks", []) if content_metadata else []
-                    if extracted_wikilinks:
-                        logger.info(f"[Task {self.request.id}] Extracted {len(extracted_wikilinks)} wikilinks")
-
-                    image = crud.get_image(self.db, image_id=image_id)
-
-                    if image and extracted_tags:
-                        logger.info(f"[Task {self.request.id}] Extracted {len(extracted_tags)} tags: {extracted_tags}")
-
-                        for tag_name in extracted_tags:
-                            try:
-                                crud.add_tag_to_image(
-                                    db=self.db,
-                                    image_id=image_id,
-                                    tag_name=tag_name,
-                                    owner_id=image.owner_id
-                                )
-                            except Exception as tag_err:
-                                logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}': {str(tag_err)}")
-                                self.db.rollback()
-
-                        logger.info(f"[Task {self.request.id}] Tags added to image {image_id}")
-                except Exception as e:
-                    logger.warning(f"[Task {self.request.id}] Failed to extract/add tags: {str(e)}")
-                    self.db.rollback()
-
-                # Create note with analysis
-                try:
-                    image = crud.get_image(self.db, image_id=image_id)
-
-                    # Extract EXIF metadata for better title generation
-                    metadata = extract_image_metadata(image_path)
-
-                    # Generate meaningful title from AI analysis
-                    note_title = generate_note_title(
-                        ai_analysis=analysis_text,
-                        image_filename=Path(image_path).name,
-                        metadata=metadata
-                    )
-
-                    # Format note content with tags and wikilinks
-                    note_content = format_note_content(
-                        ai_analysis=analysis_text,
-                        tags=extracted_tags,
-                        wikilinks=extracted_wikilinks
-                    )
-
-                    note = crud.create_note(
-                        db=self.db,
-                        title=note_title,
-                        content=note_content,
-                        owner_id=image.owner_id if image else None
-                    )
-                    logger.info(f"[Task {self.request.id}] Note created: ID {note.id}, title '{note_title}'")
-
-                    # Auto-set image display_name from note title
+                if auto_tagging:
                     try:
-                        crud.update_image_display_name(
-                            db=self.db,
-                            image_id=image_id,
-                            display_name=note_title
+                        # Use adaptive prompt metadata if available
+                        content_metadata = result.get("content_metadata", {})
+
+                        if content_metadata and content_metadata.get("tags"):
+                            extracted_tags = content_metadata["tags"]
+                            logger.info(f"[Task {self.request.id}] Using adaptive prompt tags: {len(extracted_tags)} tags")
+                        else:
+                            extracted_tags = extract_tags_from_ai_response(analysis_text)
+                            logger.info(f"[Task {self.request.id}] Using legacy tag extraction: {len(extracted_tags)} tags")
+
+                        # Limit to max_tags
+                        if len(extracted_tags) > max_tags:
+                            extracted_tags = extracted_tags[:max_tags]
+                            logger.info(f"[Task {self.request.id}] Trimmed to {max_tags} tags")
+
+                        # Extract wikilinks from metadata
+                        extracted_wikilinks = content_metadata.get("wikilinks", []) if content_metadata else []
+                        if extracted_wikilinks:
+                            logger.info(f"[Task {self.request.id}] Extracted {len(extracted_wikilinks)} wikilinks")
+
+                        image = crud.get_image(self.db, image_id=image_id)
+
+                        if image and extracted_tags:
+                            logger.info(f"[Task {self.request.id}] Extracted {len(extracted_tags)} tags: {extracted_tags}")
+
+                            for tag_name in extracted_tags:
+                                try:
+                                    crud.add_tag_to_image(
+                                        db=self.db,
+                                        image_id=image_id,
+                                        tag_name=tag_name,
+                                        owner_id=image.owner_id
+                                    )
+                                except Exception as tag_err:
+                                    logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}': {str(tag_err)}")
+                                    self.db.rollback()
+
+                            logger.info(f"[Task {self.request.id}] Tags added to image {image_id}")
+                    except Exception as e:
+                        logger.warning(f"[Task {self.request.id}] Failed to extract/add tags: {str(e)}")
+                        self.db.rollback()
+                else:
+                    logger.info(f"[Task {self.request.id}] Auto-tagging disabled, skipping tag extraction")
+
+                # Create note with analysis (if enabled)
+                if auto_create_note:
+                    try:
+                        image = crud.get_image(self.db, image_id=image_id)
+
+                        # Extract EXIF metadata for better title generation
+                        metadata = extract_image_metadata(image_path)
+
+                        # Generate meaningful title from AI analysis
+                        note_title = generate_note_title(
+                            ai_analysis=analysis_text,
+                            image_filename=Path(image_path).name,
+                            metadata=metadata
                         )
-                        logger.info(f"[Task {self.request.id}] Image display_name set to '{note_title}'")
-                    except Exception as name_err:
-                        logger.warning(f"[Task {self.request.id}] Failed to set display_name: {str(name_err)}")
-                        self.db.rollback()
 
-                    # Link the note to the image
-                    try:
-                        crud.add_image_to_note(db=self.db, image_id=image_id, note_id=note.id)
-                        logger.info(f"[Task {self.request.id}] Linked note {note.id} to image {image_id}")
-                    except Exception as link_err:
-                        logger.warning(f"[Task {self.request.id}] Failed to link note to image: {str(link_err)}")
-                        self.db.rollback()
+                        # Format note content with tags and wikilinks
+                        note_content = format_note_content(
+                            ai_analysis=analysis_text,
+                            tags=extracted_tags,
+                            wikilinks=extracted_wikilinks
+                        )
 
-                    # Add tags to the note
-                    if extracted_tags:
-                        for tag_name in extracted_tags:
-                            try:
-                                crud.add_tag_to_note(
-                                    db=self.db,
-                                    note_id=note.id,
-                                    tag_name=tag_name,
-                                    owner_id=image.owner_id
-                                )
-                            except Exception as tag_err:
-                                logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}' to note: {str(tag_err)}")
-                                self.db.rollback()
-                except Exception as e:
-                    logger.error(f"[Task {self.request.id}] Failed to create note: {str(e)}", exc_info=True)
-                    self.db.rollback()
+                        note = crud.create_note(
+                            db=self.db,
+                            title=note_title,
+                            content=note_content,
+                            owner_id=image.owner_id if image else None,
+                            source='image_analysis',
+                            is_standalone=False
+                        )
+                        logger.info(f"[Task {self.request.id}] Note created: ID {note.id}, title '{note_title}'")
+
+                        # Auto-set image display_name from note title
+                        try:
+                            crud.update_image_display_name(
+                                db=self.db,
+                                image_id=image_id,
+                                display_name=note_title
+                            )
+                            logger.info(f"[Task {self.request.id}] Image display_name set to '{note_title}'")
+                        except Exception as name_err:
+                            logger.warning(f"[Task {self.request.id}] Failed to set display_name: {str(name_err)}")
+                            self.db.rollback()
+
+                        # Link the note to the image
+                        try:
+                            crud.add_image_to_note(db=self.db, image_id=image_id, note_id=note.id)
+                            logger.info(f"[Task {self.request.id}] Linked note {note.id} to image {image_id}")
+                        except Exception as link_err:
+                            logger.warning(f"[Task {self.request.id}] Failed to link note to image: {str(link_err)}")
+                            self.db.rollback()
+
+                        # Add tags to the note
+                        if extracted_tags:
+                            for tag_name in extracted_tags:
+                                try:
+                                    crud.add_tag_to_note(
+                                        db=self.db,
+                                        note_id=note.id,
+                                        tag_name=tag_name,
+                                        owner_id=image.owner_id
+                                    )
+                                except Exception as tag_err:
+                                    logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}' to note: {str(tag_err)}")
+                                    self.db.rollback()
+                    except Exception as e:
+                        logger.error(f"[Task {self.request.id}] Failed to create note: {str(e)}", exc_info=True)
+                        self.db.rollback()
+                else:
+                    logger.info(f"[Task {self.request.id}] Auto-create note disabled, skipping note creation")
 
                 # Add image to album if album_id was provided
                 if album_id:

@@ -1,0 +1,218 @@
+/* MiniCalendar.css */
+
+.mini-calendar {
+  padding: var(--ng-space-3, 12px);
+}
+
+/* Header with month nav */
+.mini-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ng-space-3, 12px);
+}
+
+.mini-calendar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.mini-calendar-nav:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+  border-color: var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #ffffff);
+}
+
+.mini-calendar-title {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: var(--ng-text-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--ng-text-primary, #ffffff);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--ng-space-1, 4px) var(--ng-space-2, 8px);
+  border-radius: var(--ng-radius-md, 6px);
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+}
+
+.mini-calendar-title:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+/* 7-column grid */
+.mini-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+/* Day-of-week headers */
+.calendar-weekday {
+  text-align: center;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.35));
+  text-transform: uppercase;
+  padding: var(--ng-space-1, 4px) 0;
+}
+
+/* Day cells */
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  aspect-ratio: 1;
+  border-radius: var(--ng-radius-md, 6px);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--ng-transition-fast, 100ms ease-out);
+  padding: 2px;
+  position: relative;
+}
+
+.calendar-day:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
+}
+
+.calendar-day-number {
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+  line-height: 1;
+}
+
+/* Other month - dimmed */
+.calendar-day--other-month .calendar-day-number {
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.2));
+}
+
+/* Today highlight */
+.calendar-day--today {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: #fbbf24;
+}
+
+.calendar-day--today .calendar-day-number {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+/* Selected state - higher specificity to always win */
+.calendar-day.calendar-day--selected {
+  background: #fbbf24;
+  border-color: #fbbf24;
+}
+
+.calendar-day.calendar-day--selected .calendar-day-number {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.calendar-day.calendar-day--selected:hover {
+  background: #f59e0b;
+  border-color: #f59e0b;
+}
+
+/* Selected + today combo */
+.calendar-day.calendar-day--selected.calendar-day--today {
+  background: #fbbf24;
+  border-color: #fbbf24;
+}
+
+.calendar-day.calendar-day--selected.calendar-day--today .calendar-day-number {
+  color: #1a1a1a;
+}
+
+/* Indicator dots */
+.calendar-day-dots {
+  display: flex;
+  gap: 2px;
+  height: 5px;
+}
+
+.calendar-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.calendar-dot--amber {
+  background: var(--ng-accent-note, #fbbf24);
+}
+
+.calendar-dot--red {
+  background: #ef4444;
+}
+
+.calendar-dot--green {
+  background: #34d399;
+}
+
+.calendar-dot--blue {
+  background: #60a5fa;
+}
+
+.calendar-dot--violet {
+  background: #a78bfa;
+}
+
+/* Amber dot needs contrast on selected (yellow) day */
+.calendar-day.calendar-day--selected .calendar-dot--amber {
+  background: #1a1a1a;
+}
+
+/* Light Mode */
+[data-theme="light"] .calendar-day-number {
+  color: var(--ng-text-secondary);
+}
+
+[data-theme="light"] .calendar-day--other-month .calendar-day-number {
+  color: var(--ng-text-muted);
+}
+
+[data-theme="light"] .calendar-day:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .calendar-day--today {
+  background: rgba(217, 119, 6, 0.1);
+  border-color: #d97706;
+}
+
+[data-theme="light"] .calendar-day--today .calendar-day-number {
+  color: #d97706;
+}
+
+[data-theme="light"] .calendar-day.calendar-day--selected {
+  background: #d97706;
+  border-color: #d97706;
+}
+
+[data-theme="light"] .calendar-day.calendar-day--selected .calendar-day-number {
+  color: #ffffff;
+}
+
+[data-theme="light"] .calendar-day.calendar-day--selected:hover {
+  background: #b45309;
+}
+
+/* Light mode: amber dot needs contrast on selected day */
+[data-theme="light"] .calendar-day.calendar-day--selected .calendar-dot--amber {
+  background: #ffffff;
+}

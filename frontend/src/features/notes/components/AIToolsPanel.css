@@ -149,8 +149,14 @@
 
 .result-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: 0.25rem;
+}
+
+.result-actions .action-btn {
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .action-btn {

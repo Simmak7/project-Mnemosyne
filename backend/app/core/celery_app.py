@@ -25,6 +25,7 @@ celery_app = Celery(
         "features.graph.tasks",  # Phase 2: Semantic edges and clustering
         "features.settings.tasks",  # Phase 4: Data export tasks
         "features.mnemosyne_brain.tasks",  # Mnemosyne Brain build & evolution
+        "features.documents.tasks",  # Document PDF analysis
     ]  # Import tasks modules
 )
 
@@ -38,9 +39,13 @@ celery_app.conf.update(
     task_track_started=True,
     task_time_limit=600,  # 10 minutes max per task (for first model loading)
     task_soft_time_limit=540,  # 9 minutes soft limit
-    worker_prefetch_multiplier=1,  # Process one task at a time
-    worker_max_tasks_per_child=50,  # Restart worker after 50 tasks
+    worker_prefetch_multiplier=1,  # Process one task at a time (prevents memory bloat)
+    worker_max_tasks_per_child=50,  # Restart worker after 50 tasks (memory cleanup)
     result_expires=3600,  # Keep results for 1 hour
+    # Safety settings for AI tasks
+    task_acks_late=True,  # Acknowledge task after completion (safer for long AI tasks)
+    task_reject_on_worker_lost=False,  # Don't requeue if worker crashes (prevents duplicate processing)
+    worker_cancel_long_running_tasks_on_connection_loss=True,  # Clean shutdown
 )
 
 # Task routing (can be expanded later)

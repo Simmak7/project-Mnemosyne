@@ -7,7 +7,7 @@ CRUD operations and business logic for notes.
 import logging
 from datetime import datetime, timezone
 from typing import Optional, List, Tuple
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException
 
@@ -18,16 +18,25 @@ logger = logging.getLogger(__name__)
 
 
 def get_note(db: Session, note_id: int) -> Optional[Note]:
-    """Get a note by ID."""
-    return db.query(Note).filter(Note.id == note_id).first()
+    """Get a note by ID with eager loading of relationships."""
+    return db.query(Note).options(
+        joinedload(Note.tags),
+        joinedload(Note.images)
+    ).filter(Note.id == note_id).first()
 
 
 def get_notes_by_user(db: Session, owner_id: int, skip: int = 0, limit: int = 100) -> List[Note]:
-    """Get all non-trashed notes for a user with pagination."""
-    return db.query(Note).filter(
+    """
+    Get all non-trashed notes for a user with pagination.
+    Uses joinedload to eagerly load tags and images (prevents N+1 queries).
+    """
+    return db.query(Note).options(
+        joinedload(Note.tags),
+        joinedload(Note.images)
+    ).filter(
         Note.owner_id == owner_id,
         Note.is_trashed == False
-    ).offset(skip).limit(limit).all()
+    ).order_by(Note.created_at.desc()).offset(skip).limit(limit).all()
 
 
 def create_note(
@@ -35,7 +44,9 @@ def create_note(
     title: str,
     content: str,
     owner_id: Optional[int] = None,
-    html_content: Optional[str] = None
+    html_content: Optional[str] = None,
+    source: str = 'manual',
+    is_standalone: bool = True
 ) -> Note:
     """
     Create a new note with auto-generated slug and extract tags.
@@ -46,6 +57,8 @@ def create_note(
         content: Note content (may contain #hashtags and [[wikilinks]])
         owner_id: Owner user ID
         html_content: Rich HTML content for rendering (optional)
+        source: How the note was created ('manual', 'image_analysis', 'document_analysis')
+        is_standalone: Whether the note was created independently
 
     Returns:
         Created Note object
@@ -72,7 +85,8 @@ def create_note(
         html_content=html_content,
         slug=slug,
         owner_id=owner_id,
-        is_standalone=True
+        is_standalone=is_standalone,
+        source=source
     )
     db.add(db_note)
 
@@ -329,20 +343,26 @@ def restore_from_trash(db: Session, note_id: int, owner_id: int) -> Optional[Not
 
 
 def get_favorites(db: Session, owner_id: int, skip: int = 0, limit: int = 100) -> List[Note]:
-    """Get all favorite notes for a user."""
-    return db.query(Note).filter(
+    """Get all favorite notes for a user with eager loading."""
+    return db.query(Note).options(
+        joinedload(Note.tags),
+        joinedload(Note.images)
+    ).filter(
         Note.owner_id == owner_id,
         Note.is_favorite == True,
         Note.is_trashed == False
-    ).offset(skip).limit(limit).all()
+    ).order_by(Note.created_at.desc()).offset(skip).limit(limit).all()
 
 
 def get_trashed(db: Session, owner_id: int, skip: int = 0, limit: int = 100) -> List[Note]:
-    """Get all trashed notes for a user."""
-    return db.query(Note).filter(
+    """Get all trashed notes for a user with eager loading."""
+    return db.query(Note).options(
+        joinedload(Note.tags),
+        joinedload(Note.images)
+    ).filter(
         Note.owner_id == owner_id,
         Note.is_trashed == True
-    ).offset(skip).limit(limit).all()
+    ).order_by(Note.trashed_at.desc()).offset(skip).limit(limit).all()
 
 
 def permanent_delete(db: Session, note_id: int, owner_id: int) -> bool:

@@ -213,6 +213,39 @@
 }
 
 /* ============================================ */
+/* Source Document Banner                       */
+/* ============================================ */
+
+.note-source-doc-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 16px;
+  padding: 8px 12px;
+  background: rgba(251, 113, 133, 0.08);
+  border: 1px solid rgba(251, 113, 133, 0.2);
+  border-radius: var(--ng-radius-md, 6px);
+  color: #fb7185;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  width: calc(100% - 32px);
+}
+
+.note-source-doc-banner:hover {
+  background: rgba(251, 113, 133, 0.15);
+  border-color: rgba(251, 113, 133, 0.4);
+}
+
+.note-source-doc-pages {
+  margin-left: auto;
+  opacity: 0.7;
+  font-size: 0.7rem;
+}
+
+/* ============================================ */
 /* Editor Mode                                  */
 /* ============================================ */
 

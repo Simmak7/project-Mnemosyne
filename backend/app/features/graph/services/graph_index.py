@@ -22,6 +22,7 @@ class NodeType(str, Enum):
     TAG = "tag"
     IMAGE = "image"
     COLLECTION = "collection"
+    DOCUMENT = "document"
     ENTITY = "entity"  # Future: extracted named entities
     SESSION = "session"  # Future: daily session nodes
 
@@ -31,6 +32,7 @@ class EdgeType(str, Enum):
     WIKILINK = "wikilink"  # Explicit [[links]] between notes
     TAG = "tag"  # Note-to-tag assignment
     IMAGE = "image"  # Note-to-image reference
+    SOURCE = "source"  # Document-to-note source link
     SEMANTIC = "semantic"  # Embedding similarity
     SESSION = "session"  # Same-day creation
     MENTIONS = "mentions"  # Entity mention (future)
@@ -337,6 +339,7 @@ class GraphIndex:
             EdgeType.WIKILINK: "links to",
             EdgeType.TAG: "shares tag with",
             EdgeType.IMAGE: "shares image with",
+            EdgeType.SOURCE: "is source of",
             EdgeType.SEMANTIC: "is similar to",
             EdgeType.SESSION: "was created with",
         }

@@ -6,7 +6,6 @@ import {
   Heart,
   Network,
   Trash2,
-  MoreHorizontal,
   CheckCircle,
   Pencil,
   RotateCcw,
@@ -154,10 +153,6 @@ function NoteDetailHeader({
           </button>
         )}
 
-        {/* More options */}
-        <button className="action-btn" title="More options">
-          <MoreHorizontal size={16} />
-        </button>
       </div>
     </header>
   );
