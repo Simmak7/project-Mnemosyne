@@ -83,6 +83,7 @@ def semantic_search_notes(
             FROM notes
             WHERE owner_id = :owner_id
               AND embedding IS NOT NULL
+              AND is_trashed = false
               AND (1 - (embedding <=> CAST(:query_embedding AS vector))) >= :min_similarity
             ORDER BY similarity DESC
             LIMIT :max_results
@@ -153,6 +154,7 @@ def semantic_search_chunks(
             FROM note_chunks nc
             JOIN notes n ON nc.note_id = n.id
             WHERE n.owner_id = :owner_id
+              AND n.is_trashed = false
               AND nc.embedding IS NOT NULL
               AND (1 - (nc.embedding <=> CAST(:query_embedding AS vector))) >= :min_similarity
             ORDER BY similarity DESC
@@ -377,6 +379,7 @@ def fulltext_search_notes(
                 ) AS rank
             FROM notes
             WHERE owner_id = :owner_id
+              AND is_trashed = false
               AND to_tsvector('english', COALESCE(title, '') || ' ' || COALESCE(content, ''))
                   @@ plainto_tsquery('english', :query)
             ORDER BY rank DESC

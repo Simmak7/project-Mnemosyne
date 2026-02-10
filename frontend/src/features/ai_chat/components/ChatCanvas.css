@@ -349,6 +349,20 @@
   color: #f87171;
 }
 
+/* Brain stale warning */
+.message-brain-stale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 8px;
+}
+
 /* Model used indicator */
 .message-model-used {
   display: flex;

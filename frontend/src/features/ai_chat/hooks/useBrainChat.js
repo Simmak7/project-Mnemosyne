@@ -41,6 +41,7 @@ export function useBrainChat() {
         brainFilesUsed: data.brain_files_used,
         topicsMatched: data.topics_matched,
         modelUsed: data.model_used,
+        brainIsStale: data.brain_is_stale || false,
         isBrainMode: true,
         timestamp: new Date().toISOString(),
       };
@@ -142,6 +143,7 @@ export function useBrainChat() {
                   brainFilesUsed: data.brain_files_used || [],
                   topicsMatched: data.topics_matched || [],
                   modelUsed: data.model_used,
+                  brainIsStale: data.brain_is_stale || false,
                 };
                 actions.setBrainFilesUsed(brainMeta.brainFilesUsed);
                 actions.setTopicsMatched(brainMeta.topicsMatched);
@@ -167,6 +169,7 @@ export function useBrainChat() {
                   brainFilesUsed: brainMeta.brainFilesUsed,
                   topicsMatched: brainMeta.topicsMatched,
                   modelUsed: brainMeta.modelUsed,
+                  brainIsStale: brainMeta.brainIsStale,
                   isBrainMode: true,
                   isStreaming: false,
                 });

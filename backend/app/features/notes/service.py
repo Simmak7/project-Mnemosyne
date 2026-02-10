@@ -127,6 +127,13 @@ def create_note(
     except Exception as e:
         logger.error(f"Failed to queue embedding generation for note {db_note.id}: {e}", exc_info=True)
 
+    # Invalidate RAG cache so new note is discoverable immediately
+    try:
+        from features.rag_chat.services.cache import get_query_cache
+        get_query_cache().invalidate(owner_id)
+    except Exception as e:
+        logger.debug(f"RAG cache invalidation skipped: {e}")
+
     return db_note
 
 
@@ -230,6 +237,13 @@ def update_note(
             generate_note_embedding_task.delay(note_id)
         except Exception as e:
             logger.error(f"Failed to queue embedding generation for note {note_id}: {e}", exc_info=True)
+
+        # Invalidate RAG cache so updated content is discoverable
+        try:
+            from features.rag_chat.services.cache import get_query_cache
+            get_query_cache().invalidate(owner_id or note.owner_id)
+        except Exception as e:
+            logger.debug(f"RAG cache invalidation skipped: {e}")
 
     return note
 

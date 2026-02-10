@@ -9,10 +9,14 @@ Combines all RAG sub-routers:
 
 import logging
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 import requests
 
 from core import config
+from core.database import get_db
+from core.auth import get_current_user
+from sqlalchemy.orm import Session
+import models
 
 # Import sub-routers
 from features.rag_chat.router_query import router as query_router
@@ -53,6 +57,28 @@ async def rag_health():
         },
         "available_models": health.get("available_models", [])
     }
+
+
+@main_router.post("/rag/backfill-chunks")
+async def backfill_chunks(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Trigger chunk backfill for all of the current user's notes.
+    One-time operation to generate chunks for existing notes.
+    """
+    try:
+        from features.rag_chat.tasks import backfill_all_chunks_task
+        result = backfill_all_chunks_task.delay(owner_id=current_user.id)
+        return {
+            "status": "queued",
+            "task_id": str(result.id),
+            "message": "Chunk backfill started for all your notes.",
+        }
+    except Exception as e:
+        logger.error(f"Failed to queue chunk backfill: {e}")
+        return {"status": "error", "message": str(e)}
 
 
 # Re-export combined router

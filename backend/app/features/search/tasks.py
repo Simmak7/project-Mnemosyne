@@ -90,6 +90,14 @@ def generate_note_embedding_task(self, note_id: int) -> dict:
                 f"({len(embedding)} dimensions)"
             )
 
+            # Also queue chunk generation for RAG
+            try:
+                from features.rag_chat.tasks import generate_note_chunks_task
+                generate_note_chunks_task.delay(note_id, generate_embeddings=True)
+                logger.info(f"Queued chunk generation for note {note_id}")
+            except Exception as chunk_err:
+                logger.warning(f"Failed to queue chunk generation for note {note_id}: {chunk_err}")
+
             return {
                 "status": "success",
                 "note_id": note_id,

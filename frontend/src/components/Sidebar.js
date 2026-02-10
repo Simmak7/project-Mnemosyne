@@ -20,7 +20,7 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
     ...(documentsEnabled ? [{ id: 'documents', iconComponent: FileScan, label: 'Documents' }] : []),
     { id: 'graph', iconComponent: Brain, label: 'Brain' },
     ...(journalEnabled ? [{ id: 'journal', iconComponent: BookOpen, label: 'Journal' }] : []),
-    { id: 'chat', iconComponent: Sparkles, label: 'Mnemosyne' }
+    { id: 'chat', iconComponent: Sparkles, label: 'Muse' }
   ];
 
   // Close dropdown when clicking outside

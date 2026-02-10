@@ -144,7 +144,7 @@ function BrainFilesPanel() {
 
           {!hasBrain && brainFiles.length === 0 && (
             <p className="brain-hint">
-              Build your brain first to enable Mnemosyne mode.
+              Build your brain first to enable Muse mode.
             </p>
           )}
         </div>

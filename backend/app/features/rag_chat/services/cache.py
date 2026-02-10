@@ -22,6 +22,7 @@ class CacheEntry:
     """Cache entry with value and expiration time."""
     value: Any
     expires_at: float
+    user_id: int = 0
 
 
 class QueryCache:
@@ -127,6 +128,7 @@ class QueryCache:
             self._cache[key] = CacheEntry(
                 value=value,
                 expires_at=time.time() + self.ttl_seconds,
+                user_id=user_id,
             )
 
     def invalidate(self, user_id: int) -> int:
@@ -137,8 +139,8 @@ class QueryCache:
         """
         with self._lock:
             keys_to_remove = [
-                key for key in self._cache.keys()
-                if key.startswith(f"{user_id}:")
+                key for key, entry in self._cache.items()
+                if entry.user_id == user_id
             ]
             for key in keys_to_remove:
                 del self._cache[key]

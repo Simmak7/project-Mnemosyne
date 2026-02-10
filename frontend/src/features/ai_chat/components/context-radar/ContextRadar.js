@@ -43,7 +43,7 @@ function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToI
       <div className="context-radar-header">
         <div className="context-radar-title">
           <Settings size={16} />
-          <span>{isBrainMode ? 'Brain & Settings' : 'Context & Settings'}</span>
+          <span>{isBrainMode ? 'Muse & Settings' : 'Context & Settings'}</span>
         </div>
         <button
           className="collapse-btn"

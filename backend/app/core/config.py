@@ -120,9 +120,9 @@ DOCUMENT_THUMBNAIL_DIR = os.getenv("DOCUMENT_THUMBNAIL_DIR", "uploaded_documents
 DOCUMENT_VISION_FALLBACK = os.getenv("DOCUMENT_VISION_FALLBACK", "true").lower() == "true"
 
 # Mnemosyne Brain Configuration
-# Default: Nemotron Nano 9B v2 - excellent for creative, personal responses (128K context)
-BRAIN_MODEL = os.getenv("BRAIN_MODEL", "mirage335/NVIDIA-Nemotron-Nano-9B-v2-virtuoso:latest")
-BRAIN_MAX_CONTEXT_TOKENS = int(os.getenv("BRAIN_MAX_CONTEXT_TOKENS", "16000"))  # Nemotron supports 128K
+# Default: llama3.2:3b - lightweight, reliable model for brain conversations
+BRAIN_MODEL = os.getenv("BRAIN_MODEL", "llama3.2:3b")
+BRAIN_MAX_CONTEXT_TOKENS = int(os.getenv("BRAIN_MAX_CONTEXT_TOKENS", "6000"))
 BRAIN_CORE_TOKEN_BUDGET = int(os.getenv("BRAIN_CORE_TOKEN_BUDGET", "4000"))
 BRAIN_TOPIC_TOKEN_BUDGET = int(os.getenv("BRAIN_TOPIC_TOKEN_BUDGET", "6000"))
 BRAIN_TEMPERATURE = float(os.getenv("BRAIN_TEMPERATURE", "0.7"))

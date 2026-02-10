@@ -254,6 +254,13 @@ function MessageCitations({ message, isUser, onCitationClick }) {
 function MessageMeta({ message, isUser }) {
   return (
     <>
+      {!isUser && message.brainIsStale && (
+        <div className="message-brain-stale">
+          <AlertCircle size={12} />
+          <span>Brain knowledge is outdated - rebuild recommended</span>
+        </div>
+      )}
+
       {!isUser && !message.isBrainMode && message.confidenceLevel && (
         <div className={`message-confidence ${message.confidenceLevel}`}>
           Confidence: {message.confidenceLevel}

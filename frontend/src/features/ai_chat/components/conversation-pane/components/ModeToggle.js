@@ -19,7 +19,7 @@ function ModeToggle({ isBrainMode, onSetChatMode }) {
         onClick={() => onSetChatMode('mnemosyne')}
       >
         <Brain size={14} />
-        <span>Brain</span>
+        <span>Muse</span>
       </button>
     </div>
   );

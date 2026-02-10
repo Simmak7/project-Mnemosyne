@@ -56,6 +56,19 @@ def check_brain_ready(db: Session, user_id: int):
         )
 
 
+def is_brain_stale(db: Session, user_id: int) -> bool:
+    """Check if any brain files are marked as stale."""
+    stale_count = (
+        db.query(BrainFile)
+        .filter(
+            BrainFile.owner_id == user_id,
+            BrainFile.is_stale == True,
+        )
+        .count()
+    )
+    return stale_count > 0
+
+
 def get_query_embedding(query: str):
     """Generate query embedding, return None on failure."""
     try:

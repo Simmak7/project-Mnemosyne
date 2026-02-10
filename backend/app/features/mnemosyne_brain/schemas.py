@@ -131,6 +131,7 @@ class BrainQueryResponse(BaseModel):
     conversation_id: Optional[int] = None
     message_id: Optional[int] = None
     model_used: Optional[str] = None  # Which model generated this response
+    brain_is_stale: bool = False  # True when brain files are outdated
 
 
 class TopicMatch(BaseModel):

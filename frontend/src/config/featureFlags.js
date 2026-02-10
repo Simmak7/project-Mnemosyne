@@ -15,5 +15,5 @@ export const PAGE_INFO = {
   notes: { title: 'Smart Notes', description: 'AI-generated notes from your images' },
   documents: { title: 'Documents', description: 'Upload and analyze PDFs with AI-powered extraction' },
   graph: { title: 'Brain', description: 'Your knowledge graph - visualize connections between notes and tags' },
-  chat: { title: 'Mnemosyne', description: 'Your personal AI assistant - ask questions and get answers with citations from your notes' },
+  chat: { title: 'Muse', description: 'Your personal AI muse - ask questions and get answers with citations from your notes' },
 };

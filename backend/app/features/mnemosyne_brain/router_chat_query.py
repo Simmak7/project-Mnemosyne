@@ -36,6 +36,7 @@ from features.mnemosyne_brain.services.conversation_summarizer import (
 from features.mnemosyne_brain.router_chat_helpers import (
     generate_conversation_title,
     check_brain_ready,
+    is_brain_stale,
     get_query_embedding,
     call_ollama_generate,
     call_ollama_stream,
@@ -57,6 +58,7 @@ async def brain_query(
 ):
     """Execute a brain-mode query (non-streaming)."""
     check_brain_ready(db, current_user.id)
+    stale = is_brain_stale(db, current_user.id)
 
     query = body.query
     query_embedding = get_query_embedding(query)
@@ -170,6 +172,7 @@ async def brain_query(
         conversation_id=conversation_id,
         message_id=message_id,
         model_used=user_model,
+        brain_is_stale=stale,
     )
 
 
@@ -183,6 +186,7 @@ async def brain_query_stream(
 ):
     """Execute a streaming brain-mode query (SSE)."""
     check_brain_ready(db, current_user.id)
+    stale = is_brain_stale(db, current_user.id)
 
     query = body.query
     user_id = current_user.id
@@ -248,7 +252,7 @@ async def brain_query_stream(
                 full_response += token
                 yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
 
-            yield f"data: {json.dumps({'type': 'brain_meta', 'brain_files_used': context.brain_files_used, 'topics_matched': context.topics_matched, 'model_used': user_model})}\n\n"
+            yield f"data: {json.dumps({'type': 'brain_meta', 'brain_files_used': context.brain_files_used, 'topics_matched': context.topics_matched, 'model_used': user_model, 'brain_is_stale': stale})}\n\n"
             yield f"data: {json.dumps({'type': 'metadata', 'metadata': {'conversation_id': conversation_id, 'model_used': user_model}})}\n\n"
 
             if conversation:

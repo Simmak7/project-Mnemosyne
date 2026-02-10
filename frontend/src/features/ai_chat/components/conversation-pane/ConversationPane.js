@@ -191,7 +191,7 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
       <div className="conversation-pane-header">
         <div className="conversation-pane-title">
           <Brain size={20} className="brain-icon" />
-          <span>Mnemosyne</span>
+          <span>Muse</span>
         </div>
         <button
           className="collapse-btn"
