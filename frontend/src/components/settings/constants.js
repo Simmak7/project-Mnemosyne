@@ -3,12 +3,6 @@
  */
 
 export const FEATURE_FLAGS = [
-  { key: 'ENABLE_NEW_BRAIN_GRAPH', label: 'Neural Glass Brain Graph', description: 'New graph visualization with exploration views', default: false },
-  { key: 'ENABLE_NEW_GALLERY', label: 'Immich-style Gallery', description: 'Grid layout with blurhash placeholders', default: true },
-  { key: 'ENABLE_NEW_NOTES', label: '3-Pane Notes Layout', description: 'Collections, list, and editor panels', default: true },
-  { key: 'ENABLE_NEW_AI_CHAT', label: 'AI Chat Layout', description: 'Enhanced chat with history panel', default: true },
-  { key: 'ENABLE_NEW_UPLOAD', label: 'Neural Studio Upload', description: '2-pane upload experience', default: true },
-  { key: 'ENABLE_WORKSPACE', label: 'Workspace Mode', description: 'Full workspace layout', default: true },
   { key: 'ENABLE_LORA_TRAINING', label: 'LoRA Brain Training', description: 'Experimental: Fine-tune AI model with your notes (requires GPU)', default: false },
 ];
 

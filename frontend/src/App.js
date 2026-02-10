@@ -11,28 +11,22 @@ import { useTheme } from './hooks/useTheme';
 import { useAppNavigation } from './hooks/useAppNavigation';
 
 // Config
-import { getFeatureFlags, PAGE_INFO } from './config/featureFlags';
+import { getFeatureFlags } from './config/featureFlags';
 
 // Feature imports
 import { Login, EmailVerification } from './features/auth';
 
 // Component imports
 import Sidebar from './components/Sidebar';
-import ImageUpload from './components/ImageUpload';
 import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy load heavy components
-const VirtualizedImageGallery = lazy(() => import('./components/virtualized/VirtualizedImageGallery'));
 const GalleryLayout = lazy(() => import('./features/gallery').then(m => ({ default: m.GalleryLayout })));
 const NoteLayout = lazy(() => import('./features/notes').then(m => ({ default: m.NoteLayout })));
-const VirtualizedNoteList = lazy(() => import('./components/virtualized/VirtualizedNoteList'));
-const KnowledgeGraph = lazy(() => import('./features/graph/components/KnowledgeGraph'));
 const BrainGraph = lazy(() => import('./features/brain-graph').then(m => ({ default: m.BrainGraph })));
-const RAGChat = lazy(() => import('./features/rag_chat/components/RAGChat'));
 const AIChatLayout = lazy(() => import('./features/ai_chat').then(m => ({ default: m.AIChatLayout })));
-const WorkspaceLayout = lazy(() => import('./components/workspace/WorkspaceLayout'));
 const JournalLayout = lazy(() => import('./features/journal').then(m => ({ default: m.JournalLayout })));
 const UploadLayout = lazy(() => import('./features/upload').then(m => ({ default: m.UploadLayout })));
 const DocumentLayout = lazy(() => import('./features/documents').then(m => ({ default: m.DocumentLayout })));
@@ -59,7 +53,7 @@ function App() {
 
   const flags = getFeatureFlags();
   const tab = nav.activeTab;
-  const brainActive = tab === 'graph' && flags.newBrainGraphEnabled;
+  const brainActive = tab === 'graph';
   if (brainActive && !brainMounted) setBrainMounted(true);
 
   const brainNavigate = (path) => {
@@ -107,13 +101,7 @@ function App() {
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : tab === 'workspace' && flags.workspaceEnabled ? (
-            <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner size="large" message="Loading workspace..." />}>
-                <WorkspaceLayout />
-              </Suspense>
-            </ErrorBoundary>
-          ) : tab === 'upload' && flags.newUploadEnabled ? (
+          ) : tab === 'upload' ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading Neural Studio..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
@@ -124,7 +112,7 @@ function App() {
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : tab === 'gallery' && flags.newGalleryEnabled ? (
+          ) : tab === 'gallery' ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading gallery..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
@@ -137,7 +125,7 @@ function App() {
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : tab === 'notes' && flags.newNotesEnabled ? (
+          ) : tab === 'notes' ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading notes..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
@@ -163,7 +151,7 @@ function App() {
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : tab === 'chat' && flags.newAIChatEnabled ? (
+          ) : tab === 'chat' ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading AI chat..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
@@ -176,59 +164,7 @@ function App() {
                 </div>
               </Suspense>
             </ErrorBoundary>
-          ) : (
-            <div className="content-wrapper fade-in">
-              <div className="page-header">
-                <h1 className="page-title">{PAGE_INFO[tab]?.title}</h1>
-                <p className="page-description">{PAGE_INFO[tab]?.description}</p>
-              </div>
-              {tab === 'upload' && <ImageUpload onUploadSuccess={nav.handleImageUploadSuccess} />}
-              {tab === 'gallery' && (
-                <ErrorBoundary>
-                  <Suspense fallback={<LoadingSpinner message="Loading gallery..." />}>
-                    <VirtualizedImageGallery
-                      refreshTrigger={nav.refreshTrigger}
-                      selectedImageId={nav.selectedImageId}
-                      onViewNote={nav.handleNavigateToNote}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
-              {tab === 'notes' && (
-                <ErrorBoundary>
-                  <Suspense fallback={<LoadingSpinner message="Loading notes..." />}>
-                    <VirtualizedNoteList
-                      onNavigateToGraph={nav.handleNavigateToGraph}
-                      selectedNoteId={nav.selectedNoteId}
-                      searchQuery={nav.searchQuery}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
-              {tab === 'graph' && (
-                <ErrorBoundary>
-                  <Suspense fallback={<LoadingSpinner message="Loading knowledge graph..." />}>
-                    <KnowledgeGraph
-                      onNavigateToNote={nav.handleNavigateToNote}
-                      onNavigateToImage={nav.handleNavigateToImage}
-                      onNavigateToTag={nav.handleNavigateToTag}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
-              {tab === 'chat' && (
-                <ErrorBoundary>
-                  <Suspense fallback={<LoadingSpinner message="Loading AI chat..." />}>
-                    <RAGChat
-                      mode="standalone"
-                      onNavigateToNote={nav.handleNavigateToNote}
-                      onNavigateToImage={nav.handleNavigateToImage}
-                    />
-                  </Suspense>
-                </ErrorBoundary>
-              )}
-            </div>
-          )}
+          ) : null}
         </main>
 
         {/* BrainGraph: mounted once on first visit, kept alive across tab switches.
