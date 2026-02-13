@@ -1,33 +1,38 @@
 <p align="center">
-  <h1 align="center">🧠 Mnemosyne</h1>
-  <p align="center"><strong>Your Private AI Brain</strong></p>
-  <p align="center">
-    <em>Remember Everything. Privately.</em>
-  </p>
+  <strong style="font-size: 48px;">M</strong>
+</p>
+
+<h1 align="center">MNEMOSYNE</h1>
+
+<p align="center">
+  <strong>Your Private AI Brain — Remember Everything. Locally.</strong>
 </p>
 
 <p align="center">
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-features">Features</a> •
-  <a href="#-roadmap">Roadmap</a> •
-  <a href="#-contributing">Contributing</a> •
-  <a href="#-support">Support</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/version-0.1.0--beta-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.0--beta-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
-  <img src="https://img.shields.io/badge/AI-local%20only-purple" alt="Local AI">
+  <img src="https://img.shields.io/badge/AI-100%25%20local-purple" alt="Local AI">
+  <img src="https://img.shields.io/badge/python-3.11-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/react-18-blue?logo=react&logoColor=white" alt="React">
+</p>
+
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> &bull;
+  <a href="#-features">Features</a> &bull;
+  <a href="#-screenshots">Screenshots</a> &bull;
+  <a href="#-tech-stack">Tech Stack</a> &bull;
+  <a href="#-contributing">Contributing</a> &bull;
+  <a href="#-support-the-project">Support</a>
 </p>
 
 ---
 
-> **🧪 Beta Release** — This is an early version for adventurous users who want to explore AI-powered knowledge management. Perfect for early adopters ready to start building their private AI brain. [See Roadmap →](#-roadmap)
+> **Beta Release** — Mnemosyne v1.1.0-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#-roadmap)
 
 ---
 
-## 🌟 Why Mnemosyne?
+## Why Mnemosyne?
 
 **Your thoughts deserve better than scattered notes and forgotten bookmarks.**
 
@@ -35,47 +40,116 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 
 | What Makes It Different | |
 |------------------------|---|
-| 🔒 **Truly Private** | Your data never leaves your machine. Period. |
-| 🤖 **AI That Understands** | Local AI analyzes your notes and images, finding connections you missed |
-| 🕸️ **Living Knowledge Graph** | Watch your ideas connect and evolve visually |
-| 📸 **Visual Intelligence** | Upload images and let AI extract text, describe content, and auto-tag |
-| 💬 **Ask Your Brain** | Chat with your knowledge base and get citation-backed answers |
+| **Truly Private** | Your data never leaves your machine. Period. |
+| **AI That Understands** | Local AI analyzes your notes, images, and documents — finding connections you missed |
+| **Living Knowledge Graph** | Watch your ideas connect and evolve visually |
+| **Visual Intelligence** | Upload images and let AI extract text, describe content, and auto-tag |
+| **Document Management** | Upload PDFs for AI enrichment, review, and semantic search |
+| **Ask Your Brain** | Chat with your knowledge base in two modes — retrieval-augmented or brain AI companion |
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
-### Daily Workspace
-*Start your day with a personalized workspace - quick capture, daily notes, and activity tracking*
-![Workspace](docs/screenshots/workspace.png)
-
-### Neural Studio
-*Upload images for AI-powered analysis with customizable settings*
-![Studio](docs/screenshots/studio.png)
-
-### Smart Gallery
-*Organize your visual knowledge with albums, tags, and smart filters*
-![Gallery](docs/screenshots/gallery.png)
-
-### Image Detail View
-*View image details with AI-generated tags, descriptions, and linked notes*
-![Gallery Detail](docs/screenshots/gallery-detail.png)
-
-### Notes Management
-*Inbox, collections, smart tags, and multiple note types*
-![Notes](docs/screenshots/notes.png)
-
-### Knowledge Graph (Brain)
-*Visualize connections between your notes, tags, and images*
-![Brain](docs/screenshots/brain.png)
-
-### AI Chat (Mnemosyne)
-*Ask questions about your knowledge base with citation-backed answers*
-![Chat](docs/screenshots/chat.png)
+<table>
+  <tr>
+    <td width="60%" align="center">
+      <a href="docs/screenshots/gallery.png"><img src="docs/screenshots/gallery.png" alt="Smart Gallery"></a>
+      <br><strong>Smart Gallery</strong>
+      <br><em>Immich-inspired 3-column layout with albums, tags, and smart filters</em>
+    </td>
+    <td width="40%" align="center">
+      <a href="docs/screenshots/notes.png"><img src="docs/screenshots/notes.png" alt="Notes"></a>
+      <br><strong>Notes Management</strong>
+      <br><em>Collections, wikilinks, hashtags, and rich text editing</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/journal.png"><img src="docs/screenshots/journal.png" alt="Journal"></a>
+      <br><strong>Daily Journal</strong>
+      <br><em>Calendar view with mood tracking, insights, and daily notes</em>
+    </td>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/chat.png"><img src="docs/screenshots/chat.png" alt="AI Chat"></a>
+      <br><strong>AI Chat — Dual Mode</strong>
+      <br><em>NEXUS RAG retrieval and Brain AI companion with topic memory</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/brain.png"><img src="docs/screenshots/brain.png" alt="Knowledge Graph"></a>
+      <br><strong>Knowledge Graph</strong>
+      <br><em>Interactive D3.js graph with communities, semantic edges, and path finding</em>
+    </td>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/documents.png"><img src="docs/screenshots/documents.png" alt="Documents"></a>
+      <br><strong>PDF Document Management</strong>
+      <br><em>Upload, AI enrichment, review workflow, and collections</em>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <a href="docs/screenshots/studio.png"><img src="docs/screenshots/studio.png" alt="Neural Studio" width="80%"></a>
+      <br><strong>Neural Studio</strong>
+      <br><em>Multi-file upload with real-time AI analysis and customizable settings</em>
+    </td>
+  </tr>
+</table>
 
 ---
 
-## 🚀 Quick Start
+## Features
+
+### Smart Note-Taking
+- **Rich Text Editor** — Full-featured Tiptap editor with markdown support
+- **[[Wikilinks]]** — Connect ideas with bidirectional links
+- **#Hashtags** — Organize with auto-extracted tags
+- **Backlinks** — See every note that references the current one
+
+### Visual Intelligence
+- **AI Image Analysis** — Upload photos, get automatic descriptions and tags via Ollama
+- **Text Recognition** — Extract text from images, screenshots, and documents
+- **Smart Gallery** — Immich-inspired 3-column layout with albums and tag filtering
+- **Auto-Generated Notes** — Every image becomes a searchable, linked note
+
+### PDF Document Management
+- **Upload & AI Enrichment** — Upload PDFs and let AI generate summaries, key points, and tags
+- **Review Workflow** — Approve, reject, or edit AI-generated metadata before publishing
+- **Document Collections** — Organize PDFs into thematic collections
+- **Full-Text Search** — Semantic search across all document content
+
+### Daily Journal
+- **Calendar View** — Navigate entries with an interactive calendar
+- **Mood Tracking** — Record and visualize your emotional patterns
+- **Daily Insights** — AI-generated reflections on your journal entries
+- **Quick Capture** — Fast entry with templates and prompts
+
+### Knowledge Graph
+- **Interactive D3.js Visualization** — See how your ideas link together
+- **Community Detection** — AI discovers clusters and themes in your knowledge
+- **Semantic Edges** — Connections weighted by meaning, not just links
+- **Path Finding** — Discover hidden connections between distant ideas
+
+### AI Chat — Dual Mode
+- **NEXUS RAG** — Graph-native adaptive retrieval with citation-backed answers from your notes
+- **Brain AI Companion** — Persistent AI that remembers topics and builds understanding over time
+- **Streaming Responses** — Real-time answers as AI thinks
+- **Topic Management** — Organize conversations by subject
+
+### Smart Buckets
+- **AI Clusters** — Automatically grouped similar notes
+- **Inbox** — Recent captures in one place
+- **Orphans** — Notes waiting for connections
+
+### Semantic Search
+- **Search by Meaning** — Find notes by concept, not just keywords (pgvector)
+- **Full-Text Search** — Traditional search when you need it
+- **Cross-Content** — Search across notes, images, and documents simultaneously
+
+---
+
+## Quick Start
 
 Get your private AI brain running in 3 steps:
 
@@ -111,52 +185,12 @@ docker exec -it ollama ollama pull nomic-embed-text
 
 | Service | URL |
 |---------|-----|
-| 🖥️ **App** | http://localhost:3000 |
-| 📚 **API Docs** | http://localhost:8000/docs |
+| **App** | http://localhost:3000 |
+| **API Docs** | http://localhost:8000/docs |
 
 ---
 
-## ✨ Features
-
-### 📝 Smart Note-Taking
-- **Rich Text Editor** — Full-featured editor with markdown support
-- **[[Wikilinks]]** — Connect ideas with bidirectional links
-- **#Hashtags** — Organize with auto-extracted tags
-- **Backlinks** — See every note that references the current one
-
-### 📸 Visual Intelligence
-- **AI Image Analysis** — Upload photos, get automatic descriptions and tags
-- **Text Recognition** — Extract text from images, screenshots, documents
-- **Smart Gallery** — Browse, search, and organize your visual knowledge
-- **Auto-Generated Notes** — Every image becomes a searchable, linked note
-
-### 🕸️ Knowledge Graph
-- **Visual Connections** — See how your ideas link together
-- **Interactive Exploration** — Click, zoom, and navigate your knowledge
-- **Orphan Detection** — Find isolated notes waiting to be connected
-- **Cluster Discovery** — AI groups similar content automatically
-
-### 💬 RAG-Powered AI Chat
-- **Ask Anything** — Query your entire knowledge base naturally
-- **Citation-Backed** — Every answer shows its sources
-- **Context-Aware** — AI understands connections between your notes
-- **Streaming Responses** — Real-time answers as AI thinks
-
-### 🪣 Smart Buckets
-- **AI Clusters** — Automatically grouped similar notes
-- **Inbox** — Recent captures in one place
-- **Daily Notes** — Built-in journaling with templates
-- **Orphans** — Notes waiting for connections
-
-### 🔍 Semantic Search
-- **Search by Meaning** — Find notes by concept, not just keywords
-- **Full-Text Search** — Traditional search when you need it
-- **Similar Notes** — Discover related content you forgot about
-- **Unlinked Mentions** — Find connection opportunities
-
----
-
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -169,48 +203,55 @@ docker exec -it ollama ollama pull nomic-embed-text
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-### Current: v0.1.0-beta (You Are Here)
-- ✅ Core note-taking with wikilinks and tags
-- ✅ AI image analysis and text recognition
-- ✅ Knowledge graph visualization
-- ✅ RAG-powered chat with citations
-- ✅ Smart buckets and clustering
-- ✅ Semantic search
+### Current: v1.1.0-beta
+- Core note-taking with wikilinks and tags
+- AI image analysis and text recognition (Ollama llama3.2-vision)
+- Knowledge graph with communities, semantic edges, and path finding
+- AI Chat with dual mode (NEXUS RAG + Brain AI companion)
+- PDF document management with AI enrichment and review
+- Daily journal with calendar, mood tracking, and insights
+- Smart gallery with Immich-inspired layout
+- Smart buckets with AI clustering
+- Semantic search with pgvector
+- User onboarding flow
+- Two-factor authentication (TOTP)
+- Session management and security settings
+- Neural Glass design system
+- Document collections
 
-### Next: v0.2.0
-- 🔲 Mobile-responsive design improvements
-- 🔲 Import from Obsidian, Notion, Evernote
-- 🔲 Export your data (Markdown, JSON)
-- 🔲 PDF document support
-- 🔲 Audio note transcription
+### Next: v1.2.0
+- Mobile-responsive design improvements
+- Import from Obsidian, Notion, Evernote
+- Export your data (Markdown, JSON)
+- Audio note transcription
+- Browser extension for web clipping
 
 ### Future Vision
-- 🔮 **Browser Extension** — Capture anything from the web
-- 🔮 **Mobile App** — Your brain in your pocket
-- 🔮 **Collaborative Spaces** — Shared knowledge bases
-- 🔮 **Custom AI Training** — Personalize AI to your writing style
-- 🔮 **Plugin System** — Extend with community add-ons
+- **Mobile App** — Your brain in your pocket
+- **Collaborative Spaces** — Shared knowledge bases
+- **Custom AI Training** — Personalize AI to your writing style
+- **Plugin System** — Extend with community add-ons
 
 > Have ideas? [Open an issue](https://github.com/Simmak7/project-Mnemosyne/issues) — we're building this together!
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Mnemosyne is open source and we love contributions! Whether it's:
 
-- 🐛 Bug reports
-- 💡 Feature suggestions
-- 📖 Documentation improvements
-- 🔧 Code contributions
+- Bug reports
+- Feature suggestions
+- Documentation improvements
+- Code contributions
 
 Check out our [Contributing Guide](CONTRIBUTING.md) to get started.
 
 ---
 
-## 💖 Support the Project
+## Support the Project
 
 Mnemosyne is built with love by a solo developer. If it helps you build your second brain, consider supporting continued development:
 
@@ -224,13 +265,13 @@ Mnemosyne is built with love by a solo developer. If it helps you build your sec
 </p>
 
 **Other ways to help:**
-- ⭐ **Star this repo** — It helps others discover Mnemosyne
-- 🐛 **Report bugs** — Help us improve
-- 📢 **Spread the word** — Tell your friends about private AI
+- **Star this repo** — It helps others discover Mnemosyne
+- **Report bugs** — Help us improve
+- **Spread the word** — Tell your friends about private AI
 
 ---
 
-## 📜 License
+## License
 
 Mnemosyne is open source software licensed under the [GNU Affero General Public License v3.0](LICENSE).
 
@@ -238,9 +279,9 @@ Mnemosyne is open source software licensed under the [GNU Affero General Public 
 
 <p align="center">
   <strong>Mnemosyne</strong> — Named after the Greek goddess of memory<br>
-  <em>Your thoughts. Your images. Your knowledge. Your brain.</em>
+  <em>Your thoughts. Your images. Your documents. Your knowledge. Your brain.</em>
 </p>
 
 <p align="center">
-  Built with 🧠 by <a href="https://github.com/Simmak7">@Simmak7</a>
+  Built with care by <a href="https://github.com/Simmak7">@Simmak7</a>
 </p>
