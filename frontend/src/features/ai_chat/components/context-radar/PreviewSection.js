@@ -4,14 +4,17 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Image as ImageIcon, ExternalLink, X } from 'lucide-react';
 import ActiveCitationsList from './ActiveCitationsList';
+import ArtifactOriginCard from './ArtifactOriginCard';
 
 function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavigateToImage, onClear, onSelectCitation }) {
   const [noteData, setNoteData] = useState(null);
   const [imageData, setImageData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   // Fetch preview data when item changes
   useEffect(() => {
+    setExpanded(false);
     if (!previewItem) {
       setNoteData(null);
       setImageData(null);
@@ -108,10 +111,15 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
       ) : noteData ? (
         <div className="preview-content">
           <h4 className="preview-title">{noteData.title || 'Untitled'}</h4>
-          <div className="preview-text">
-            {noteData.content?.substring(0, 300)}
-            {noteData.content?.length > 300 && '...'}
+          <div className={`preview-text${expanded ? ' expanded' : ''}`}>
+            {expanded ? noteData.content : noteData.content?.substring(0, 300)}
+            {!expanded && noteData.content?.length > 300 && '...'}
           </div>
+          {noteData.content?.length > 300 && (
+            <button className="preview-expand-btn" onClick={() => setExpanded(e => !e)}>
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
           {previewItem.citation && (
             <div className="preview-meta">
               <span className="meta-item">
@@ -126,6 +134,12 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
             <ExternalLink size={14} />
             Open Note
           </button>
+          {previewItem.citation?.origin_type && previewItem.citation.origin_type !== 'manual' && (
+            <ArtifactOriginCard
+              citation={previewItem.citation}
+              onNavigateToImage={onNavigateToImage}
+            />
+          )}
         </div>
       ) : imageData ? (
         <div className="preview-content image">
@@ -137,10 +151,17 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
           </div>
           <h4 className="preview-title">{imageData.display_name || imageData.filename || 'Image'}</h4>
           {imageData.ai_analysis_result && (
-            <div className="preview-text">
-              {imageData.ai_analysis_result.substring(0, 200)}
-              {imageData.ai_analysis_result.length > 200 && '...'}
-            </div>
+            <>
+              <div className={`preview-text${expanded ? ' expanded' : ''}`}>
+                {expanded ? imageData.ai_analysis_result : imageData.ai_analysis_result.substring(0, 200)}
+                {!expanded && imageData.ai_analysis_result.length > 200 && '...'}
+              </div>
+              {imageData.ai_analysis_result.length > 200 && (
+                <button className="preview-expand-btn" onClick={() => setExpanded(e => !e)}>
+                  {expanded ? 'Show less' : 'Show more'}
+                </button>
+              )}
+            </>
           )}
           <button className="preview-navigate" onClick={handleNavigate}>
             <ExternalLink size={14} />

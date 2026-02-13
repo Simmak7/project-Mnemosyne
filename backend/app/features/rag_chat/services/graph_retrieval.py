@@ -62,7 +62,7 @@ def get_outgoing_wikilinks(db: Session, note_id: int, owner_id: int) -> List[Dic
             WHERE n.owner_id = :owner_id
               AND n.id IN (
                   SELECT target_note_id
-                  FROM note_wikilinks
+                  FROM note_links
                   WHERE source_note_id = :note_id
               )
         """), {
@@ -111,7 +111,7 @@ def get_incoming_backlinks(db: Session, note_id: int, owner_id: int) -> List[Dic
             WHERE n.owner_id = :owner_id
               AND n.id IN (
                   SELECT source_note_id
-                  FROM note_wikilinks
+                  FROM note_links
                   WHERE target_note_id = :note_id
               )
         """), {

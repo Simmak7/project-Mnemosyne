@@ -76,6 +76,40 @@
   color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
 }
 
+/* NEXUS Mode Badge */
+.nexus-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 16px;
+  padding: 8px 12px;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 8px;
+}
+
+.nexus-badge-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #34d399;
+  padding: 2px 6px;
+  background: rgba(52, 211, 153, 0.15);
+  border-radius: 4px;
+}
+
+.nexus-badge-mode {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .nexus-mode-badge {
+  background: rgba(52, 211, 153, 0.06);
+}
+
 /* Preview Section */
 .preview-section {
   padding: 16px;
@@ -167,6 +201,24 @@
   font-size: 13px;
   line-height: 1.5;
   color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.preview-text.expanded {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.preview-expand-btn {
+  background: none;
+  border: none;
+  color: var(--ng-accent-ai, #818cf8);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.preview-expand-btn:hover {
+  text-decoration: underline;
 }
 
 .preview-image-wrapper {
@@ -915,5 +967,391 @@
 }
 
 [data-theme="light"] .adapter-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* =====================================================
+   NEXUS Settings
+   ===================================================== */
+
+.nexus-mode-selector {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.nexus-mode-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.5));
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nexus-mode-option:hover {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.15);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+}
+
+.nexus-mode-option.active {
+  background: rgba(52, 211, 153, 0.15);
+  border-color: rgba(52, 211, 153, 0.3);
+  color: #34d399;
+}
+
+.setting-hint {
+  display: block;
+  font-size: 10px;
+  color: var(--ng-text-tertiary, rgba(255, 255, 255, 0.3));
+  margin-top: 4px;
+}
+
+.nexus-model-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+  font-size: 12px;
+  cursor: pointer;
+  outline: none;
+}
+
+.nexus-model-select:focus {
+  border-color: rgba(52, 211, 153, 0.3);
+}
+
+.nexus-model-select option {
+  background: var(--ng-glass-bg, #1a1a2e);
+}
+
+/* NEXUS Insights Section */
+.nexus-insights-section {
+  padding: 12px 16px;
+}
+
+.nexus-insights-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.5));
+  margin-bottom: 8px;
+}
+
+.nexus-insights-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border: 1px solid rgba(52, 211, 153, 0.1);
+  border-radius: 6px;
+  background: rgba(52, 211, 153, 0.04);
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.5));
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nexus-insights-toggle:hover {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.2);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.8));
+}
+
+.nexus-insights-toggle .toggle-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nexus-insights-toggle .toggle-chevron.open {
+  transform: rotate(90deg);
+}
+
+.nexus-insights-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+.nexus-connections-list {
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.nexus-connection-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  background: rgba(52, 211, 153, 0.05);
+  border: 1px solid rgba(52, 211, 153, 0.1);
+  font-size: 11px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.nexus-connection-type {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #34d399;
+  white-space: nowrap;
+  padding: 2px 4px;
+  background: rgba(52, 211, 153, 0.1);
+  border-radius: 3px;
+}
+
+.nexus-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin-bottom: 4px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nexus-suggestion-item:hover {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: rgba(52, 211, 153, 0.15);
+}
+
+.nexus-suggestion-query {
+  font-size: 12px;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+}
+
+.nexus-suggestion-reason {
+  font-size: 10px;
+  color: var(--ng-text-tertiary, rgba(255, 255, 255, 0.3));
+}
+
+/* Light theme overrides */
+[data-theme="light"] .nexus-mode-option {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+  color: var(--ng-text-secondary);
+}
+
+[data-theme="light"] .nexus-mode-option.active {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+[data-theme="light"] .nexus-model-select {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: var(--ng-slate-100, #f1f5f9);
+  color: var(--ng-text-primary);
+}
+
+[data-theme="light"] .nexus-model-select option {
+  background: #ffffff;
+}
+
+[data-theme="light"] .nexus-insights-toggle {
+  border-color: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.04);
+  color: var(--ng-text-secondary);
+}
+
+[data-theme="light"] .nexus-insights-toggle:hover {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+[data-theme="light"] .nexus-insights-count {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+[data-theme="light"] .nexus-connection-item {
+  background: rgba(16, 185, 129, 0.05);
+  border-color: rgba(16, 185, 129, 0.15);
+}
+
+[data-theme="light"] .nexus-connection-type {
+  color: #059669;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* =====================================================
+   Artifact Origin Card
+   ===================================================== */
+
+.artifact-origin-card {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.artifact-origin-card.image {
+  border-color: rgba(34, 211, 238, 0.2);
+  background: rgba(34, 211, 238, 0.05);
+}
+
+.artifact-origin-card.document {
+  border-color: rgba(251, 191, 36, 0.2);
+  background: rgba(251, 191, 36, 0.05);
+}
+
+.artifact-origin-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
+  margin-bottom: 8px;
+}
+
+.artifact-origin-card.image .artifact-origin-label svg {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.artifact-origin-card.document .artifact-origin-label svg {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.artifact-origin-content {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.artifact-thumbnail {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.artifact-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.artifact-doc-icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: rgba(251, 191, 36, 0.1);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.artifact-origin-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.artifact-filename {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.9));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artifact-open-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: fit-content;
+}
+
+.artifact-open-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Citation origin badges */
+.citation-origin-badge {
+  flex-shrink: 0;
+}
+
+.citation-origin-badge.image {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.citation-origin-badge.document {
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+/* Light mode overrides */
+[data-theme="light"] .artifact-origin-card {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+[data-theme="light"] .artifact-origin-card.image {
+  border-color: rgba(6, 182, 212, 0.25);
+  background: rgba(6, 182, 212, 0.05);
+}
+
+[data-theme="light"] .artifact-origin-card.document {
+  border-color: rgba(217, 119, 6, 0.25);
+  background: rgba(217, 119, 6, 0.05);
+}
+
+[data-theme="light"] .artifact-thumbnail {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .artifact-open-btn {
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .artifact-open-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }

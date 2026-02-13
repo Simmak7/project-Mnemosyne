@@ -1,25 +1,36 @@
 /**
- * ModeToggle - RAG/Brain mode toggle buttons
+ * ModeToggle - NEXUS RAG / ZAIA AI / Legacy RAG mode toggle
  */
 import React from 'react';
-import { Search, Brain } from 'lucide-react';
+import { Search, Brain, Network } from 'lucide-react';
 
-function ModeToggle({ isBrainMode, onSetChatMode }) {
+const legacyRagEnabled = localStorage.getItem('ENABLE_LEGACY_RAG') === 'true';
+
+function ModeToggle({ chatMode, onSetChatMode }) {
   return (
     <div className="mode-toggle">
+      {legacyRagEnabled && (
+        <button
+          className={`mode-toggle-btn ${chatMode === 'rag' ? 'active' : ''}`}
+          onClick={() => onSetChatMode('rag')}
+        >
+          <Search size={14} />
+          <span>RAG</span>
+        </button>
+      )}
       <button
-        className={`mode-toggle-btn ${!isBrainMode ? 'active' : ''}`}
-        onClick={() => onSetChatMode('rag')}
+        className={`mode-toggle-btn nexus ${chatMode === 'nexus' ? 'active' : ''}`}
+        onClick={() => onSetChatMode('nexus')}
       >
-        <Search size={14} />
-        <span>RAG</span>
+        <Network size={14} />
+        <span>NEXUS RAG</span>
       </button>
       <button
-        className={`mode-toggle-btn ${isBrainMode ? 'active' : ''}`}
+        className={`mode-toggle-btn ${chatMode === 'mnemosyne' ? 'active' : ''}`}
         onClick={() => onSetChatMode('mnemosyne')}
       >
         <Brain size={14} />
-        <span>Muse</span>
+        <span>ZAIA AI</span>
       </button>
     </div>
   );

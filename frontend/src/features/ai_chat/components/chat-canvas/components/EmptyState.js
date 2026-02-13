@@ -9,7 +9,7 @@ function EmptyState({ isBrainMode }) {
     return (
       <div className="chat-empty-state">
         <Bot size={48} className="empty-icon brain-mode" />
-        <h3>Muse</h3>
+        <h3>ZAIA AI</h3>
         <p>
           I have deep knowledge of your notes. Ask me anything and I'll draw
           connections across topics with a personal touch — no citations needed.

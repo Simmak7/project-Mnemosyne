@@ -1,5 +1,6 @@
 /* NoteSidebar.css - Notes navigation panel */
 /* Neural Glass Design System */
+/* All generic selectors scoped under .note-sidebar to prevent CSS collisions */
 
 .note-sidebar {
   height: 100%;
@@ -33,7 +34,7 @@
 }
 
 /* Header */
-.sidebar-header {
+.note-sidebar .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -42,7 +43,7 @@
   border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
 }
 
-.sidebar-title {
+.note-sidebar .sidebar-title {
   font-family: var(--ng-font-ui, 'Inter', sans-serif);
   font-size: 1.25rem;
   font-weight: 700;
@@ -54,7 +55,7 @@
   background-clip: text;
 }
 
-.sidebar-collapse-btn {
+.note-sidebar .sidebar-collapse-btn {
   background: transparent;
   border: none;
   color: var(--ng-text-tertiary, rgba(255, 255, 255, 0.4));
@@ -64,20 +65,20 @@
   transition: all var(--ng-transition-fast, 100ms ease-out);
 }
 
-.sidebar-collapse-btn:hover {
+.note-sidebar .sidebar-collapse-btn:hover {
   background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.1));
   color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
 }
 
 /* Navigation */
-.sidebar-nav {
+.note-sidebar .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: var(--ng-space-1, 4px);
   margin-bottom: var(--ng-space-6, 24px);
 }
 
-.sidebar-nav-item {
+.note-sidebar .sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: var(--ng-space-3, 12px);
@@ -95,12 +96,12 @@
   font-weight: 500;
 }
 
-.sidebar-nav-item:hover {
+.note-sidebar .sidebar-nav-item:hover {
   background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.08));
   color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
 }
 
-.sidebar-nav-item.active {
+.note-sidebar .sidebar-nav-item.active {
   background: linear-gradient(135deg,
     rgba(251, 191, 36, 0.15) 0%,
     rgba(251, 191, 36, 0.05) 100%
@@ -110,21 +111,21 @@
   margin-left: -3px;
 }
 
-.sidebar-nav-item.active .nav-icon {
+.note-sidebar .sidebar-nav-item.active .nav-icon {
   color: var(--ng-accent-note, #fbbf24);
 }
 
 /* Trash category special styling */
-.sidebar-nav-item.danger-item {
+.note-sidebar .sidebar-nav-item.danger-item {
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.4));
 }
 
-.sidebar-nav-item.danger-item:hover {
+.note-sidebar .sidebar-nav-item.danger-item:hover {
   color: var(--ng-error, #ef4444);
   background: rgba(239, 68, 68, 0.1);
 }
 
-.sidebar-nav-item.danger-item.active {
+.note-sidebar .sidebar-nav-item.danger-item.active {
   background: linear-gradient(135deg,
     rgba(239, 68, 68, 0.15) 0%,
     rgba(239, 68, 68, 0.05) 100%
@@ -133,23 +134,23 @@
   border-left-color: var(--ng-error, #ef4444);
 }
 
-.sidebar-nav-item.danger-item.active .nav-icon {
+.note-sidebar .sidebar-nav-item.danger-item.active .nav-icon {
   color: var(--ng-error, #ef4444);
 }
 
-.nav-icon {
+.note-sidebar .nav-icon {
   flex-shrink: 0;
   opacity: 0.8;
 }
 
-.nav-label {
+.note-sidebar .nav-label {
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.nav-count {
+.note-sidebar .nav-count {
   font-size: 0.75rem;
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
   background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
@@ -157,7 +158,7 @@
   border-radius: var(--ng-radius-full, 9999px);
 }
 
-.nav-badge {
+.note-sidebar .nav-badge {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--ng-void, #050505);
@@ -369,7 +370,7 @@
   overflow: hidden;
 }
 
-.context-menu-item {
+.note-sidebar .context-menu-item {
   display: flex;
   align-items: center;
   gap: var(--ng-space-2, 8px);
@@ -385,18 +386,18 @@
   transition: all var(--ng-transition-fast, 100ms ease-out);
 }
 
-.context-menu-item:hover {
+.note-sidebar .context-menu-item:hover {
   background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.1));
   color: var(--ng-text-primary, rgba(255, 255, 255, 0.95));
 }
 
-.context-menu-item.danger:hover {
+.note-sidebar .context-menu-item.danger:hover {
   background: rgba(239, 68, 68, 0.2);
   color: var(--ng-error, #ef4444);
 }
 
 /* Smart Tags Section */
-.sidebar-section {
+.note-sidebar .sidebar-section {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -404,7 +405,7 @@
   margin-bottom: var(--ng-space-4, 16px);
 }
 
-.section-header {
+.note-sidebar .section-header {
   display: flex;
   align-items: center;
   gap: var(--ng-space-2, 8px);
@@ -424,25 +425,25 @@
   transition: all var(--ng-transition-fast, 100ms ease-out);
 }
 
-.section-header:hover {
+.note-sidebar .section-header:hover {
   background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.05));
 }
 
-.section-chevron {
+.note-sidebar .section-chevron {
   flex-shrink: 0;
   opacity: 0.6;
 }
 
-.section-icon {
+.note-sidebar .section-icon {
   flex-shrink: 0;
   opacity: 0.7;
 }
 
-.section-title {
+.note-sidebar .section-title {
   flex: 1;
 }
 
-.section-count {
+.note-sidebar .section-count {
   font-size: 0.75rem;
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.3));
 }
@@ -531,7 +532,7 @@
 }
 
 /* Footer - New Note Button */
-.sidebar-footer {
+.note-sidebar .sidebar-footer {
   padding-top: var(--ng-space-4, 16px);
   border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
 }
@@ -571,11 +572,11 @@
     padding: var(--ng-space-3, 12px);
   }
 
-  .sidebar-title {
+  .note-sidebar .sidebar-title {
     font-size: 1.125rem;
   }
 
-  .sidebar-nav-item {
+  .note-sidebar .sidebar-nav-item {
     padding: var(--ng-space-2, 8px) var(--ng-space-2-5, 10px);
   }
 }
@@ -590,15 +591,15 @@
 }
 
 [data-theme="light"] .sidebar-expand-btn:hover,
-[data-theme="light"] .sidebar-collapse-btn:hover {
+[data-theme="light"] .note-sidebar .sidebar-collapse-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="light"] .sidebar-nav-item:hover {
+[data-theme="light"] .note-sidebar .sidebar-nav-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="light"] .section-header:hover {
+[data-theme="light"] .note-sidebar .section-header:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -616,7 +617,7 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="light"] .context-menu-item:hover {
+[data-theme="light"] .note-sidebar .context-menu-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -624,7 +625,7 @@
   background: rgba(129, 140, 248, 0.1);
 }
 
-[data-theme="light"] .sidebar-footer {
+[data-theme="light"] .note-sidebar .sidebar-footer {
   border-top-color: rgba(0, 0, 0, 0.1);
 }
 

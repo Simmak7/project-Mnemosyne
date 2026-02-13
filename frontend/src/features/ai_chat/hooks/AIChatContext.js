@@ -28,8 +28,8 @@ const defaultSettings = {
 
 // Initial state
 const initialState = {
-  // Chat mode: "rag" or "mnemosyne"
-  chatMode: 'rag',
+  // Chat mode: "rag", "mnemosyne", or "nexus"
+  chatMode: 'nexus',
 
   // Current conversation
   conversationId: null,
@@ -48,6 +48,10 @@ const initialState = {
 
   // Last retrieval metadata
   lastRetrievalMetadata: null,
+
+  // NEXUS mode metadata
+  connectionInsights: [],
+  explorationSuggestions: [],
 
   // Brain mode metadata
   brainFilesUsed: [],
@@ -69,6 +73,8 @@ const ActionTypes = {
   CLEAR_PREVIEW: 'CLEAR_PREVIEW',
   SET_ACTIVE_CITATIONS: 'SET_ACTIVE_CITATIONS',
   SET_RETRIEVAL_METADATA: 'SET_RETRIEVAL_METADATA',
+  SET_CONNECTION_INSIGHTS: 'SET_CONNECTION_INSIGHTS',
+  SET_EXPLORATION_SUGGESTIONS: 'SET_EXPLORATION_SUGGESTIONS',
   SET_BRAIN_FILES_USED: 'SET_BRAIN_FILES_USED',
   SET_TOPICS_MATCHED: 'SET_TOPICS_MATCHED',
   RESET_STATE: 'RESET_STATE',
@@ -85,6 +91,8 @@ function chatReducer(state, action) {
         conversationId: null,
         lastRetrievalMetadata: null,
         activeCitations: [],
+        connectionInsights: [],
+        explorationSuggestions: [],
         brainFilesUsed: [],
         topicsMatched: [],
       };
@@ -133,6 +141,12 @@ function chatReducer(state, action) {
     case ActionTypes.SET_RETRIEVAL_METADATA:
       return { ...state, lastRetrievalMetadata: action.payload };
 
+    case ActionTypes.SET_CONNECTION_INSIGHTS:
+      return { ...state, connectionInsights: action.payload };
+
+    case ActionTypes.SET_EXPLORATION_SUGGESTIONS:
+      return { ...state, explorationSuggestions: action.payload };
+
     case ActionTypes.SET_BRAIN_FILES_USED:
       return { ...state, brainFilesUsed: action.payload };
 
@@ -153,12 +167,38 @@ function loadPersistedState() {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Only restore messages, conversationId, and chatMode, not UI state
+      const messages = parsed.messages || [];
+
+      // For NEXUS mode, restore metadata from the last assistant message
+      let activeCitations = [];
+      let connectionInsights = [];
+      let explorationSuggestions = [];
+
+      if (parsed.chatMode === 'nexus') {
+        const lastAssistant = [...messages].reverse().find(
+          m => m.role === 'assistant' && !m.isError
+        );
+        if (lastAssistant) {
+          activeCitations = lastAssistant.citations || [];
+          connectionInsights = lastAssistant.connectionInsights || [];
+          explorationSuggestions = lastAssistant.explorationSuggestions || [];
+        }
+      }
+
+      // Migrate away from legacy RAG if the flag is disabled
+      let chatMode = parsed.chatMode || 'nexus';
+      if (chatMode === 'rag' && localStorage.getItem('ENABLE_LEGACY_RAG') !== 'true') {
+        chatMode = 'nexus';
+      }
+
       return {
         ...initialState,
-        chatMode: parsed.chatMode || 'rag',
+        chatMode,
         conversationId: parsed.conversationId || null,
-        messages: parsed.messages || [],
+        messages,
+        activeCitations,
+        connectionInsights,
+        explorationSuggestions,
       };
     }
   } catch (error) {
@@ -278,6 +318,10 @@ export function useAIChatActions() {
     dispatch({ type: ActionTypes.SET_ACTIVE_CITATIONS, payload: citations }), [dispatch, ActionTypes]);
   const setRetrievalMetadata = useCallback((metadata) =>
     dispatch({ type: ActionTypes.SET_RETRIEVAL_METADATA, payload: metadata }), [dispatch, ActionTypes]);
+  const setConnectionInsights = useCallback((insights) =>
+    dispatch({ type: ActionTypes.SET_CONNECTION_INSIGHTS, payload: insights }), [dispatch, ActionTypes]);
+  const setExplorationSuggestions = useCallback((suggestions) =>
+    dispatch({ type: ActionTypes.SET_EXPLORATION_SUGGESTIONS, payload: suggestions }), [dispatch, ActionTypes]);
   const setBrainFilesUsed = useCallback((files) =>
     dispatch({ type: ActionTypes.SET_BRAIN_FILES_USED, payload: files }), [dispatch, ActionTypes]);
   const setTopicsMatched = useCallback((topics) =>
@@ -300,14 +344,16 @@ export function useAIChatActions() {
     clearPreview,
     setActiveCitations,
     setRetrievalMetadata,
+    setConnectionInsights,
+    setExplorationSuggestions,
     setBrainFilesUsed,
     setTopicsMatched,
     resetState,
   }), [
     setChatMode, setConversation, addMessage, updateMessage, setMessages,
     clearMessages, setLoading, setStreaming, setError, setPreview, clearPreview,
-    setActiveCitations, setRetrievalMetadata, setBrainFilesUsed, setTopicsMatched,
-    resetState
+    setActiveCitations, setRetrievalMetadata, setConnectionInsights,
+    setExplorationSuggestions, setBrainFilesUsed, setTopicsMatched, resetState
   ]);
 }
 

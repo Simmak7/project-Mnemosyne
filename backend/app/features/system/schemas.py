@@ -59,6 +59,7 @@ class ModelsListResponse(BaseModel):
     models: list[ModelInfoResponse]
     current_rag_model: str
     current_brain_model: str
+    current_nexus_model: Optional[str] = None
     current_vision_model: str
 
 

@@ -27,8 +27,11 @@
   margin: 0;
   font-family: var(--ng-font-ui, 'Inter', sans-serif);
   font-size: var(--ng-text-base, 1rem);
-  font-weight: 600;
-  color: var(--ng-text-primary, #ffffff);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8), var(--ng-accent-note, #fbbf24));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .journal-sidebar-collapse {

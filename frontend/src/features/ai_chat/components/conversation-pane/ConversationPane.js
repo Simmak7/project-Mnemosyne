@@ -8,7 +8,7 @@
  * - Collapse functionality
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Brain, ChevronLeft, Search } from 'lucide-react';
+import { Plus, ChevronLeft, Search } from 'lucide-react';
 import { useAIChat } from '../../hooks/useAIChat';
 import { useAIChatContext, useAIChatActions } from '../../hooks/AIChatContext';
 import {
@@ -190,8 +190,7 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
       {/* Header */}
       <div className="conversation-pane-header">
         <div className="conversation-pane-title">
-          <Brain size={20} className="brain-icon" />
-          <span>Muse</span>
+          <span>Mnemos AIs</span>
         </div>
         <button
           className="collapse-btn"
@@ -203,7 +202,7 @@ function ConversationPane({ isCollapsed, onCollapse, searchInputRef }) {
       </div>
 
       {/* Mode Toggle */}
-      <ModeToggle isBrainMode={isBrainMode} onSetChatMode={setChatMode} />
+      <ModeToggle chatMode={state.chatMode} onSetChatMode={setChatMode} />
 
       {/* New Chat Button */}
       <button className="new-chat-btn" onClick={handleNewChat}>

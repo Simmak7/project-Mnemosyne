@@ -21,6 +21,7 @@ import Sidebar from './components/Sidebar';
 import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
+import OnboardingModal from './features/onboarding';
 
 // Lazy load heavy components
 const GalleryLayout = lazy(() => import('./features/gallery').then(m => ({ default: m.GalleryLayout })));
@@ -88,6 +89,8 @@ function App() {
           onResultClick={nav.handleSearchResultClick}
         />
 
+        <OnboardingModal />
+
         {/* Main content area - hidden when Brain is active */}
         <main className="main-content" style={brainActive ? { display: 'none' } : undefined}>
           {tab === 'journal' && flags.journalEnabled ? (
@@ -108,6 +111,7 @@ function App() {
                   <UploadLayout
                     onUploadSuccess={nav.handleImageUploadSuccess}
                     onNavigateToDocument={nav.handleNavigateToDocument}
+                    onNavigateToImage={nav.handleNavigateToImage}
                   />
                 </div>
               </Suspense>

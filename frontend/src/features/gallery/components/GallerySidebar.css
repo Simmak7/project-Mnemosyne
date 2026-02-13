@@ -1,5 +1,6 @@
 /* GallerySidebar.css - Left navigation panel */
 /* Neural Glass Design */
+/* All generic selectors scoped under .gallery-sidebar to prevent CSS collisions */
 
 .gallery-sidebar {
   height: 100%;
@@ -29,27 +30,30 @@
 }
 
 /* Header */
-.sidebar-header {
+.gallery-sidebar .sidebar-header {
   margin-bottom: var(--ng-space-6, 24px);
 }
 
-.sidebar-title {
+.gallery-sidebar .sidebar-title {
   font-size: var(--ng-text-xl, 1.25rem);
-  font-weight: 600;
-  color: var(--ng-text-primary, #ffffff);
+  font-weight: 700;
   margin: 0;
   letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8), var(--ng-accent-note, #fbbf24));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Navigation */
-.sidebar-nav {
+.gallery-sidebar .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: var(--ng-space-1, 4px);
   margin-bottom: var(--ng-space-3, 12px);
 }
 
-.sidebar-nav-item {
+.gallery-sidebar .sidebar-nav-item {
   display: flex;
   align-items: center;
   gap: var(--ng-space-3, 12px);
@@ -63,33 +67,33 @@
   text-align: left;
 }
 
-.sidebar-nav-item:hover {
+.gallery-sidebar .sidebar-nav-item:hover {
   background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
 }
 
-.sidebar-nav-item.active {
+.gallery-sidebar .sidebar-nav-item.active {
   background: var(--ng-accent-image-subtle, rgba(34, 211, 238, 0.1));
   border-left: 3px solid var(--ng-accent-image, #22d3ee);
   padding-left: calc(var(--ng-space-4, 16px) - 3px);
 }
 
-.nav-icon {
+.gallery-sidebar .nav-icon {
   color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
   flex-shrink: 0;
 }
 
-.sidebar-nav-item.active .nav-icon {
+.gallery-sidebar .sidebar-nav-item.active .nav-icon {
   color: var(--ng-accent-image, #22d3ee);
 }
 
-.nav-label {
+.gallery-sidebar .nav-label {
   flex: 1;
   font-size: var(--ng-text-sm, 0.875rem);
   font-weight: 500;
   color: var(--ng-text-primary, #ffffff);
 }
 
-.nav-count {
+.gallery-sidebar .nav-count {
   font-size: var(--ng-text-xs, 0.75rem);
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
   background: var(--ng-glass-bg, rgba(0, 0, 0, 0.3));
@@ -98,11 +102,11 @@
 }
 
 /* Section */
-.sidebar-section {
+.gallery-sidebar .sidebar-section {
   margin-top: var(--ng-space-1, 4px);
 }
 
-.section-header {
+.gallery-sidebar .section-header {
   display: flex;
   align-items: center;
   gap: var(--ng-space-2, 8px);
@@ -116,19 +120,19 @@
   transition: background-color var(--ng-transition-fast, 100ms ease-out);
 }
 
-.section-header:hover {
+.gallery-sidebar .section-header:hover {
   background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
 }
 
-.section-chevron {
+.gallery-sidebar .section-chevron {
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
 }
 
-.section-icon {
+.gallery-sidebar .section-icon {
   color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
 }
 
-.section-title {
+.gallery-sidebar .section-title {
   font-size: var(--ng-text-sm, 0.875rem);
   font-weight: 600;
   color: var(--ng-text-secondary, rgba(255, 255, 255, 0.7));
@@ -236,7 +240,7 @@
 }
 
 /* Section count */
-.section-count {
+.gallery-sidebar .section-count {
   margin-left: auto;
   font-size: var(--ng-text-xs, 0.75rem);
   color: var(--ng-text-muted, rgba(255, 255, 255, 0.5));
@@ -287,7 +291,7 @@
   backdrop-filter: blur(20px);
 }
 
-.context-menu-item {
+.gallery-sidebar .context-menu-item {
   display: flex;
   align-items: center;
   gap: var(--ng-space-2, 8px);
@@ -303,15 +307,15 @@
   transition: background-color var(--ng-transition-fast, 100ms ease-out);
 }
 
-.context-menu-item:hover {
+.gallery-sidebar .context-menu-item:hover {
   background: var(--ng-glass-hover, rgba(255, 255, 255, 0.1));
 }
 
-.context-menu-item.danger {
+.gallery-sidebar .context-menu-item.danger {
   color: var(--ng-accent-error, #ef4444);
 }
 
-.context-menu-item.danger:hover {
+.gallery-sidebar .context-menu-item.danger:hover {
   background: rgba(239, 68, 68, 0.1);
 }
 
@@ -412,11 +416,11 @@
   background: var(--ng-accent-image);
 }
 
-[data-theme="light"] .sidebar-nav-item:hover {
+[data-theme="light"] .gallery-sidebar .sidebar-nav-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="light"] .section-header:hover {
+[data-theme="light"] .gallery-sidebar .section-header:hover {
   background: rgba(0, 0, 0, 0.05);
 }
 
@@ -437,6 +441,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-[data-theme="light"] .context-menu-item:hover {
+[data-theme="light"] .gallery-sidebar .context-menu-item:hover {
   background: rgba(0, 0, 0, 0.05);
 }

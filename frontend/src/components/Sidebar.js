@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan } from 'lucide-react';
+import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan, Sun, Moon } from 'lucide-react';
 import Settings from './Settings';
 import './Sidebar.css';
 
@@ -16,11 +16,11 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
   const navItems = [
     { id: 'upload', iconComponent: Upload, label: 'Studio' },
     { id: 'gallery', iconComponent: Image, label: 'Gallery' },
-    { id: 'notes', iconComponent: FileText, label: 'Notes' },
     ...(documentsEnabled ? [{ id: 'documents', iconComponent: FileScan, label: 'Documents' }] : []),
-    { id: 'graph', iconComponent: Brain, label: 'Brain' },
+    { id: 'notes', iconComponent: FileText, label: 'Notes' },
     ...(journalEnabled ? [{ id: 'journal', iconComponent: BookOpen, label: 'Journal' }] : []),
-    { id: 'chat', iconComponent: Sparkles, label: 'Muse' }
+    { id: 'graph', iconComponent: Brain, label: 'Brain' },
+    { id: 'chat', iconComponent: Sparkles, label: 'Mnemos AIs' }
   ];
 
   // Close dropdown when clicking outside
@@ -69,8 +69,8 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="logo">
-          <Brain className="logo-icon" size={32} />
-          <h2>Mnemosyne</h2>
+          <div className="logo-monogram">M</div>
+          <div className="logo-wordmark">MNEMOSYNE</div>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
           title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
         >
-          <span className="theme-icon">{isDarkMode ? '☀️' : '🌙'}</span>
+          {isDarkMode ? <Sun size={18} className="theme-icon-svg" /> : <Moon size={18} className="theme-icon-svg" />}
           <span className="theme-label">{isDarkMode ? 'Light' : 'Dark'}</span>
         </button>
 

@@ -30,6 +30,7 @@ class UserPreferencesResponse(BaseModel):
     # AI Model preferences (null = use system default)
     rag_model: Optional[str] = None
     brain_model: Optional[str] = None
+    nexus_model: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -48,6 +49,7 @@ class UserPreferencesUpdate(BaseModel):
     # AI Model preferences (null = use system default, empty string = reset to default)
     rag_model: Optional[str] = None
     brain_model: Optional[str] = None
+    nexus_model: Optional[str] = None
 
 
 class PreferencesOptions(BaseModel):

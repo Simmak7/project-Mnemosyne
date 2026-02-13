@@ -163,7 +163,6 @@ function DocumentLayout({ onNavigateToNote, selectedDocumentId, onClearSelection
     <div className="document-layout ng-theme">
       <div className="document-header">
         <div className="document-header-title">
-          <FileScan className="document-header-icon" size={24} />
           <h1>Documents</h1>
           {data?.total > 0 && (
             <span className="document-header-count">{data.total}</span>

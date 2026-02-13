@@ -11,6 +11,8 @@ import { ChevronRight, Settings } from 'lucide-react';
 import { useAIChatContext } from '../../hooks/AIChatContext';
 import PreviewSection from './PreviewSection';
 import SettingsSection from './SettingsSection';
+import NexusSettingsSection from './NexusSettingsSection';
+import NexusInsightsSection from './NexusInsightsSection';
 import BrainSection from './BrainSection';
 import BrainFilesPanel from './BrainFilesPanel';
 import BrainSettingsSection from './BrainSettingsSection';
@@ -20,6 +22,7 @@ import '../ContextRadar.css';
 function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToImage }) {
   const { state, dispatch, ActionTypes } = useAIChatContext();
   const isBrainMode = state.chatMode === 'mnemosyne';
+  const isNexusMode = state.chatMode === 'nexus';
 
   const handleClearPreview = useCallback(() => {
     dispatch({ type: ActionTypes.CLEAR_PREVIEW });
@@ -43,7 +46,7 @@ function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToI
       <div className="context-radar-header">
         <div className="context-radar-title">
           <Settings size={16} />
-          <span>{isBrainMode ? 'Muse & Settings' : 'Context & Settings'}</span>
+          <span>{isBrainMode ? 'ZAIA AI & Settings' : isNexusMode ? 'NEXUS RAG & Settings' : 'Context & Settings'}</span>
         </div>
         <button
           className="collapse-btn"
@@ -67,19 +70,46 @@ function ContextRadar({ isCollapsed, onCollapse, onNavigateToNote, onNavigateToI
           </>
         ) : (
           <>
-            {/* Preview Section */}
-            <PreviewSection
-              previewItem={state.previewItem}
-              activeCitations={state.activeCitations}
-              onNavigateToNote={onNavigateToNote}
-              onNavigateToImage={onNavigateToImage}
-              onClear={handleClearPreview}
-              onSelectCitation={handleSelectCitation}
-            />
-            {/* Settings Section */}
-            <SettingsSection />
-            {/* Brain Section - LoRA training (only if experimental feature enabled) */}
-            {localStorage.getItem('ENABLE_LORA_TRAINING') === 'true' && <BrainSection />}
+            {isNexusMode ? (
+              <>
+                {/* NEXUS mode badge */}
+                {state.lastRetrievalMetadata?.mode && (
+                  <div className="nexus-mode-badge">
+                    <span className="nexus-badge-label">NEXUS RAG</span>
+                    <span className="nexus-badge-mode">{state.lastRetrievalMetadata.mode}</span>
+                  </div>
+                )}
+                {/* Preview Section */}
+                <PreviewSection
+                  previewItem={state.previewItem}
+                  activeCitations={state.activeCitations}
+                  onNavigateToNote={onNavigateToNote}
+                  onNavigateToImage={onNavigateToImage}
+                  onClear={handleClearPreview}
+                  onSelectCitation={handleSelectCitation}
+                />
+                {/* NEXUS Insights (connections + suggestions) */}
+                <NexusInsightsSection />
+                {/* NEXUS Settings */}
+                <NexusSettingsSection />
+              </>
+            ) : (
+              <>
+                {/* Preview Section */}
+                <PreviewSection
+                  previewItem={state.previewItem}
+                  activeCitations={state.activeCitations}
+                  onNavigateToNote={onNavigateToNote}
+                  onNavigateToImage={onNavigateToImage}
+                  onClear={handleClearPreview}
+                  onSelectCitation={handleSelectCitation}
+                />
+                {/* Settings Section */}
+                <SettingsSection />
+                {/* Brain Section - LoRA training (only if experimental feature enabled) */}
+                {localStorage.getItem('ENABLE_LORA_TRAINING') === 'true' && <BrainSection />}
+              </>
+            )}
           </>
         )}
       </div>

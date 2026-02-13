@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useJournalContext } from '../../hooks/JournalContext';
 import { useCalendarData } from '../../hooks/useCalendarData';
 import MiniCalendar from './MiniCalendar';
@@ -29,7 +29,6 @@ function JournalSidebar({ isCollapsed, onCollapse }) {
       {/* Header */}
       <div className="journal-sidebar-header">
         <div className="journal-sidebar-title">
-          <BookOpen size={18} />
           <h3>Journal</h3>
         </div>
         <button

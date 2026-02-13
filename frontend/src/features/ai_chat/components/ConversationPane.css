@@ -109,6 +109,15 @@
   background: rgba(129, 140, 248, 0.15);
 }
 
+.mode-toggle-btn.nexus.active {
+  background: rgba(52, 211, 153, 0.2);
+  color: #34d399;
+}
+
+[data-theme="light"] .mode-toggle-btn.nexus.active {
+  background: rgba(52, 211, 153, 0.15);
+}
+
 /* New Chat Button */
 .new-chat-btn {
   display: flex;

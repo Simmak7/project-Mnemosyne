@@ -13,7 +13,7 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
           <h3>AI Models</h3>
         </div>
         <p className="settings-section-description">
-          Choose which AI models power your RAG Chat and Muse Brain.
+          Choose which AI models power your NEXUS RAG and ZAIA AI.
         </p>
         <div className="settings-item">
           <div className="settings-item-info">
@@ -38,13 +38,13 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
         <h3>AI Models</h3>
       </div>
       <p className="settings-section-description">
-        Choose which AI models power your RAG Chat and Muse Brain.
+        Choose which AI models power your NEXUS RAG and ZAIA AI.
       </p>
       <div className="settings-appearance-grid">
         <div className="settings-appearance-item model-select-item">
           <label>
             <Sparkles size={14} className="label-icon" />
-            RAG Chat Model
+            NEXUS RAG Model
           </label>
           <select
             value={preferences.rag_model || ''}
@@ -68,7 +68,7 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
         <div className="settings-appearance-item model-select-item">
           <label>
             <Brain size={14} className="label-icon" />
-            Muse Model
+            ZAIA AI Model
           </label>
           <select
             value={preferences.brain_model || ''}

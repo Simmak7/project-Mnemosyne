@@ -70,7 +70,8 @@ async def update_preferences(
         sidebar_collapsed=data.sidebar_collapsed,
         default_view=data.default_view,
         rag_model=data.rag_model,
-        brain_model=data.brain_model
+        brain_model=data.brain_model,
+        nexus_model=data.nexus_model,
     )
 
     if error:

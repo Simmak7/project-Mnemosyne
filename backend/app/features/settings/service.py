@@ -75,7 +75,8 @@ def update_user_preferences(
     sidebar_collapsed: Optional[bool] = None,
     default_view: Optional[str] = None,
     rag_model: Optional[str] = None,
-    brain_model: Optional[str] = None
+    brain_model: Optional[str] = None,
+    nexus_model: Optional[str] = None,
 ) -> Tuple[models.UserPreferences, Optional[str]]:
     """
     Update user preferences.
@@ -135,6 +136,14 @@ def update_user_preferences(
             preferences.brain_model = brain_model
         else:
             return None, f"Invalid Brain model: {brain_model}"
+
+    if nexus_model is not None:
+        if nexus_model == "":
+            preferences.nexus_model = None
+        elif validate_model_id(nexus_model):
+            preferences.nexus_model = nexus_model
+        else:
+            return None, f"Invalid NEXUS model: {nexus_model}"
 
     # Update timestamp
     preferences.updated_at = datetime.now(timezone.utc)

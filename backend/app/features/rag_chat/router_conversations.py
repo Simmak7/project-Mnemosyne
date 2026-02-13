@@ -20,8 +20,25 @@ from models import User, Note, Image
 
 from features.rag_chat.models import Conversation, ChatMessage, MessageCitation
 from features.rag_chat import schemas
+from features.nexus.models import NexusCitation
+from features.nexus.schemas import NexusRichCitation
+from features.nexus.services.context_helpers import (
+    build_connections,
+    build_exploration_suggestions,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_title(db: Session, source_type: str, source_id: int) -> str:
+    """Resolve a human-readable title for a citation source."""
+    if source_type == "note":
+        note = db.query(Note).filter(Note.id == source_id).first()
+        return note.title if note else "Deleted Note"
+    elif source_type == "image":
+        image = db.query(Image).filter(Image.id == source_id).first()
+        return image.filename if image else "Deleted Image"
+    return "Unknown"
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 limiter = Limiter(key_func=get_remote_address)
@@ -125,30 +142,51 @@ async def get_conversation(
     for msg in messages:
         citations = []
         if msg.role == "assistant":
-            db_citations = db.query(MessageCitation).filter(
-                MessageCitation.message_id == msg.id
+            nexus_cits = db.query(NexusCitation).filter(
+                NexusCitation.message_id == msg.id
             ).all()
 
-            for c in db_citations:
-                title = "Unknown"
-                if c.source_type == "note":
-                    note = db.query(Note).filter(Note.id == c.source_id).first()
-                    title = note.title if note else "Deleted Note"
-                elif c.source_type == "image":
-                    image = db.query(Image).filter(Image.id == c.source_id).first()
-                    title = image.filename if image else "Deleted Image"
-
-                citations.append(schemas.CitationSource(
-                    index=c.citation_index,
-                    source_type=c.source_type,
-                    source_id=c.source_id,
-                    title=title,
-                    content_preview="",
-                    relevance_score=c.relevance_score,
-                    retrieval_method=c.retrieval_method,
-                    hop_count=c.hop_count or 0,
-                    relationship_chain=None
-                ))
+            if nexus_cits:
+                for c in nexus_cits:
+                    title = _resolve_title(db, c.source_type, c.source_id)
+                    citations.append(schemas.CitationSource(
+                        index=c.citation_index,
+                        source_type=c.source_type,
+                        source_id=c.source_id,
+                        title=title,
+                        content_preview=c.community_name or "",
+                        relevance_score=c.relevance_score or 0,
+                        retrieval_method=c.retrieval_method or "nexus",
+                        hop_count=0,
+                        relationship_chain=None,
+                        origin_type=c.origin_type,
+                        artifact_id=c.artifact_id,
+                        artifact_url=c.artifact_url,
+                        community_name=c.community_name,
+                        community_id=c.community_id,
+                        tags=c.tags or [],
+                        direct_wikilinks=c.direct_wikilinks or [],
+                        path_to_other_results=c.path_to_other_results or [],
+                        note_url=c.note_url,
+                        graph_url=c.graph_url,
+                    ))
+            else:
+                db_citations = db.query(MessageCitation).filter(
+                    MessageCitation.message_id == msg.id
+                ).all()
+                for c in db_citations:
+                    title = _resolve_title(db, c.source_type, c.source_id)
+                    citations.append(schemas.CitationSource(
+                        index=c.citation_index,
+                        source_type=c.source_type,
+                        source_id=c.source_id,
+                        title=title,
+                        content_preview="",
+                        relevance_score=c.relevance_score,
+                        retrieval_method=c.retrieval_method,
+                        hop_count=c.hop_count or 0,
+                        relationship_chain=None,
+                    ))
 
         message_responses.append(schemas.MessageResponse(
             id=msg.id,
@@ -161,13 +199,42 @@ async def get_conversation(
             citations=citations
         ))
 
+    # Rebuild NEXUS insights from the last assistant message's citations
+    connection_insights = []
+    exploration_suggestions = []
+    last_assistant = next(
+        (m for m in reversed(message_responses)
+         if m.role == "assistant" and any(c.origin_type is not None or c.community_id is not None for c in m.citations)),
+        None,
+    )
+    if last_assistant:
+        rich_cits = [
+            NexusRichCitation(
+                index=c.index, source_type=c.source_type, source_id=c.source_id,
+                title=c.title, content_preview=c.content_preview,
+                relevance_score=c.relevance_score, retrieval_method=c.retrieval_method,
+                origin_type=c.origin_type, artifact_id=c.artifact_id,
+                community_name=c.community_name, community_id=c.community_id,
+                tags=c.tags, direct_wikilinks=c.direct_wikilinks,
+                path_to_other_results=c.path_to_other_results,
+                note_url=c.note_url, graph_url=c.graph_url, artifact_url=c.artifact_url,
+            )
+            for c in last_assistant.citations
+        ]
+        _, conn_objects = build_connections(rich_cits, max_connection_chars=2000)
+        connection_insights = [ci.model_dump() for ci in conn_objects]
+        sugg_objects = build_exploration_suggestions(rich_cits)
+        exploration_suggestions = [s.model_dump() for s in sugg_objects]
+
     return schemas.ConversationWithMessages(
         id=conversation.id,
         title=conversation.title,
         summary=conversation.summary,
         created_at=conversation.created_at,
         updated_at=conversation.updated_at,
-        messages=message_responses
+        messages=message_responses,
+        connection_insights=connection_insights,
+        exploration_suggestions=exploration_suggestions,
     )
 
 

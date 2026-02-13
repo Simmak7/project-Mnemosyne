@@ -17,6 +17,17 @@ from core import config
 logger = logging.getLogger(__name__)
 
 
+def compute_max_topics(token_budget: int) -> int:
+    """Compute the max number of deep topics based on available token budget."""
+    if token_budget < 3000:
+        return 3
+    if token_budget <= 8000:
+        return 5
+    if token_budget <= 20000:
+        return 10
+    return 15
+
+
 @dataclass
 class TopicScore:
     """A scored topic match."""
@@ -34,9 +45,10 @@ def select_topics(
     user_id: int,
     query: str,
     query_embedding: Optional[List[float]] = None,
-    max_topics: int = 5,
-    token_budget: int = None,
+    max_topics: Optional[int] = None,
+    token_budget: Optional[int] = None,
     pinned_topics: Optional[List[str]] = None,
+    previously_loaded_topics: Optional[List[str]] = None,
 ) -> List[TopicScore]:
     """
     Select the most relevant topic files for a query.
@@ -46,9 +58,10 @@ def select_topics(
         user_id: Owner ID
         query: User query text
         query_embedding: Pre-computed query embedding (768-dim)
-        max_topics: Maximum topics to return
+        max_topics: Maximum topics to return. If None, computed from token_budget.
         token_budget: Max total tokens across selected topics
         pinned_topics: List of topic keys to always include
+        previously_loaded_topics: Topics loaded in prior turn (get +0.3 bonus)
 
     Returns:
         Sorted list of TopicScore (highest first)
@@ -56,7 +69,11 @@ def select_topics(
     if token_budget is None:
         token_budget = getattr(config, "BRAIN_TOPIC_TOKEN_BUDGET", 3000)
 
+    if max_topics is None:
+        max_topics = compute_max_topics(token_budget)
+
     pinned_topics = pinned_topics or []
+    prev_set = set(previously_loaded_topics) if previously_loaded_topics else set()
 
     # Fetch all topic files
     topic_files = (
@@ -119,6 +136,10 @@ def select_topics(
         embedding_score = _compute_embedding_score(query_embedding, tf)
         combined = (keyword_score * 0.3) + (embedding_score * 0.7)
 
+        # Persistence bonus: previously loaded topics stay relevant
+        if tf.file_key in prev_set:
+            combined += 0.3
+
         if combined < 0.05:
             continue
 
@@ -127,6 +148,8 @@ def select_topics(
             method = "keyword"
         elif embedding_score > 0 and keyword_score == 0:
             method = "embedding"
+        if tf.file_key in prev_set and method != "pinned":
+            method = f"{method}+persistent"
 
         scored.append(TopicScore(
             file_key=tf.file_key,

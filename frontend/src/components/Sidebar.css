@@ -27,24 +27,47 @@
 
 .logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 5px;
 }
 
-.logo-icon {
-  font-size: 32px;
+.logo-monogram {
+  font-size: 36px;
+  font-weight: 800;
   line-height: 1;
-}
-
-.logo h2 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 35%, #c084fc 65%, #fbbf24 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.logo-monogram::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 1.5px;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(129, 140, 248, 0.5) 25%,
+    rgba(192, 132, 252, 0.4) 50%,
+    rgba(251, 191, 36, 0.4) 75%,
+    transparent
+  );
+  border-radius: 1px;
+}
+
+.logo-wordmark {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  color: rgba(255, 255, 255, 0.3);
+  text-indent: 0.25em;
 }
 
 .sidebar-nav {
@@ -149,9 +172,14 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.theme-icon {
-  font-size: 18px;
-  line-height: 1;
+.theme-icon-svg {
+  flex-shrink: 0;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.theme-toggle:hover .theme-icon-svg {
+  opacity: 1;
 }
 
 .theme-label {
@@ -247,6 +275,10 @@
   animation: dropdown-slide-up 0.2s ease;
   z-index: 1000;
   backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .logo-wordmark {
+  color: rgba(0, 0, 0, 0.3);
 }
 
 /* Ensure solid background in both themes */
@@ -387,12 +419,15 @@
   padding: 16px 14px;
 }
 
-[data-density="compact"] .logo-icon {
-  font-size: 26px;
+[data-density="compact"] .logo-monogram {
+  font-size: 28px;
+  padding-bottom: 6px;
 }
 
-[data-density="compact"] .logo h2 {
-  font-size: 20px;
+[data-density="compact"] .logo-wordmark {
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-indent: 0.2em;
 }
 
 [data-density="compact"] .sidebar-nav {
@@ -456,12 +491,13 @@
   padding: 28px 24px;
 }
 
-[data-density="spacious"] .logo-icon {
-  font-size: 36px;
+[data-density="spacious"] .logo-monogram {
+  font-size: 44px;
+  padding-bottom: 10px;
 }
 
-[data-density="spacious"] .logo h2 {
-  font-size: 28px;
+[data-density="spacious"] .logo-wordmark {
+  font-size: 11px;
 }
 
 [data-density="spacious"] .sidebar-nav {

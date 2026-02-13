@@ -2,7 +2,7 @@
  * Active Citations list - shows all citations from the latest response
  */
 import React from 'react';
-import { FileText, Image as ImageIcon } from 'lucide-react';
+import { FileText, Image as ImageIcon, Camera, FileText as FileTextDoc } from 'lucide-react';
 
 function ActiveCitationsList({ citations, selectedId, onSelect }) {
   if (!citations || citations.length === 0) return null;
@@ -26,6 +26,12 @@ function ActiveCitationsList({ citations, selectedId, onSelect }) {
             <span className="citation-title">
               {citation.title || `${citation.source_type} #${citation.source_id}`}
             </span>
+            {citation.origin_type === 'image_analysis' && (
+              <Camera size={10} className="citation-origin-badge image" title="From image" />
+            )}
+            {citation.origin_type === 'document_analysis' && (
+              <FileTextDoc size={10} className="citation-origin-badge document" title="From document" />
+            )}
             <span className="citation-score">
               {Math.round((citation.relevance_score || 0) * 100)}%
             </span>

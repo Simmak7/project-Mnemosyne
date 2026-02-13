@@ -25,7 +25,7 @@ function ChatInput({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={isBrainMode
-            ? "Ask Muse about your knowledge..."
+            ? "Ask ZAIA AI about your knowledge..."
             : "Ask about your notes and images..."
           }
           rows={1}

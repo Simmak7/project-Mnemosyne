@@ -107,7 +107,7 @@ def run_migration():
                 user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 secret_key VARCHAR(32) NOT NULL,
                 is_enabled BOOLEAN DEFAULT FALSE,
-                backup_codes TEXT[],
+                backup_codes TEXT,
                 created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                 updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
             )

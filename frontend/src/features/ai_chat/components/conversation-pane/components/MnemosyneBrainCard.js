@@ -38,7 +38,7 @@ function MnemosyneBrainCard() {
     <div className="brain-status-card">
       <div className="brain-status-header">
         <Brain size={16} />
-        <span>Muse Brain</span>
+        <span>ZAIA AI Brain</span>
       </div>
       <div className="brain-status-content">
         <div className="brain-status-row">

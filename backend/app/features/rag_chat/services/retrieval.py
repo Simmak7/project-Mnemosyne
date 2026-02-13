@@ -84,6 +84,7 @@ def semantic_search_notes(
             WHERE owner_id = :owner_id
               AND embedding IS NOT NULL
               AND is_trashed = false
+              AND LENGTH(TRIM(COALESCE(content, ''))) > 10
               AND (1 - (embedding <=> CAST(:query_embedding AS vector))) >= :min_similarity
             ORDER BY similarity DESC
             LIMIT :max_results
@@ -156,6 +157,7 @@ def semantic_search_chunks(
             WHERE n.owner_id = :owner_id
               AND n.is_trashed = false
               AND nc.embedding IS NOT NULL
+              AND LENGTH(TRIM(nc.content)) > 10
               AND (1 - (nc.embedding <=> CAST(:query_embedding AS vector))) >= :min_similarity
             ORDER BY similarity DESC
             LIMIT :max_results

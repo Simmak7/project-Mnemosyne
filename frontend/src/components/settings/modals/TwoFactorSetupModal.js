@@ -3,6 +3,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { X, Shield, AlertTriangle, Check, Copy } from 'lucide-react';
+import { api } from '../../../utils/api';
 
 function TwoFactorSetupModal({ isOpen, onClose, onComplete }) {
   const [step, setStep] = useState(1);
@@ -21,11 +22,7 @@ function TwoFactorSetupModal({ isOpen, onClose, onComplete }) {
   const initSetup = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/2fa/setup', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.fetch('/2fa/setup', { method: 'POST' });
       if (response.ok) {
         const data = await response.json();
         setSetupData(data);
@@ -46,13 +43,9 @@ function TwoFactorSetupModal({ isOpen, onClose, onComplete }) {
     setMessage({ type: '', text: '' });
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/2fa/enable', {
+      const response = await api.fetch('/2fa/enable', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: verificationCode })
       });
 

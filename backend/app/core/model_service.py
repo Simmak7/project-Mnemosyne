@@ -79,6 +79,85 @@ def get_effective_brain_model(db: Session, user_id: int) -> str:
     return config.BRAIN_MODEL
 
 
+def get_effective_nexus_model(db: Session, user_id: int) -> str:
+    """
+    Get the effective NEXUS generation model for a user.
+
+    Priority:
+    1. User's nexus_model preference (if set and valid)
+    2. User's rag_model preference (if set and valid)
+    3. System default (config.RAG_MODEL)
+    """
+    from models import UserPreferences
+
+    prefs = db.query(UserPreferences).filter(
+        UserPreferences.user_id == user_id
+    ).first()
+
+    if prefs and getattr(prefs, 'nexus_model', None):
+        model_info = get_model_info(prefs.nexus_model)
+        if model_info:
+            logger.debug(f"Using user NEXUS model preference: {prefs.nexus_model}")
+            return prefs.nexus_model
+        else:
+            logger.warning(
+                f"User {user_id} has invalid NEXUS model preference: {prefs.nexus_model}, "
+                f"trying RAG model fallback"
+            )
+
+    # Fall back to RAG model
+    return get_effective_rag_model(db, user_id)
+
+
+def get_effective_context_budget(db: Session, user_id: int) -> int:
+    """
+    Compute the dynamic brain context token budget based on the user's model.
+
+    Uses the model's context_length and BRAIN_CONTEXT_RATIO to scale the
+    budget, floored at BRAIN_MIN_CONTEXT_TOKENS.
+
+    Returns:
+        Token budget for brain knowledge context
+    """
+    from core.models_registry import get_model_info
+
+    brain_model_id = get_effective_brain_model(db, user_id)
+    model_info = get_model_info(brain_model_id)
+
+    min_budget = getattr(config, "BRAIN_MIN_CONTEXT_TOKENS", 4000)
+    ratio = getattr(config, "BRAIN_CONTEXT_RATIO", 0.6)
+
+    if not model_info:
+        # Unknown model — fall back to legacy hardcoded budget
+        fallback = getattr(config, "BRAIN_MAX_CONTEXT_TOKENS", 6000)
+        logger.warning(
+            f"Model '{brain_model_id}' not in registry, "
+            f"using fallback budget {fallback}"
+        )
+        return fallback
+
+    context_window = model_info.context_length
+
+    # Use 60% of context window, but leave at least 2000 tokens for
+    # conversation history + response generation
+    budget = min(
+        int(context_window * ratio),
+        context_window - 2000,
+    )
+
+    budget = max(budget, min_budget)
+
+    # Cap budget to prevent "lost in the middle" issues with smaller models
+    MAX_PRACTICAL_BUDGET = 8000
+    budget = min(budget, MAX_PRACTICAL_BUDGET)
+
+    logger.debug(
+        f"Context budget for model '{brain_model_id}' "
+        f"(ctx={context_window}): {budget} tokens"
+    )
+    return budget
+
+
 def get_user_model_config(db: Session, user_id: int) -> dict:
     """
     Get the complete model configuration for a user.

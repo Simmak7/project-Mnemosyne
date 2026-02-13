@@ -67,7 +67,7 @@ function getFileIcon(type) {
  * @param {function} props.onRetry - Retry callback (for failed files)
  * @param {function} props.onSetCustomPrompt - Set per-file custom prompt
  */
-function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocument }) {
+function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocument, onNavigateToImage }) {
   const { name, size, type, status, progress, error, isSlow, customPrompt, useCustomPrompt } = file;
   const statusDisplay = getStatusDisplay(status, isSlow);
   const FileIcon = getFileIcon(type);
@@ -82,6 +82,8 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocu
   const isPending = status === FILE_STATES.PENDING;
   const canEditPrompt = isPending && UPLOAD_FLAGS.PER_FILE_CONFIG;
   const canNavigateToDoc = isCompleted && file.isDocument && file.documentId && onNavigateToDocument;
+  const canNavigateToImage = isCompleted && !file.isDocument && file.imageId && onNavigateToImage;
+  const canNavigate = canNavigateToDoc || canNavigateToImage;
 
   const handlePromptSave = () => {
     if (onSetCustomPrompt) {
@@ -101,13 +103,14 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocu
 
   const handleCardClick = () => {
     if (canNavigateToDoc) onNavigateToDocument(file.documentId);
+    else if (canNavigateToImage) onNavigateToImage(file.imageId);
   };
 
   return (
     <div
-      className={`file-card ng-glass-interactive status-${statusDisplay.color}${canNavigateToDoc ? ' file-card-clickable' : ''}`}
+      className={`file-card ng-glass-interactive status-${statusDisplay.color}${canNavigate ? ' file-card-clickable' : ''}`}
       onClick={handleCardClick}
-      title={canNavigateToDoc ? 'Open in Documents' : undefined}
+      title={canNavigateToDoc ? 'Open in Documents' : canNavigateToImage ? 'Open in Gallery' : undefined}
     >
       {/* File icon */}
       <div className="file-card-icon">
@@ -134,6 +137,12 @@ function FileCard({ file, onRemove, onRetry, onSetCustomPrompt, onNavigateToDocu
           {canNavigateToDoc && (
             <span className="file-card-navigate-hint">
               Open in Documents <ArrowRight size={12} />
+            </span>
+          )}
+          {/* Navigate hint for completed images */}
+          {canNavigateToImage && (
+            <span className="file-card-navigate-hint file-card-navigate-hint-image">
+              Open in Gallery <ArrowRight size={12} />
             </span>
           )}
           {/* Per-file prompt indicator */}

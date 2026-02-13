@@ -130,10 +130,10 @@ async def create_note(
 
         logger.info(f"Note created successfully: ID {db_note.id} for user {current_user.username}")
 
-        # Mark brain as stale for this user
+        # Incrementally update brain for this new note
         try:
-            from features.mnemosyne_brain.tasks import mark_brain_stale_task
-            mark_brain_stale_task.delay(current_user.id, db_note.id)
+            from features.mnemosyne_brain.tasks import incremental_brain_update_task
+            incremental_brain_update_task.delay(current_user.id, db_note.id, "created")
         except Exception:
             pass  # Non-critical
 
@@ -177,10 +177,10 @@ async def update_note(
 
         logger.info(f"Note {note_id} updated successfully by user {current_user.username}")
 
-        # Mark brain as stale for this note
+        # Incrementally update brain for this edited note
         try:
-            from features.mnemosyne_brain.tasks import mark_brain_stale_task
-            mark_brain_stale_task.delay(current_user.id, note_id)
+            from features.mnemosyne_brain.tasks import incremental_brain_update_task
+            incremental_brain_update_task.delay(current_user.id, note_id, "updated")
         except Exception:
             pass  # Non-critical
 
@@ -213,10 +213,10 @@ async def delete_note(
 
         logger.info(f"Note {note_id} deleted successfully by user {current_user.username}")
 
-        # Mark brain as stale
+        # Incrementally update brain for this deleted note
         try:
-            from features.mnemosyne_brain.tasks import mark_brain_stale_task
-            mark_brain_stale_task.delay(current_user.id, note_id)
+            from features.mnemosyne_brain.tasks import incremental_brain_update_task
+            incremental_brain_update_task.delay(current_user.id, note_id, "deleted")
         except Exception:
             pass  # Non-critical
 

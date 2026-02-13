@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { Lock } from 'lucide-react';
+import { api } from '../../../utils/api';
 
 function SecuritySection({
   twoFactorStatus,
@@ -17,13 +18,9 @@ function SecuritySection({
     if (!code || !password) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/2fa/disable', {
+      const response = await api.fetch('/2fa/disable', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, password })
       });
 

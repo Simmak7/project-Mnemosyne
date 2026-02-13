@@ -11,4 +11,6 @@ export {
   BrainFilesPanel,
   BrainSettingsSection,
   ActiveCitationsList,
+  NexusSettingsSection,
+  NexusInsightsSection,
 } from './context-radar';

@@ -1,22 +1,21 @@
 """
-Mnemosyne Brain Chat - Query Endpoints.
+Mnemosyne Brain Chat - Non-Streaming Query Endpoint.
 
-Streaming and non-streaming brain query endpoints.
+Synchronous brain query with topic persistence.
 """
 
-import json
 import logging
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, Request
-from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from core.database import get_db
 from core.auth import get_current_user
-from core.model_service import get_effective_brain_model
+from core.model_service import get_effective_brain_model, get_effective_context_budget
+from core.models_registry import get_model_info
 import models
 
 from features.mnemosyne_brain.models.brain_conversation import (
@@ -38,8 +37,8 @@ from features.mnemosyne_brain.router_chat_helpers import (
     check_brain_ready,
     is_brain_stale,
     get_query_embedding,
+    get_previous_topics,
     call_ollama_generate,
-    call_ollama_stream,
 )
 
 logger = logging.getLogger(__name__)
@@ -63,16 +62,24 @@ async def brain_query(
     query = body.query
     query_embedding = get_query_embedding(query)
 
+    # Compute dynamic context budget based on user's brain model
+    context_budget = get_effective_context_budget(db, current_user.id)
+
     # Get pinned topics from user preferences
     prefs = db.query(models.UserPreferences).filter(
         models.UserPreferences.user_id == current_user.id
     ).first()
     pinned_topics = prefs.pinned_brain_topics if prefs else []
 
-    # Select relevant topics
+    # Extract previously loaded topics for conversation persistence
+    prev_topics = get_previous_topics(db, current_user.id, body.conversation_id)
+
+    # Select relevant topics (budget scales max_topics automatically)
     topic_scores = select_topics(
         db, current_user.id, query, query_embedding,
+        token_budget=context_budget,
         pinned_topics=pinned_topics,
+        previously_loaded_topics=prev_topics,
     )
 
     # Load conversation history with tiered memory
@@ -100,19 +107,25 @@ async def brain_query(
                 conversation_summary=conversation.conversation_summary,
             )
 
-    # Assemble context
-    context = assemble_context(db, current_user.id, topic_scores, conv_history)
+    # Assemble context (budget scales core/topic proportionally)
+    context = assemble_context(
+        db, current_user.id, topic_scores, conv_history,
+        context_budget=context_budget,
+        query=query,
+    )
 
     # Build prompt
     prompt = query
     if conv_history:
         prompt = f"Conversation so far:\n{conv_history}\n\nUser: {query}"
 
-    # Get user's preferred model
+    # Get user's preferred model and its context window
     user_model = get_effective_brain_model(db, current_user.id)
+    model_info = get_model_info(user_model)
+    ctx_window = model_info.context_length if model_info else 4096
 
     # Generate response
-    answer = call_ollama_generate(prompt, context.system_prompt, model=user_model)
+    answer = call_ollama_generate(prompt, context.system_prompt, model=user_model, context_window=ctx_window)
 
     # Save to conversation
     conversation_id = body.conversation_id
@@ -173,141 +186,4 @@ async def brain_query(
         message_id=message_id,
         model_used=user_model,
         brain_is_stale=stale,
-    )
-
-
-@router.post("/query/stream")
-@limiter.limit("20/minute")
-async def brain_query_stream(
-    request: Request,
-    body: schemas.BrainQueryRequest,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
-):
-    """Execute a streaming brain-mode query (SSE)."""
-    check_brain_ready(db, current_user.id)
-    stale = is_brain_stale(db, current_user.id)
-
-    query = body.query
-    user_id = current_user.id
-    query_embedding = get_query_embedding(query)
-
-    # Handle conversation
-    conversation = None
-    conversation_id = body.conversation_id
-    if body.conversation_id:
-        conversation = (
-            db.query(BrainConversation)
-            .filter(
-                BrainConversation.id == body.conversation_id,
-                BrainConversation.owner_id == user_id,
-            )
-            .first()
-        )
-        if not conversation:
-            conversation_id = None
-
-    if not conversation and body.auto_create_conversation:
-        title = generate_conversation_title(query)
-        conversation = BrainConversation(owner_id=user_id, title=title)
-        db.add(conversation)
-        db.commit()
-        db.refresh(conversation)
-        conversation_id = conversation.id
-
-    # Get pinned topics
-    prefs = db.query(models.UserPreferences).filter(
-        models.UserPreferences.user_id == user_id
-    ).first()
-    pinned_topics_list = prefs.pinned_brain_topics if prefs else []
-
-    async def generate_stream():
-        try:
-            topic_scores = select_topics(
-                db, user_id, query, query_embedding,
-                pinned_topics=pinned_topics_list,
-            )
-            context = assemble_context(db, user_id, topic_scores)
-
-            prompt = query
-            if conversation:
-                messages = (
-                    db.query(BrainMessage)
-                    .filter(BrainMessage.conversation_id == conversation.id)
-                    .order_by(BrainMessage.created_at)
-                    .limit(20)
-                    .all()
-                )
-                if messages:
-                    history = format_conversation_history_tiered(
-                        [{"role": m.role, "content": m.content} for m in messages],
-                        conversation_summary=conversation.conversation_summary,
-                    )
-                    prompt = f"Conversation so far:\n{history}\n\nUser: {query}"
-
-            user_model = get_effective_brain_model(db, user_id)
-
-            full_response = ""
-            for token in call_ollama_stream(prompt, context.system_prompt, model=user_model):
-                full_response += token
-                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
-
-            yield f"data: {json.dumps({'type': 'brain_meta', 'brain_files_used': context.brain_files_used, 'topics_matched': context.topics_matched, 'model_used': user_model, 'brain_is_stale': stale})}\n\n"
-            yield f"data: {json.dumps({'type': 'metadata', 'metadata': {'conversation_id': conversation_id, 'model_used': user_model}})}\n\n"
-
-            if conversation:
-                try:
-                    user_msg = BrainMessage(
-                        conversation_id=conversation.id,
-                        role="user",
-                        content=query,
-                    )
-                    db.add(user_msg)
-
-                    assistant_msg = BrainMessage(
-                        conversation_id=conversation.id,
-                        role="assistant",
-                        content=full_response,
-                        brain_files_loaded=context.brain_files_used,
-                        topics_matched=context.topics_matched,
-                    )
-                    db.add(assistant_msg)
-
-                    conversation.brain_files_used = context.brain_files_used
-                    conversation.updated_at = datetime.utcnow()
-
-                    increment_message_counter(db, conversation)
-                    db.commit()
-
-                    if should_update_summary(conversation):
-                        try:
-                            from features.mnemosyne_brain.tasks import update_conversation_summary_task
-                            update_conversation_summary_task.delay(conversation.id)
-                        except Exception as e:
-                            logger.warning(f"Failed to queue summary update: {e}")
-                except Exception as e:
-                    logger.error(f"Failed to save brain stream conversation: {e}")
-                    db.rollback()
-
-            try:
-                if conversation:
-                    from features.mnemosyne_brain.tasks import evolve_memory_task
-                    evolve_memory_task.delay(user_id, conversation.id)
-            except Exception as e:
-                logger.warning(f"Failed to queue memory evolution: {e}")
-
-            yield f"data: {json.dumps({'type': 'done'})}\n\n"
-
-        except Exception as e:
-            logger.exception(f"Brain stream failed: {e}")
-            yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
-
-    return StreamingResponse(
-        generate_stream(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        },
     )

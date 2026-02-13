@@ -8,6 +8,7 @@
 import { useCallback, useRef } from 'react';
 import { useAIChatContext, useAIChatActions } from './AIChatContext';
 import { useBrainChat } from './useBrainChat';
+import { useNexusChat } from './useNexusChat';
 import { api } from '../../../utils/api';
 import { parseSSEStream, createUserMessage, createAssistantPlaceholder } from './utils/streamParser';
 import * as conversationApi from './utils/conversationApi';
@@ -17,7 +18,9 @@ export function useAIChat() {
   const actions = useAIChatActions();
   const abortControllerRef = useRef(null);
   const brainChat = useBrainChat();
+  const nexusChat = useNexusChat();
   const isBrainMode = state.chatMode === 'mnemosyne';
+  const isNexusMode = state.chatMode === 'nexus';
 
   // Helper to set citation preview
   const setTopCitationPreview = useCallback((citations) => {
@@ -308,20 +311,20 @@ export function useAIChat() {
     topicsMatched: state.topicsMatched,
 
     // Query methods (delegated by mode)
-    sendQuery: isBrainMode ? brainChat.sendQuery : sendQuery,
-    sendStreamingQuery: isBrainMode ? brainChat.sendStreamingQuery : sendStreamingQuery,
-    cancelStream: isBrainMode ? brainChat.cancelStream : cancelStream,
-    regenerateMessage: isBrainMode ? null : regenerateMessage,
+    sendQuery: isNexusMode ? nexusChat.sendQuery : isBrainMode ? brainChat.sendQuery : sendQuery,
+    sendStreamingQuery: isNexusMode ? nexusChat.sendStreamingQuery : isBrainMode ? brainChat.sendStreamingQuery : sendStreamingQuery,
+    cancelStream: isNexusMode ? nexusChat.cancelStream : isBrainMode ? brainChat.cancelStream : cancelStream,
+    regenerateMessage: (isBrainMode || isNexusMode) ? null : regenerateMessage,
 
     // Message management
     clearMessages: actions.clearMessages,
 
     // Conversation management (delegated by mode)
     startNewConversation,
-    loadConversation: isBrainMode ? brainChat.loadConversation : loadConversation,
-    listConversations: isBrainMode ? brainChat.listConversations : listConversations,
-    deleteConversation: isBrainMode ? brainChat.deleteConversation : deleteConversation,
-    updateConversation: isBrainMode ? brainChat.updateConversation : updateConversation,
+    loadConversation: isNexusMode ? nexusChat.loadConversation : isBrainMode ? brainChat.loadConversation : loadConversation,
+    listConversations: isNexusMode ? nexusChat.listConversations : isBrainMode ? brainChat.listConversations : listConversations,
+    deleteConversation: isNexusMode ? nexusChat.deleteConversation : isBrainMode ? brainChat.deleteConversation : deleteConversation,
+    updateConversation: isNexusMode ? nexusChat.updateConversation : isBrainMode ? brainChat.updateConversation : updateConversation,
 
     // Mode management
     setChatMode: actions.setChatMode,

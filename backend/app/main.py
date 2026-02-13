@@ -45,6 +45,7 @@ from features.mnemosyne_brain.router import router as mnemosyne_router
 from features.mnemosyne_brain.router_chat import router as mnemosyne_chat_router
 from features.documents.router import router as documents_router
 from features.document_collections.router import router as document_collections_router
+from features.nexus import router as nexus_router
 
 # Legacy imports (to be migrated to features)
 import models
@@ -120,6 +121,22 @@ try:
     logger.info("Note source migration completed")
 except Exception as e:
     logger.warning(f"Note source migration skipped: {str(e)}")
+
+# Run NEXUS tables migration
+try:
+    from migrations.add_nexus_tables import upgrade as add_nexus_tables
+    add_nexus_tables()
+    logger.info("NEXUS tables migration completed")
+except Exception as e:
+    logger.warning(f"NEXUS tables migration skipped: {str(e)}")
+
+# Run brain compressed content migration
+try:
+    from migrations.add_brain_compressed_content import upgrade as add_brain_compressed
+    add_brain_compressed()
+    logger.info("Brain compressed content migration completed")
+except Exception as e:
+    logger.warning(f"Brain compressed content migration skipped: {str(e)}")
 
 # Rate limiting configuration
 limiter = Limiter(key_func=get_remote_address)
@@ -376,6 +393,11 @@ app.include_router(
 app.include_router(
     document_collections_router,
     tags=["Document Collections"]
+)
+
+app.include_router(
+    nexus_router,
+    tags=["NEXUS"]
 )
 
 logger.info("Phase 3 routers registered: buckets (feature), rag_chat (feature)")

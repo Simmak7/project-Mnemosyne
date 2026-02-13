@@ -6,3 +6,4 @@ export { default as NotificationsSection } from './NotificationsSection';
 export { default as SessionsSection } from './SessionsSection';
 export { default as DataSection } from './DataSection';
 export { default as ExperimentalSection } from './ExperimentalSection';
+export { default as TutorialSection } from './TutorialSection';

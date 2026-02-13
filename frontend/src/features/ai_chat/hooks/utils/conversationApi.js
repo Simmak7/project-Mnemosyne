@@ -24,9 +24,15 @@ export async function fetchConversation(id) {
     citations: msg.citations || [],
     confidenceScore: msg.confidence_score,
     timestamp: msg.created_at,
+    isNexusMode: msg.citations?.some(c => c.origin_type != null || c.community_id != null) || false,
   }));
 
-  return { ...data, messages: formattedMessages };
+  return {
+    ...data,
+    messages: formattedMessages,
+    connectionInsights: data.connection_insights || [],
+    explorationSuggestions: data.exploration_suggestions || [],
+  };
 }
 
 /**

@@ -14,6 +14,7 @@ from features.mnemosyne_brain.services.topic_generator import (
 from features.mnemosyne_brain.services.prompts import (
     ASKIMAP_GENERATION_PROMPT,
     MNEMOSYNE_OVERVIEW_PROMPT,
+    MASTER_MAP_PROMPT,
     USER_PROFILE_PROMPT,
     DEFAULT_SOUL_CONTENT,
     DEFAULT_MEMORY_CONTENT,
@@ -71,20 +72,38 @@ def generate_mnemosyne_overview(
     total_notes: int,
     community_count: int,
     model: str = None,
+    compressed_summaries: Optional[List[Dict]] = None,
 ) -> Dict:
-    """Generate mnemosyne.md - master overview of all knowledge."""
+    """
+    Generate mnemosyne.md - master overview of all knowledge.
+
+    When compressed_summaries are available (Phase B), uses the richer
+    MASTER_MAP_PROMPT for a more informed overview.
+    """
     if not topics:
         return _empty_file("mnemosyne", "Mnemosyne - Knowledge Overview")
 
-    topics_summary = _build_topics_summary(topics)
-    topic_list = "\n".join(f"- {t['file_key']}: {t['title']}" for t in topics)
-
-    prompt = MNEMOSYNE_OVERVIEW_PROMPT.format(
-        topics_summary=topics_summary,
-        total_notes=total_notes,
-        community_count=community_count,
-        topic_list=topic_list,
-    )
+    # If we have compressed summaries, use the master map prompt
+    if compressed_summaries:
+        summaries_text = "\n\n".join(
+            f"### {s['file_key']}: {s['title']}\n{s['summary']}"
+            for s in compressed_summaries if s.get("summary")
+        )
+        prompt = MASTER_MAP_PROMPT.format(
+            compressed_summaries=summaries_text,
+            total_notes=total_notes,
+            topic_count=len(topics),
+        )
+    else:
+        # Legacy path: no compressed summaries yet
+        topics_summary = _build_topics_summary(topics)
+        topic_list = "\n".join(f"- {t['file_key']}: {t['title']}" for t in topics)
+        prompt = MNEMOSYNE_OVERVIEW_PROMPT.format(
+            topics_summary=topics_summary,
+            total_notes=total_notes,
+            community_count=community_count,
+            topic_list=topic_list,
+        )
 
     content = call_ollama_generate(prompt, model=model)
     if not content:

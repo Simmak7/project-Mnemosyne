@@ -4,7 +4,8 @@ Celery tasks for Mnemosyne Brain operations.
 Tasks:
 - build_brain_task: Full or partial brain rebuild
 - evolve_memory_task: Post-conversation memory evolution
-- mark_brain_stale_task: Mark affected topics as stale
+- incremental_brain_update_task: Incremental topic update on note change
+- mark_brain_stale_task: Mark affected topics as stale (fallback)
 """
 
 import logging
@@ -69,6 +70,16 @@ def build_brain_task(self, user_id: int, build_type: str = "full"):
 
     try:
         build_brain(self.db, user_id, build_log)
+
+        # Trigger NEXUS navigation cache rebuild after successful brain build
+        if build_log.status == "completed":
+            try:
+                from features.nexus.tasks import rebuild_navigation_cache_task
+                rebuild_navigation_cache_task.delay(user_id)
+                logger.info(f"Triggered NEXUS cache rebuild for user {user_id}")
+            except Exception as e:
+                logger.debug(f"NEXUS cache rebuild trigger skipped: {e}")
+
     except Exception as e:
         logger.exception(f"Brain build task failed: {e}")
         try:
@@ -134,6 +145,40 @@ def update_conversation_summary_task(self, conversation_id: int):
             update_conversation_summary(self.db, conversation)
     except Exception as e:
         logger.error(f"Summary update failed: {e}")
+
+
+@celery_app.task(
+    bind=True,
+    base=DatabaseTask,
+    name="features.mnemosyne_brain.tasks.incremental_brain_update_task",
+    max_retries=1,
+    default_retry_delay=15,
+    time_limit=120,
+    soft_time_limit=90,
+)
+def incremental_brain_update_task(self, user_id: int, note_id: int, change_type: str = "updated"):
+    """
+    Attempt incremental brain update when a note changes.
+
+    Regenerates only the affected topic(s) instead of a full rebuild.
+    Falls back to marking brain as stale on failure.
+    """
+    from features.mnemosyne_brain.services.incremental_updater import incremental_update
+
+    logger.info(f"Incremental brain update: user={user_id}, note={note_id}, type={change_type}")
+
+    try:
+        result = incremental_update(self.db, user_id, note_id, change_type)
+        logger.info(f"Incremental update result: {result}")
+        return result
+    except Exception as e:
+        logger.warning(f"Incremental update failed, falling back to stale marking: {e}")
+        self.db.rollback()
+        try:
+            mark_brain_stale_task.delay(user_id, note_id)
+        except Exception as e2:
+            logger.error(f"Stale marking fallback also failed: {e2}")
+        return {"status": "fallback_stale", "error": str(e)[:200]}
 
 
 @celery_app.task(

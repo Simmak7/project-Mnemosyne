@@ -4,6 +4,7 @@
 
 export const FEATURE_FLAGS = [
   { key: 'ENABLE_LORA_TRAINING', label: 'LoRA Brain Training', description: 'Experimental: Fine-tune AI model with your notes (requires GPU)', default: false },
+  { key: 'ENABLE_LEGACY_RAG', label: 'Legacy RAG Mode', description: 'Show the classic RAG search mode in the AI chat mode toggle. NEXUS RAG is the recommended replacement.', default: false },
 ];
 
 export const ACCENT_COLORS = {

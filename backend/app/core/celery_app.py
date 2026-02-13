@@ -26,6 +26,7 @@ celery_app = Celery(
         "features.settings.tasks",  # Phase 4: Data export tasks
         "features.mnemosyne_brain.tasks",  # Mnemosyne Brain build & evolution
         "features.documents.tasks",  # Document PDF analysis
+        "features.nexus.tasks",  # NEXUS consolidation and cache
     ]  # Import tasks modules
 )
 

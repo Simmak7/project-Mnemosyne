@@ -27,7 +27,8 @@ function FileList({
   onClearAll,
   isProcessing,
   onSetCustomPrompt,
-  onNavigateToDocument
+  onNavigateToDocument,
+  onNavigateToImage
 }) {
   const completedCount = files.filter(f => f.status === 'completed').length;
   const failedCount = files.filter(f => f.status === 'failed').length;
@@ -93,6 +94,7 @@ function FileList({
             onRetry={() => onRetry(file.id)}
             onSetCustomPrompt={onSetCustomPrompt}
             onNavigateToDocument={onNavigateToDocument}
+            onNavigateToImage={onNavigateToImage}
           />
         ))}
       </div>

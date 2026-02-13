@@ -280,6 +280,10 @@
   opacity: 1;
 }
 
+.file-card-navigate-hint-image {
+  color: var(--ng-accent-image, #22d3ee);
+}
+
 /* ----------------------------------------
    Progress Bar
    ---------------------------------------- */

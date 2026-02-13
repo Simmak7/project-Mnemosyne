@@ -40,6 +40,18 @@ class CitationSource(BaseModel):
     hop_count: int = 0  # For graph traversal results
     relationship_chain: Optional[List[dict]] = None  # Explainability chain
 
+    # NEXUS fields (all optional, backward-compatible with RAG mode)
+    origin_type: Optional[str] = None
+    artifact_id: Optional[int] = None
+    artifact_url: Optional[str] = None
+    community_name: Optional[str] = None
+    community_id: Optional[int] = None
+    tags: List[str] = []
+    direct_wikilinks: List[dict] = []
+    path_to_other_results: List[dict] = []
+    note_url: Optional[str] = None
+    graph_url: Optional[str] = None
+
 
 class RetrievalMetadata(BaseModel):
     """Metadata about the retrieval process for explainability."""
@@ -123,6 +135,10 @@ class ConversationWithMessages(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
     messages: List[MessageResponse] = []
+
+    # NEXUS insights (rebuilt from stored citations on load)
+    connection_insights: List[dict] = []
+    exploration_suggestions: List[dict] = []
 
 
 # Export all schemas

@@ -29,6 +29,8 @@ class TopicResult:
     keywords: List[str]
     source_note_ids: List[int]
     token_count_approx: int
+    compressed_content: Optional[str] = None
+    compressed_token_count: int = 0
 
 
 def estimate_tokens(text: str) -> int:
@@ -169,3 +171,36 @@ def _extract_keywords_from_notes(notes: List[Dict], max_keywords: int = 10) -> L
 
     sorted_words = sorted(word_freq.items(), key=lambda x: x[1], reverse=True)
     return [w for w, _ in sorted_words[:max_keywords]]
+
+
+def compress_topic_content(
+    topic_result: "TopicResult",
+    model: str = None,
+) -> "TopicResult":
+    """
+    Generate a compressed summary (~100-150 tokens) for a topic.
+
+    Mutates topic_result in-place and returns it.
+    """
+    from features.mnemosyne_brain.services.prompts import TOPIC_COMPRESSION_PROMPT
+
+    # Use first 2000 chars of content to keep prompt small
+    prompt = TOPIC_COMPRESSION_PROMPT.format(
+        topic_content=topic_result.content[:2000],
+    )
+
+    compressed = call_ollama_generate(prompt, model=model)
+
+    if compressed:
+        topic_result.compressed_content = compressed.strip()
+        topic_result.compressed_token_count = estimate_tokens(compressed)
+    else:
+        # Fallback: use first ~100 tokens of content
+        fallback = topic_result.content[:400]
+        topic_result.compressed_content = fallback
+        topic_result.compressed_token_count = estimate_tokens(fallback)
+        logger.warning(
+            f"Compression failed for {topic_result.file_key}, using fallback"
+        )
+
+    return topic_result

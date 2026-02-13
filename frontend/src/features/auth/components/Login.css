@@ -16,11 +16,50 @@
   width: 100%;
 }
 
-.login-card h1 {
-  color: #667eea;
-  text-align: center;
+.login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   margin-bottom: 10px;
-  font-size: 28px;
+}
+
+.login-logo-monogram {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 35%, #c084fc 65%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  padding-bottom: 8px;
+}
+
+.login-logo-monogram::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(129, 140, 248, 0.4),
+    rgba(167, 139, 250, 0.4),
+    transparent
+  );
+  border-radius: 1px;
+}
+
+.login-logo-wordmark {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  color: rgba(102, 126, 234, 0.5);
+  text-indent: 0.25em;
 }
 
 .login-card h2 {

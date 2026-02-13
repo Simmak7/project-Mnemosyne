@@ -109,6 +109,7 @@ async def list_models():
         models=models_response,
         current_rag_model=config.RAG_MODEL,
         current_brain_model=config.BRAIN_MODEL,
+        current_nexus_model=config.RAG_MODEL,
         current_vision_model=current_vision,
     )
 

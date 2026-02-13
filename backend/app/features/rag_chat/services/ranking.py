@@ -159,10 +159,11 @@ def get_dynamic_config(query: str, base_config: RankingConfig = None) -> Ranking
 class RankedResult:
     """A result with combined ranking score."""
     result: RetrievalResult
-    rrf_score: float
+    rrf_score: float = 0.0
     method_scores: Dict[str, float] = field(default_factory=dict)
     final_score: float = 0.0
     rank: int = 0
+    contributing_methods: List[str] = field(default_factory=list)
 
 
 def reciprocal_rank_fusion(

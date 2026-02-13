@@ -6,7 +6,7 @@
 
 import React, { useCallback, useMemo } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { Upload, Sparkles } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 import FileDropZone from './FileDropZone';
 import FileList from './FileList';
@@ -23,7 +23,7 @@ import './UploadLayout.css';
  * @param {object} props
  * @param {function} props.onUploadSuccess - Callback when a file completes
  */
-function UploadLayout({ onUploadSuccess, onNavigateToDocument }) {
+function UploadLayout({ onUploadSuccess, onNavigateToDocument, onNavigateToImage }) {
   // Upload queue state
   const {
     files,
@@ -106,7 +106,6 @@ function UploadLayout({ onUploadSuccess, onNavigateToDocument }) {
       {/* Header */}
       <div className="upload-header">
         <div className="upload-header-title">
-          <Sparkles className="upload-header-icon" size={24} />
           <h1>Neural Studio</h1>
         </div>
         <p className="upload-header-subtitle">
@@ -142,6 +141,7 @@ function UploadLayout({ onUploadSuccess, onNavigateToDocument }) {
                 isProcessing={isProcessing}
                 onSetCustomPrompt={setFileCustomPrompt}
                 onNavigateToDocument={onNavigateToDocument}
+                onNavigateToImage={onNavigateToImage}
               />
             )}
           </div>

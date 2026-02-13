@@ -90,10 +90,10 @@ AVAILABLE_MODELS: Dict[str, ModelInfo] = {
         size_gb=9.1,
         parameters="9B",
         category=ModelCategory.POWERFUL,
-        use_cases=[ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
         context_length=128000,
         features=["128K context", "Hybrid Mamba-2 architecture", "Creative writing"],
-        recommended_for="Mnemosyne Brain - personal, creative responses",
+        recommended_for="Best quality responses for NEXUS and Brain",
         is_default_brain=True,
     ),
 

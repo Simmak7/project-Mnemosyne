@@ -47,10 +47,7 @@ export function useSettingsData(isOpen) {
 
   const fetch2FAStatus = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/2fa/status', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const response = await api.fetch('/2fa/status');
       if (response.ok) {
         setTwoFactorStatus(await response.json());
       }

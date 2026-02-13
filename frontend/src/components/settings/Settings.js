@@ -23,7 +23,8 @@ import {
   NotificationsSection,
   SessionsSection,
   DataSection,
-  ExperimentalSection
+  ExperimentalSection,
+  TutorialSection
 } from './sections';
 
 // Import CSS from parent directory
@@ -114,6 +115,8 @@ function Settings({ isOpen, onClose, username, userEmail }) {
 
           <DataSection />
 
+          <TutorialSection onClose={onClose} />
+
           <ExperimentalSection
             featureFlags={featureFlags}
             onToggleFlag={toggleFeatureFlag}
@@ -121,7 +124,7 @@ function Settings({ isOpen, onClose, username, userEmail }) {
         </div>
 
         <div className="settings-footer">
-          <p className="settings-version">Mnemosyne v1.0.0</p>
+          <p className="settings-version">Mnemosyne v1.1.0</p>
         </div>
       </div>
 

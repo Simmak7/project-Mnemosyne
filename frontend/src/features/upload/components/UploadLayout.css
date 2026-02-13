@@ -31,10 +31,10 @@
 
 .upload-header-title h1 {
   margin: 0;
-  font-size: var(--ng-text-2xl, 1.5rem);
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   font-family: var(--ng-font-ui, 'Inter', sans-serif);
-  background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8) 0%, var(--ng-accent-image, #22d3ee) 100%);
+  background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8), var(--ng-accent-note, #fbbf24));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
