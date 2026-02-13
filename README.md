@@ -18,17 +18,17 @@
 </p>
 
 <p align="center">
-  <a href="#-quick-start">Quick Start</a> &bull;
-  <a href="#-features">Features</a> &bull;
-  <a href="#-screenshots">Screenshots</a> &bull;
-  <a href="#-tech-stack">Tech Stack</a> &bull;
-  <a href="#-contributing">Contributing</a> &bull;
-  <a href="#-support-the-project">Support</a>
+  <a href="#quick-start">Quick Start</a> &bull;
+  <a href="#features">Features</a> &bull;
+  <a href="#screenshots">Screenshots</a> &bull;
+  <a href="#tech-stack">Tech Stack</a> &bull;
+  <a href="#contributing">Contributing</a> &bull;
+  <a href="#support-the-project">Support</a>
 </p>
 
 ---
 
-> **Beta Release** — Mnemosyne v1.1.0-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#-roadmap)
+> **Beta Release** — Mnemosyne v1.1.0-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
 
 ---
 
@@ -56,7 +56,7 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
     <td width="60%" align="center">
       <a href="docs/screenshots/gallery.png"><img src="docs/screenshots/gallery.png" alt="Smart Gallery"></a>
       <br><strong>Smart Gallery</strong>
-      <br><em>Immich-inspired 3-column layout with albums, tags, and smart filters</em>
+      <br><em>Immich-inspired layout with albums, tags, and smart filters</em>
     </td>
     <td width="40%" align="center">
       <a href="docs/screenshots/notes.png"><img src="docs/screenshots/notes.png" alt="Notes"></a>
@@ -66,31 +66,36 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
   </tr>
   <tr>
     <td width="50%" align="center">
+      <a href="docs/screenshots/documents.png"><img src="docs/screenshots/documents.png" alt="Documents"></a>
+      <br><strong>PDF Document Management</strong>
+      <br><em>Upload, AI enrichment, review workflow, and collections</em>
+    </td>
+    <td width="50%" align="center">
       <a href="docs/screenshots/journal.png"><img src="docs/screenshots/journal.png" alt="Journal"></a>
       <br><strong>Daily Journal</strong>
       <br><em>Calendar view with mood tracking, insights, and daily notes</em>
     </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/brain.png"><img src="docs/screenshots/brain.png" alt="Knowledge Graph — Map View"></a>
+      <br><strong>Knowledge Graph — Map</strong>
+      <br><em>Full knowledge map with communities and semantic clusters</em>
+    </td>
+    <td width="50%" align="center">
+      <a href="docs/screenshots/brain-explore.png"><img src="docs/screenshots/brain-explore.png" alt="Knowledge Graph — Explore View"></a>
+      <br><strong>Knowledge Graph — Explore</strong>
+      <br><em>Focus on any node to see connections, backlinks, and details</em>
+    </td>
+  </tr>
+  <tr>
     <td width="50%" align="center">
       <a href="docs/screenshots/chat.png"><img src="docs/screenshots/chat.png" alt="AI Chat"></a>
       <br><strong>AI Chat — Dual Mode</strong>
       <br><em>NEXUS RAG retrieval and Brain AI companion with topic memory</em>
     </td>
-  </tr>
-  <tr>
     <td width="50%" align="center">
-      <a href="docs/screenshots/brain.png"><img src="docs/screenshots/brain.png" alt="Knowledge Graph"></a>
-      <br><strong>Knowledge Graph</strong>
-      <br><em>Interactive D3.js graph with communities, semantic edges, and path finding</em>
-    </td>
-    <td width="50%" align="center">
-      <a href="docs/screenshots/documents.png"><img src="docs/screenshots/documents.png" alt="Documents"></a>
-      <br><strong>PDF Document Management</strong>
-      <br><em>Upload, AI enrichment, review workflow, and collections</em>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-      <a href="docs/screenshots/studio.png"><img src="docs/screenshots/studio.png" alt="Neural Studio" width="80%"></a>
+      <a href="docs/screenshots/studio.png"><img src="docs/screenshots/studio.png" alt="Neural Studio"></a>
       <br><strong>Neural Studio</strong>
       <br><em>Multi-file upload with real-time AI analysis and customizable settings</em>
     </td>
@@ -176,10 +181,14 @@ docker-compose up -d --build
 ### First-Time Setup
 
 ```bash
-# Pull AI models (one-time, ~5GB download)
-docker exec -it ollama ollama pull llama3.2-vision:11b
-docker exec -it ollama ollama pull nomic-embed-text
+# Pull AI models (one-time, ~8GB total download)
+docker exec -it ollama ollama pull qwen2.5vl:7b-q4_K_M   # Vision & image analysis
+docker exec -it ollama ollama pull qwen3:8b                # RAG text generation
+docker exec -it ollama ollama pull llama3.2:3b             # Brain AI & NEXUS navigation
+docker exec -it ollama ollama pull nomic-embed-text        # Semantic embeddings
 ```
+
+> **About AI Models:** This beta ships with a curated set of models optimized for each task. In future releases, we plan to support **custom model selection** — letting you swap in your preferred models for each capability (vision, chat, embeddings) directly from the settings UI.
 
 ### Access Your Brain
 
@@ -187,6 +196,20 @@ docker exec -it ollama ollama pull nomic-embed-text
 |---------|-----|
 | **App** | http://localhost:3000 |
 | **API Docs** | http://localhost:8000/docs |
+
+---
+
+### The Lazy Way (Let AI Do It)
+
+Don't feel like reading instructions? Just paste this into [Claude Code](https://claude.ai/download), [Cursor](https://cursor.com), or your favorite AI coding assistant:
+
+```
+Clone https://github.com/Simmak7/project-Mnemosyne.git, set it up with
+Docker, pull all the required Ollama models, and get it running on
+localhost:3000. Surprise me when it's done.
+```
+
+Sit back, grab a coffee, and let the machines do the work.
 
 ---
 
@@ -205,34 +228,34 @@ docker exec -it ollama ollama pull nomic-embed-text
 
 ## Roadmap
 
-### Current: v1.1.0-beta
-- Core note-taking with wikilinks and tags
-- AI image analysis and text recognition (Ollama llama3.2-vision)
-- Knowledge graph with communities, semantic edges, and path finding
-- AI Chat with dual mode (NEXUS RAG + Brain AI companion)
-- PDF document management with AI enrichment and review
-- Daily journal with calendar, mood tracking, and insights
-- Smart gallery with Immich-inspired layout
-- Smart buckets with AI clustering
-- Semantic search with pgvector
-- User onboarding flow
-- Two-factor authentication (TOTP)
-- Session management and security settings
+### v1.1.0-beta (Current Release)
+- Smart note-taking with wikilinks, hashtags, and backlinks
+- AI image analysis with Qwen 2.5 VL vision model
+- PDF document management with AI enrichment and review workflow
+- Document collections for organizing PDFs
+- Daily journal with calendar, mood tracking, and AI insights
+- Knowledge graph with community detection, semantic edges, and path finding
+- Dual-mode AI chat — NEXUS RAG retrieval + Brain AI companion
+- Smart gallery with albums and tag filtering
+- Smart buckets with AI clustering and orphan detection
+- Semantic search across notes, images, and documents (pgvector)
 - Neural Glass design system
-- Document collections
+- User onboarding flow
+- Two-factor authentication (TOTP) and session management
 
-### Next: v1.2.0
-- Mobile-responsive design improvements
+### v1.2.0 (Up Next)
+- Custom model selection — pick your own Ollama models per capability
+- Data export (Markdown, JSON, PDF)
 - Import from Obsidian, Notion, Evernote
-- Export your data (Markdown, JSON)
-- Audio note transcription
+- Mobile-responsive design improvements
 - Browser extension for web clipping
+- Audio note transcription
 
 ### Future Vision
 - **Mobile App** — Your brain in your pocket
 - **Collaborative Spaces** — Shared knowledge bases
-- **Custom AI Training** — Personalize AI to your writing style
 - **Plugin System** — Extend with community add-ons
+- **Multi-Provider AI** — Support for OpenAI, Anthropic, and other backends alongside Ollama
 
 > Have ideas? [Open an issue](https://github.com/Simmak7/project-Mnemosyne/issues) — we're building this together!
 
