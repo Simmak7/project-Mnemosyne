@@ -56,7 +56,7 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
     <td width="60%" align="center">
       <a href="docs/screenshots/gallery.png"><img src="docs/screenshots/gallery.png" alt="Smart Gallery"></a>
       <br><strong>Smart Gallery</strong>
-      <br><em>Immich-inspired layout with albums, tags, and smart filters</em>
+      <br><em>3-column layout with albums, tags, and smart filters</em>
     </td>
     <td width="40%" align="center">
       <a href="docs/screenshots/notes.png"><img src="docs/screenshots/notes.png" alt="Notes"></a>
@@ -115,7 +115,7 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 ### Visual Intelligence
 - **AI Image Analysis** — Upload photos, get automatic descriptions and tags via Ollama
 - **Text Recognition** — Extract text from images, screenshots, and documents
-- **Smart Gallery** — Immich-inspired 3-column layout with albums and tag filtering
+- **Smart Gallery** — 3-column layout with albums and tag filtering
 - **Auto-Generated Notes** — Every image becomes a searchable, linked note
 
 ### PDF Document Management

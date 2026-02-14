@@ -11,7 +11,7 @@ export function getFeatureFlags() {
 export const PAGE_INFO = {
   journal: { title: 'Journal', description: 'Daily notes, quick capture, and personal reflections' },
   upload: { title: 'Upload Image', description: 'Upload and analyze images with AI' },
-  gallery: { title: 'Gallery', description: 'Browse and organize your photos with Immich-inspired layout' },
+  gallery: { title: 'Gallery', description: 'Browse and organize your photos in a smart gallery layout' },
   notes: { title: 'Smart Notes', description: 'AI-generated notes from your images' },
   documents: { title: 'Documents', description: 'Upload and analyze PDFs with AI-powered extraction' },
   graph: { title: 'Brain', description: 'Your knowledge graph - visualize connections between notes and tags' },

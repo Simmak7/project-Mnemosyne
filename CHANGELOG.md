@@ -23,7 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/), and this
 - Semantic edges and path finding in knowledge graph
 
 ### Changed
-- Upgraded gallery to Immich-inspired 3-column layout with albums
+- Upgraded gallery to 3-column layout with albums
 - Enhanced knowledge graph with D3.js communities and weighted edges
 - Removed experimental feature flags — all components now permanent
 - Version bump to v1.1.0

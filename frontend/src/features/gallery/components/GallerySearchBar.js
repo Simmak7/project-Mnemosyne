@@ -9,7 +9,7 @@ import {
 import './GallerySearchBar.css';
 
 /**
- * GallerySearchBar - Immich-style search bar for gallery
+ * GallerySearchBar - Search bar for gallery
  * Features: Text search, search type toggle, keyboard shortcuts
  */
 function GallerySearchBar({

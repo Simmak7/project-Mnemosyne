@@ -1,5 +1,5 @@
 // Gallery Feature - Public API
-// Immich-inspired 3-column photo gallery with Neural Glass design
+// 3-column photo gallery with Neural Glass design
 
 // Main layout component
 export { default as GalleryLayout } from './components/GalleryLayout';

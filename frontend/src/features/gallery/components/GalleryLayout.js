@@ -9,7 +9,7 @@ import './GalleryLayout.css';
 
 /**
  * GalleryLayout - Main 3-column gallery container
- * Immich-inspired layout with Neural Glass design
+ * 3-column layout with Neural Glass design
  *
  * Layout: [Sidebar | Photo Grid | Context Panel]
  */

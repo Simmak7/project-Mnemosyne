@@ -1,7 +1,7 @@
 /**
  * Justified Layout Algorithm (Enhanced)
  * Creates rows of images that fill container width while maintaining aspect ratios
- * Inspired by Flickr's justified-layout and Immich's implementation
+ * Inspired by Flickr's justified-layout algorithm
  */
 
 // Default aspect ratio for images without dimensions
