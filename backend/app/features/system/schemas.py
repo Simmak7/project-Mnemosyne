@@ -53,7 +53,8 @@ class ModelInfoResponse(BaseModel):
     recommended_for: Optional[str] = None
     is_default_rag: bool = False
     is_default_brain: bool = False
-    is_available: bool = True  # Whether model is downloaded in Ollama
+    is_available: bool = True  # Whether model is downloaded/accessible
+    provider: str = "ollama"  # Provider source: ollama, anthropic, openai, custom
 
 
 class ModelsListResponse(BaseModel):

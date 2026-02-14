@@ -5,5 +5,6 @@ export { default as AIModelsSection } from './AIModelsSection';
 export { default as NotificationsSection } from './NotificationsSection';
 export { default as SessionsSection } from './SessionsSection';
 export { default as DataSection } from './DataSection';
+export { default as CloudAISection } from './CloudAISection';
 export { default as ExperimentalSection } from './ExperimentalSection';
 export { default as TutorialSection } from './TutorialSection';

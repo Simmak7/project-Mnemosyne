@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Send, Square, Loader2 } from 'lucide-react';
 
 /**
- * Chat input area with send button
+ * Chat input area with send button and auto-expanding textarea
  */
 function ChatInput({
   inputRef,
@@ -15,6 +15,15 @@ function ChatInput({
   onCancel,
   onKeyDown,
 }) {
+  const autoResize = useCallback(() => {
+    const el = inputRef?.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 150) + 'px';
+  }, [inputRef]);
+
+  useEffect(() => { autoResize(); }, [inputValue, autoResize]);
+
   return (
     <div className="chat-input-area">
       <div className="chat-input-container">

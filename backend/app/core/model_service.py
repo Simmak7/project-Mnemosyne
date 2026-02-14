@@ -197,3 +197,81 @@ def validate_model_id(model_id: str) -> bool:
 def get_available_model_ids() -> list[str]:
     """Get list of all available model IDs."""
     return [m.id for m in get_all_models()]
+
+
+def get_provider_for_model(model_id: str) -> Optional[str]:
+    """Determine which provider serves a model."""
+    from core.models_registry import get_model_info, ProviderSource
+    info = get_model_info(model_id)
+    if not info:
+        return None
+    return info.provider.value
+
+
+def get_provider_for_user(db: Session, user_id: int, use_case: str = "rag"):
+    """
+    Get the appropriate LLM provider and model for a user.
+
+    Checks cloud AI preferences, validates API key availability,
+    and falls back to Ollama if cloud is unavailable.
+
+    Args:
+        db: Database session
+        user_id: User ID
+        use_case: "rag" or "brain"
+
+    Returns:
+        Tuple of (LLMProvider, model_id, provider_type_str)
+    """
+    from models import UserPreferences
+    from core.llm import get_default_provider, get_provider, ProviderType
+    from core.llm.base import ProviderType as PT
+    from features.settings.api_keys_service import get_api_key_with_url
+
+    prefs = db.query(UserPreferences).filter(
+        UserPreferences.user_id == user_id
+    ).first()
+
+    # Check if cloud AI is enabled
+    if prefs and getattr(prefs, "cloud_ai_enabled", False):
+        cloud_provider = getattr(prefs, "cloud_ai_provider", None)
+
+        if cloud_provider:
+            # Get the cloud model for this use case
+            if use_case == "brain":
+                cloud_model = getattr(prefs, "cloud_brain_model", None)
+            else:
+                cloud_model = getattr(prefs, "cloud_rag_model", None)
+
+            if cloud_model:
+                # Try to get the provider
+                key_info = get_api_key_with_url(db, user_id, cloud_provider)
+                if key_info:
+                    try:
+                        from core.llm.registry import register_cloud_provider
+                        provider_map = {
+                            "anthropic": PT.ANTHROPIC,
+                            "openai": PT.OPENAI,
+                            "custom": PT.CUSTOM,
+                        }
+                        ptype = provider_map.get(cloud_provider)
+                        if ptype:
+                            provider = register_cloud_provider(
+                                ptype,
+                                key_info["api_key"],
+                                key_info.get("base_url"),
+                            )
+                            return provider, cloud_model, cloud_provider
+                    except Exception as e:
+                        logger.warning(
+                            f"Cloud provider {cloud_provider} failed for "
+                            f"user {user_id}, falling back to Ollama: {e}"
+                        )
+
+    # Fallback to Ollama
+    if use_case == "brain":
+        model = get_effective_brain_model(db, user_id)
+    else:
+        model = get_effective_rag_model(db, user_id)
+
+    return get_default_provider(), model, "ollama"

@@ -20,6 +20,7 @@ import {
   SecuritySection,
   AppearanceSection,
   AIModelsSection,
+  CloudAISection,
   NotificationsSection,
   SessionsSection,
   DataSection,
@@ -102,6 +103,12 @@ function Settings({ isOpen, onClose, username, userEmail }) {
             availableModels={availableModels}
             modelConfig={modelConfig}
             preferences={preferences}
+            onPreferenceUpdate={updatePreference}
+          />
+
+          <CloudAISection
+            preferences={preferences}
+            availableModels={availableModels}
             onPreferenceUpdate={updatePreference}
           />
 

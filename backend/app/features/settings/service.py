@@ -77,6 +77,10 @@ def update_user_preferences(
     rag_model: Optional[str] = None,
     brain_model: Optional[str] = None,
     nexus_model: Optional[str] = None,
+    cloud_ai_enabled: Optional[bool] = None,
+    cloud_ai_provider: Optional[str] = None,
+    cloud_rag_model: Optional[str] = None,
+    cloud_brain_model: Optional[str] = None,
 ) -> Tuple[models.UserPreferences, Optional[str]]:
     """
     Update user preferences.
@@ -144,6 +148,23 @@ def update_user_preferences(
             preferences.nexus_model = nexus_model
         else:
             return None, f"Invalid NEXUS model: {nexus_model}"
+
+    # Cloud AI preferences
+    if cloud_ai_enabled is not None:
+        preferences.cloud_ai_enabled = cloud_ai_enabled
+
+    if cloud_ai_provider is not None:
+        valid_providers = {"anthropic", "openai", "custom", ""}
+        if cloud_ai_provider in valid_providers:
+            preferences.cloud_ai_provider = cloud_ai_provider or None
+        else:
+            return None, f"Invalid cloud provider: {cloud_ai_provider}"
+
+    if cloud_rag_model is not None:
+        preferences.cloud_rag_model = cloud_rag_model or None
+
+    if cloud_brain_model is not None:
+        preferences.cloud_brain_model = cloud_brain_model or None
 
     # Update timestamp
     preferences.updated_at = datetime.now(timezone.utc)

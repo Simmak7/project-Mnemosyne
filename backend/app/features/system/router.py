@@ -9,12 +9,15 @@ FastAPI endpoints for system operations:
 """
 
 import logging
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from core import config
+from core.database import get_db
+from core.auth import get_current_user_optional
 from core.models_registry import (
-    get_all_models, get_model_info, get_models_for_use_case,
-    ModelUseCase, is_model_available
+    get_all_models, get_all_models_with_status, get_model_info,
+    get_models_for_use_case, ModelUseCase, is_model_available
 )
 from features.system import service
 from features.system import schemas
@@ -69,33 +72,27 @@ async def health_check():
 
 
 @router.get("/models", response_model=schemas.ModelsListResponse)
-async def list_models():
+async def list_models(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user_optional),
+):
     """
-    List all available AI models.
+    List all available AI models (local + cloud).
 
     Returns models with their capabilities, recommended use cases,
-    and current configuration.
-
-    No authentication required.
+    and current configuration. Cloud models show as available when
+    the user has a valid API key for the provider.
     """
-    models = get_all_models()
+    # Get user's cloud providers for availability check
+    user_cloud_providers = set()
+    if current_user:
+        from features.settings.api_keys_service import get_user_api_keys_summary
+        keys = get_user_api_keys_summary(db, current_user.id)
+        user_cloud_providers = {k["provider"] for k in keys if k.get("is_valid", True)}
+
+    models_with_status = get_all_models_with_status(user_cloud_providers)
     models_response = [
-        schemas.ModelInfoResponse(
-            id=m.id,
-            name=m.name,
-            description=m.description,
-            size_gb=m.size_gb,
-            parameters=m.parameters,
-            category=m.category.value,
-            use_cases=[uc.value for uc in m.use_cases],
-            context_length=m.context_length,
-            features=m.features,
-            recommended_for=m.recommended_for,
-            is_default_rag=m.is_default_rag,
-            is_default_brain=m.is_default_brain,
-            is_available=is_model_available(m.id),
-        )
-        for m in models
+        schemas.ModelInfoResponse(**m) for m in models_with_status
     ]
 
     # Compute active vision model from feature flags

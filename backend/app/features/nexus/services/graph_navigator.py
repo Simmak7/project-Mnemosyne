@@ -18,9 +18,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import List, Dict, Any, Optional
 
-import requests
-
 from core import config
+from core.llm import get_default_provider, LLMMessage
 from features.rag_chat.services.retrieval import RetrievalResult
 from .prompts import NAVIGATION_PROMPT_TEMPLATE
 from .graph_nav_helpers import (
@@ -92,26 +91,22 @@ def navigate_graph(
 
 def _call_navigation_llm(prompt: str) -> Optional[NavigationPlan]:
     """Call the 3B navigation model for a JSON plan."""
+    messages = [
+        LLMMessage(role="system", content="You are a JSON-only response bot. Output valid JSON only."),
+        LLMMessage(role="user", content=prompt),
+    ]
+
     try:
-        response = requests.post(
-            f"{config.OLLAMA_HOST}/api/generate",
-            json={
-                "model": config.NEXUS_NAVIGATION_MODEL,
-                "prompt": prompt,
-                "system": "You are a JSON-only response bot. Output valid JSON only.",
-                "stream": False,
-                "think": False,
-                "options": {
-                    "temperature": 0.1,
-                    "num_predict": 200,
-                },
-            },
+        provider = get_default_provider()
+        response = provider.generate(
+            messages=messages,
+            model=config.NEXUS_NAVIGATION_MODEL,
+            temperature=0.1,
+            max_tokens=200,
             timeout=config.NEXUS_NAVIGATION_TIMEOUT,
         )
-        response.raise_for_status()
-        raw = response.json().get("response", "")
+        raw = response.content.strip()
 
-        raw = raw.strip()
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[-1].rsplit("```", 1)[0]
 
@@ -122,7 +117,7 @@ def _call_navigation_llm(prompt: str) -> Optional[NavigationPlan]:
             keywords=[str(k).lower() for k in data.get("keywords", [])[:5]],
         )
 
-    except (requests.RequestException, json.JSONDecodeError, Exception) as e:
+    except (json.JSONDecodeError, Exception) as e:
         logger.error(f"Navigation LLM failed: {e}")
         return None
 

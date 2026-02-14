@@ -6,17 +6,14 @@ condensed topic summary using LLM.
 """
 
 import hashlib
-import json
 import logging
-import requests
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 
 from core import config
+from core.llm import get_default_provider, LLMMessage
 
 logger = logging.getLogger(__name__)
-
-OLLAMA_HOST = config.OLLAMA_HOST
 
 
 @dataclass
@@ -44,30 +41,27 @@ def compute_content_hash(content: str) -> str:
 
 
 def call_ollama_generate(prompt: str, system: str = "", model: str = None) -> str:
-    """Call Ollama generate endpoint (non-streaming)."""
+    """Call LLM provider for generation (non-streaming)."""
     model = model or getattr(config, "BRAIN_MODEL", "llama3.2:3b")
     temperature = getattr(config, "BRAIN_TEMPERATURE", 0.7)
 
+    messages = []
+    if system:
+        messages.append(LLMMessage(role="system", content=system))
+    messages.append(LLMMessage(role="user", content=prompt))
+
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "system": system,
-                "stream": False,
-                "think": False,
-                "options": {
-                    "temperature": temperature,
-                    "num_predict": 2048,
-                },
-            },
+        provider = get_default_provider()
+        response = provider.generate(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=2048,
             timeout=180,
         )
-        response.raise_for_status()
-        return response.json().get("response", "")
+        return response.content
     except Exception as e:
-        logger.error(f"Ollama generate failed: {e}")
+        logger.error(f"LLM generate failed: {e}")
         return ""
 
 

@@ -1,22 +1,21 @@
 """
 Ollama API client functions for RAG text generation.
 
-Provides synchronous and streaming interfaces to the Ollama API.
+Provides synchronous and streaming interfaces via the LLM provider abstraction.
 """
 
-import json
 import logging
 from typing import Generator
 
-import requests
 from fastapi import HTTPException
+import requests
 
 from core import config
+from core.llm import get_default_provider, LLMMessage, ProviderType
 
 logger = logging.getLogger(__name__)
 
 # Ollama configuration
-OLLAMA_HOST = config.OLLAMA_HOST
 RAG_MODEL = config.RAG_MODEL
 RAG_TIMEOUT = config.RAG_TIMEOUT
 RAG_TEMPERATURE = config.RAG_TEMPERATURE
@@ -29,7 +28,7 @@ def call_ollama_generate(
     timeout: int = None
 ) -> str:
     """
-    Call Ollama API for text generation.
+    Call LLM provider for text generation.
 
     Args:
         prompt: User prompt with context
@@ -41,36 +40,32 @@ def call_ollama_generate(
         Generated response text
 
     Raises:
-        HTTPException: If Ollama call fails
+        HTTPException: If LLM call fails
     """
     model = model or RAG_MODEL
     timeout = timeout or RAG_TIMEOUT
 
+    messages = [
+        LLMMessage(role="system", content=system_prompt),
+        LLMMessage(role="user", content=prompt),
+    ]
+
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "system": system_prompt,
-                "stream": False,
-                "think": False,
-                "options": {
-                    "temperature": RAG_TEMPERATURE,
-                    "num_predict": 1024,
-                }
-            },
-            timeout=timeout
+        provider = get_default_provider()
+        response = provider.generate(
+            messages=messages,
+            model=model,
+            temperature=RAG_TEMPERATURE,
+            max_tokens=1024,
+            timeout=timeout,
         )
-        response.raise_for_status()
-        data = response.json()
-        return data.get("response", "")
+        return response.content
 
     except requests.exceptions.Timeout:
-        logger.error(f"Ollama timeout after {timeout}s")
+        logger.error(f"LLM timeout after {timeout}s")
         raise HTTPException(503, "AI service timeout. Please try again.")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Ollama request failed: {e}")
+    except Exception as e:
+        logger.error(f"LLM request failed: {e}")
         raise HTTPException(503, "AI service unavailable. Please try again later.")
 
 
@@ -81,7 +76,7 @@ def call_ollama_stream(
     timeout: int = None
 ) -> Generator[str, None, None]:
     """
-    Stream tokens from Ollama API.
+    Stream tokens from LLM provider.
 
     Args:
         prompt: User prompt with context
@@ -95,73 +90,57 @@ def call_ollama_stream(
     model = model or RAG_MODEL
     timeout = timeout or RAG_TIMEOUT
 
+    messages = [
+        LLMMessage(role="system", content=system_prompt),
+        LLMMessage(role="user", content=prompt),
+    ]
+
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={
-                "model": model,
-                "prompt": prompt,
-                "system": system_prompt,
-                "stream": True,
-                "think": False,
-                "options": {
-                    "temperature": RAG_TEMPERATURE,
-                    "num_predict": 1024,
-                }
-            },
-            stream=True,
-            timeout=timeout
-        )
-        response.raise_for_status()
+        provider = get_default_provider()
+        for chunk in provider.stream(
+            messages=messages,
+            model=model,
+            temperature=RAG_TEMPERATURE,
+            max_tokens=1024,
+            timeout=timeout,
+        ):
+            if chunk.content:
+                yield chunk.content
+            if chunk.done:
+                break
 
-        for line in response.iter_lines():
-            if line:
-                try:
-                    data = json.loads(line)
-                    token = data.get("response", "")
-                    if token:
-                        yield token
-                    if data.get("done", False):
-                        break
-                except json.JSONDecodeError:
-                    continue
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Ollama streaming failed: {e}")
+    except Exception as e:
+        logger.error(f"LLM streaming failed: {e}")
         yield "[ERROR: AI service unavailable]"
 
 
 def check_ollama_health() -> dict:
     """
-    Check Ollama service health and model availability.
+    Check LLM service health and model availability.
 
     Returns:
         Dict with health status, available models, and connectivity info
     """
     try:
-        response = requests.get(f"{OLLAMA_HOST}/api/tags", timeout=5)
-        ollama_healthy = response.status_code == 200
+        provider = get_default_provider()
+        health = provider.health_check()
 
-        models = []
-        if ollama_healthy:
-            data = response.json()
-            models = [m.get("name", "") for m in data.get("models", [])]
-
+        models = health.get("available_models", [])
         has_rag_model = any(RAG_MODEL in m for m in models)
         has_embedding_model = any("nomic-embed" in m for m in models)
 
         return {
-            "connected": ollama_healthy,
+            "connected": health.get("connected", False),
             "rag_model": RAG_MODEL,
             "rag_model_available": has_rag_model,
             "embedding_model_available": has_embedding_model,
             "available_models": models,
-            "healthy": ollama_healthy and has_rag_model and has_embedding_model
+            "healthy": health.get("connected", False) and has_rag_model and has_embedding_model,
         }
 
     except Exception as e:
         return {
             "connected": False,
             "error": str(e),
-            "healthy": False
+            "healthy": False,
         }

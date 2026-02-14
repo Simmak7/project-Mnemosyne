@@ -25,6 +25,7 @@ from core.error_handlers import register_exception_handlers
 from core.auth import get_current_user, get_current_active_user, get_current_user_optional, create_access_token
 from core.security_headers import SecurityHeadersMiddleware
 from core.csrf import CSRFMiddleware
+from core.llm import initialize_providers
 
 # Feature routers (fractal architecture)
 from features.auth.router import router as auth_router
@@ -137,6 +138,29 @@ try:
     logger.info("Brain compressed content migration completed")
 except Exception as e:
     logger.warning(f"Brain compressed content migration skipped: {str(e)}")
+
+# Run cloud AI tables migration
+try:
+    from migrations.add_cloud_ai_tables import upgrade as add_cloud_ai_tables
+    add_cloud_ai_tables()
+    logger.info("Cloud AI tables migration completed")
+except Exception as e:
+    logger.warning(f"Cloud AI tables migration skipped: {str(e)}")
+
+# Run AI usage tracking migration
+try:
+    from migrations.add_ai_usage_tracking import upgrade as add_ai_usage_tracking
+    add_ai_usage_tracking()
+    logger.info("AI usage tracking migration completed")
+except Exception as e:
+    logger.warning(f"AI usage tracking migration skipped: {str(e)}")
+
+# Initialize LLM provider registry
+try:
+    initialize_providers()
+    logger.info("LLM provider registry initialized")
+except Exception as e:
+    logger.warning(f"LLM provider initialization failed (non-critical): {e}")
 
 # Rate limiting configuration
 limiter = Limiter(key_func=get_remote_address)

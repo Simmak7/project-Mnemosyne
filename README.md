@@ -13,6 +13,7 @@
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/AI-100%25%20local-purple" alt="Local AI">
+  <img src="https://img.shields.io/badge/cloud%20AI-experimental-orange" alt="Cloud AI Experimental">
   <img src="https://img.shields.io/badge/python-3.11-blue?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/react-18-blue?logo=react&logoColor=white" alt="React">
 </p>
@@ -37,6 +38,8 @@
 **Your thoughts deserve better than scattered notes and forgotten bookmarks.**
 
 Mnemosyne is an AI-powered personal knowledge management system that runs **100% locally** on your machine. No cloud. No subscriptions. No data harvesting. Just you and your AI-enhanced second brain.
+
+> **New:** Want more power? Enable experimental **Cloud AI** to connect Claude, ChatGPT, or custom endpoints — for those brave souls who trust Big Brother with their diary entries. Your keys are encrypted, usage is tracked, and you can always retreat back to local-only mode when the paranoia kicks in.
 
 | What Makes It Different | |
 |------------------------|---|
@@ -142,6 +145,17 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 - **Streaming Responses** — Real-time answers as AI thinks
 - **Topic Management** — Organize conversations by subject
 
+### Cloud AI Providers (Experimental)
+
+> *For those who trust Big Brother with their notes — and get 200K token context windows in return.*
+
+- **Claude, ChatGPT & Custom Endpoints** — Connect Anthropic, OpenAI, or any OpenAI-compatible API (Groq, Together AI, etc.)
+- **Encrypted API Keys** — Your keys are Fernet-encrypted at rest, never stored in plaintext
+- **Per-Feature Model Selection** — Pick different cloud models for RAG chat vs Brain companion
+- **Token Usage Tracking** — Monitor your cloud API costs with per-query logging
+- **Graceful Fallback** — If the cloud fails, Mnemosyne seamlessly falls back to local Ollama
+- **Your Choice** — Local-only by default. Cloud AI is opt-in with clear privacy warnings
+
 ### Smart Buckets
 - **AI Clusters** — Automatically grouped similar notes
 - **Inbox** — Recent captures in one place
@@ -221,7 +235,7 @@ Sit back, grab a coffee, and let the machines do the work.
 | **Backend** | FastAPI, SQLAlchemy, Celery, Pydantic |
 | **Database** | PostgreSQL + pgvector |
 | **Cache/Queue** | Redis |
-| **AI/ML** | Ollama (100% local inference) |
+| **AI/ML** | Ollama (local) + Anthropic, OpenAI (optional cloud) |
 | **Infrastructure** | Docker Compose |
 
 ---
@@ -251,11 +265,17 @@ Sit back, grab a coffee, and let the machines do the work.
 - Browser extension for web clipping
 - Audio note transcription
 
+### v1.1.1 (Experimental)
+- **Cloud AI Providers** — Connect Claude, ChatGPT, or any OpenAI-compatible endpoint
+- **Encrypted API Key Management** — Fernet-encrypted per-user key storage
+- **Token Usage & Cost Tracking** — Monitor your cloud API spend
+- **Provider-Aware Model Registry** — Cloud models alongside local Ollama
+- **Auto-expanding Chat Input** — Textarea grows with your message
+
 ### Future Vision
 - **Mobile App** — Your brain in your pocket
 - **Collaborative Spaces** — Shared knowledge bases
 - **Plugin System** — Extend with community add-ons
-- **Multi-Provider AI** — Support for OpenAI, Anthropic, and other backends alongside Ollama
 
 > Have ideas? [Open an issue](https://github.com/Simmak7/project-Mnemosyne/issues) — we're building this together!
 

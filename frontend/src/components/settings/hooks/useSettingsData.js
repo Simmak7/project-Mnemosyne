@@ -113,8 +113,9 @@ export function useSettingsData(isOpen) {
 
   const fetchModels = useCallback(async () => {
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('http://localhost:8000/models', {
-        credentials: 'include'
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
       if (response.ok) {
         const data = await response.json();

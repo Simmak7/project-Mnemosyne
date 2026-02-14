@@ -15,8 +15,10 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 from core.database import get_db
-from core.model_service import get_effective_rag_model
+from core.model_service import get_effective_rag_model, get_provider_for_user
 from core.auth import get_current_user
+from core.llm.base import LLMMessage, ProviderType
+from core.llm.cost_tracker import log_token_usage, log_stream_usage
 from models import User
 from embeddings import generate_embedding
 
@@ -159,9 +161,27 @@ async def rag_query(
         if result.conversation_context:
             user_message = result.conversation_context + user_message
 
-        # Generate response
-        user_model = get_effective_rag_model(db, current_user.id)
-        answer = call_ollama_generate(prompt=user_message, system_prompt=system_prompt, model=user_model)
+        # Generate response (cloud-aware)
+        provider, user_model, provider_name = get_provider_for_user(db, current_user.id, "rag")
+
+        if provider_name != "ollama":
+            # Cloud provider path
+            messages = [
+                LLMMessage(role="system", content=system_prompt),
+                LLMMessage(role="user", content=user_message),
+            ]
+            try:
+                llm_response = provider.generate(
+                    messages=messages, model=user_model, temperature=0.3, max_tokens=2048,
+                )
+                answer = llm_response.content
+                log_token_usage(db, current_user.id, llm_response, "rag")
+            except Exception as cloud_err:
+                logger.warning(f"Cloud provider {provider_name} failed, falling back to Ollama: {cloud_err}")
+                user_model = get_effective_rag_model(db, current_user.id)
+                answer = call_ollama_generate(prompt=user_message, system_prompt=system_prompt, model=user_model)
+        else:
+            answer = call_ollama_generate(prompt=user_message, system_prompt=system_prompt, model=user_model)
 
         # Analyze response
         confidence = extract_confidence_signals(answer)
@@ -312,13 +332,43 @@ async def rag_query_stream(
                 )
                 system_prompt = f"{RAG_SYSTEM_PROMPT}\n\n{get_query_specific_instructions(detect_query_type(query))}"
 
-            user_model = get_effective_rag_model(db, user_id)
+            provider, user_model, provider_name = get_provider_for_user(db, user_id, "rag")
 
-            # Stream tokens
+            # Stream tokens (cloud-aware)
             full_response = ""
-            for token in call_ollama_stream(user_message, system_prompt, model=user_model):
-                full_response += token
-                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+            stream_input_tokens = 0
+            stream_output_tokens = 0
+
+            if provider_name != "ollama":
+                messages = [
+                    LLMMessage(role="system", content=system_prompt),
+                    LLMMessage(role="user", content=user_message),
+                ]
+                try:
+                    for chunk in provider.stream(
+                        messages=messages, model=user_model, temperature=0.3, max_tokens=2048,
+                    ):
+                        if chunk.content:
+                            full_response += chunk.content
+                            yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                        if chunk.done:
+                            stream_input_tokens = chunk.input_tokens
+                            stream_output_tokens = chunk.output_tokens
+                            break
+                    # Log cloud usage
+                    from core.llm.base import ProviderType as PT
+                    ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
+                    log_stream_usage(db, user_id, ptype, user_model, stream_input_tokens, stream_output_tokens, "rag")
+                except Exception as cloud_err:
+                    logger.warning(f"Cloud stream failed, falling back to Ollama: {cloud_err}")
+                    user_model = get_effective_rag_model(db, user_id)
+                    for token in call_ollama_stream(user_message, system_prompt, model=user_model):
+                        full_response += token
+                        yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+            else:
+                for token in call_ollama_stream(user_message, system_prompt, model=user_model):
+                    full_response += token
+                    yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
 
             # Post-process
             confidence = extract_confidence_signals(full_response)

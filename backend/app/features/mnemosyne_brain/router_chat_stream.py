@@ -16,8 +16,10 @@ from slowapi.util import get_remote_address
 
 from core.database import get_db
 from core.auth import get_current_user
-from core.model_service import get_effective_brain_model, get_effective_context_budget
+from core.model_service import get_effective_brain_model, get_effective_context_budget, get_provider_for_user
 from core.models_registry import get_model_info
+from core.llm.base import LLMMessage
+from core.llm.cost_tracker import log_stream_usage
 import models
 
 from features.mnemosyne_brain.models.brain_conversation import (
@@ -130,14 +132,45 @@ async def brain_query_stream(
                     )
                     prompt = f"Conversation so far:\n{history}\n\nUser: {query}"
 
-            user_model = get_effective_brain_model(db, user_id)
-            model_info = get_model_info(user_model)
-            ctx_window = model_info.context_length if model_info else 4096
+            provider, user_model, provider_name = get_provider_for_user(db, user_id, "brain")
 
             full_response = ""
-            for token in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
-                full_response += token
-                yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+            stream_input_tokens = 0
+            stream_output_tokens = 0
+
+            if provider_name != "ollama":
+                messages = [
+                    LLMMessage(role="system", content=context.system_prompt),
+                    LLMMessage(role="user", content=prompt),
+                ]
+                try:
+                    for chunk in provider.stream(
+                        messages=messages, model=user_model, temperature=0.7, max_tokens=2048,
+                    ):
+                        if chunk.content:
+                            full_response += chunk.content
+                            yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                        if chunk.done:
+                            stream_input_tokens = chunk.input_tokens
+                            stream_output_tokens = chunk.output_tokens
+                            break
+                    from core.llm.base import ProviderType as PT
+                    ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
+                    log_stream_usage(db, user_id, ptype, user_model, stream_input_tokens, stream_output_tokens, "brain")
+                except Exception as cloud_err:
+                    logger.warning(f"Cloud stream failed, falling back to Ollama: {cloud_err}")
+                    user_model = get_effective_brain_model(db, user_id)
+                    model_info = get_model_info(user_model)
+                    ctx_window = model_info.context_length if model_info else 4096
+                    for token in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
+                        full_response += token
+                        yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+            else:
+                model_info = get_model_info(user_model)
+                ctx_window = model_info.context_length if model_info else 4096
+                for token in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
+                    full_response += token
+                    yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
 
             yield f"data: {json.dumps({'type': 'brain_meta', 'brain_files_used': context.brain_files_used, 'topics_matched': context.topics_matched, 'model_used': user_model, 'brain_is_stale': stale})}\n\n"
             yield f"data: {json.dumps({'type': 'metadata', 'metadata': {'conversation_id': conversation_id, 'model_used': user_model}})}\n\n"

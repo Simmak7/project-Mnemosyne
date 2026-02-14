@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Float
+﻿from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text, Boolean, Float, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -379,6 +379,11 @@ class UserPreferences(Base):
     nexus_model = Column(String(100), nullable=True)  # User's preferred NEXUS model
     # Phase 4: Pinned brain topics for topic selection UI
     pinned_brain_topics = Column(JSONB, default=list)  # ["cooking", "travel", ...]
+    # Cloud AI preferences
+    cloud_ai_enabled = Column(Boolean, default=False)
+    cloud_ai_provider = Column(String(20), nullable=True)
+    cloud_rag_model = Column(String(100), nullable=True)
+    cloud_brain_model = Column(String(100), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
@@ -428,6 +433,28 @@ class NotificationPreferences(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", backref="notification_preferences")
+
+
+class UserAPIKey(Base):
+    """Encrypted API keys for cloud AI providers."""
+    __tablename__ = "user_api_keys"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    provider = Column(String(20), nullable=False)  # anthropic, openai, custom
+    encrypted_key = Column(Text, nullable=False)
+    key_hint = Column(String(12), nullable=True)
+    is_valid = Column(Boolean, default=True)
+    base_url = Column(String(500), nullable=True)  # For custom endpoints
+    last_validated_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship("User", backref="api_keys")
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "provider", name="uq_user_api_keys_user_provider"),
+    )
 
 
 # ============================================

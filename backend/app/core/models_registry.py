@@ -32,9 +32,17 @@ class ModelUseCase(str, Enum):
     VISION = "vision"
 
 
+class ProviderSource(str, Enum):
+    """Which provider serves this model."""
+    OLLAMA = "ollama"
+    ANTHROPIC = "anthropic"
+    OPENAI = "openai"
+    CUSTOM = "custom"
+
+
 class ModelInfo(BaseModel):
     """Model metadata and capabilities."""
-    id: str                          # Ollama model identifier
+    id: str                          # Model identifier
     name: str                        # Display name
     description: str                 # Short description
     size_gb: float                   # Approximate size in GB
@@ -46,6 +54,7 @@ class ModelInfo(BaseModel):
     recommended_for: Optional[str]   # Recommendation text
     is_default_rag: bool = False
     is_default_brain: bool = False
+    provider: ProviderSource = ProviderSource.OLLAMA
 
 
 # ============================================================================
@@ -125,16 +134,118 @@ AVAILABLE_MODELS: Dict[str, ModelInfo] = {
     ),
 }
 
+# ============================================================================
+# CLOUD AI MODELS
+# ============================================================================
+
+CLOUD_MODELS: Dict[str, ModelInfo] = {
+    # Anthropic Claude models
+    "claude-sonnet-4-20250514": ModelInfo(
+        id="claude-sonnet-4-20250514",
+        name="Claude Sonnet 4",
+        description="Fast, intelligent model for everyday tasks",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.BALANCED,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        context_length=200000,
+        features=["200K context", "Strong reasoning", "Cloud AI"],
+        recommended_for="Fast cloud RAG and Brain queries",
+        provider=ProviderSource.ANTHROPIC,
+    ),
+    "claude-sonnet-4-5-20250929": ModelInfo(
+        id="claude-sonnet-4-5-20250929",
+        name="Claude Sonnet 4.5",
+        description="Most capable balanced model with hybrid reasoning",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.POWERFUL,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        context_length=200000,
+        features=["200K context", "Hybrid reasoning", "Extended thinking", "Cloud AI"],
+        recommended_for="Best quality cloud responses",
+        provider=ProviderSource.ANTHROPIC,
+    ),
+    "claude-opus-4-0520": ModelInfo(
+        id="claude-opus-4-0520",
+        name="Claude Opus 4",
+        description="Most capable model for complex tasks",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.POWERFUL,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        context_length=200000,
+        features=["200K context", "Strongest reasoning", "Cloud AI"],
+        recommended_for="Most demanding analysis tasks",
+        provider=ProviderSource.ANTHROPIC,
+    ),
+    "claude-haiku-4-5-20251001": ModelInfo(
+        id="claude-haiku-4-5-20251001",
+        name="Claude Haiku 4.5",
+        description="Fastest Claude model, great for quick tasks",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.FAST,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BOTH],
+        context_length=200000,
+        features=["200K context", "Ultra-fast", "Cost-effective", "Cloud AI"],
+        recommended_for="Quick searches and simple Q&A",
+        provider=ProviderSource.ANTHROPIC,
+    ),
+
+    # OpenAI GPT models
+    "gpt-4o": ModelInfo(
+        id="gpt-4o",
+        name="GPT-4o",
+        description="OpenAI's flagship multimodal model",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.POWERFUL,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        context_length=128000,
+        features=["128K context", "Multimodal", "Cloud AI"],
+        recommended_for="Versatile cloud AI for all tasks",
+        provider=ProviderSource.OPENAI,
+    ),
+    "gpt-4o-mini": ModelInfo(
+        id="gpt-4o-mini",
+        name="GPT-4o Mini",
+        description="Fast and cost-effective GPT model",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.FAST,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BOTH],
+        context_length=128000,
+        features=["128K context", "Fast inference", "Cost-effective", "Cloud AI"],
+        recommended_for="Quick cloud queries on a budget",
+        provider=ProviderSource.OPENAI,
+    ),
+    "o1": ModelInfo(
+        id="o1",
+        name="o1",
+        description="OpenAI reasoning model with chain-of-thought",
+        size_gb=0,
+        parameters="Cloud",
+        category=ModelCategory.POWERFUL,
+        use_cases=[ModelUseCase.RAG, ModelUseCase.BRAIN, ModelUseCase.BOTH],
+        context_length=200000,
+        features=["200K context", "Deep reasoning", "Chain-of-thought", "Cloud AI"],
+        recommended_for="Complex analysis requiring deep reasoning",
+        provider=ProviderSource.OPENAI,
+    ),
+}
+
 
 def get_model_info(model_id: str) -> Optional[ModelInfo]:
-    """Get model information by ID."""
-    return AVAILABLE_MODELS.get(model_id)
+    """Get model information by ID (local + cloud)."""
+    return AVAILABLE_MODELS.get(model_id) or CLOUD_MODELS.get(model_id)
 
 
 def get_models_for_use_case(use_case: ModelUseCase) -> List[ModelInfo]:
-    """Get all models suitable for a specific use case."""
+    """Get all models suitable for a specific use case (local + cloud)."""
+    all_models = {**AVAILABLE_MODELS, **CLOUD_MODELS}
     return [
-        model for model in AVAILABLE_MODELS.values()
+        model for model in all_models.values()
         if use_case in model.use_cases or ModelUseCase.BOTH in model.use_cases
     ]
 
@@ -156,13 +267,33 @@ def get_default_brain_model() -> str:
 
 
 def get_all_models() -> List[ModelInfo]:
-    """Get all available models."""
+    """Get all available models (local + cloud)."""
+    return list(AVAILABLE_MODELS.values()) + list(CLOUD_MODELS.values())
+
+
+def get_local_models() -> List[ModelInfo]:
+    """Get only local Ollama models."""
     return list(AVAILABLE_MODELS.values())
 
 
+def get_cloud_models() -> List[ModelInfo]:
+    """Get only cloud AI models."""
+    return list(CLOUD_MODELS.values())
+
+
 def get_models_by_category(category: ModelCategory) -> List[ModelInfo]:
-    """Get models by category."""
-    return [m for m in AVAILABLE_MODELS.values() if m.category == category]
+    """Get models by category (local + cloud)."""
+    all_models = {**AVAILABLE_MODELS, **CLOUD_MODELS}
+    return [m for m in all_models.values() if m.category == category]
+
+
+def get_cloud_models_for_provider(provider: str) -> List[ModelInfo]:
+    """Get cloud models for a specific provider."""
+    provider_map = {"anthropic": ProviderSource.ANTHROPIC, "openai": ProviderSource.OPENAI}
+    source = provider_map.get(provider)
+    if not source:
+        return []
+    return [m for m in CLOUD_MODELS.values() if m.provider == source]
 
 
 # ============================================================================
@@ -217,16 +348,30 @@ def is_model_available(model_id: str) -> bool:
     return model_id in available or f"{model_id}:latest" in available
 
 
-def get_all_models_with_status() -> List[dict]:
-    """Get all models with their availability status."""
+def get_all_models_with_status(user_cloud_providers: Set[str] = None) -> List[dict]:
+    """
+    Get all models with their availability status.
+
+    Args:
+        user_cloud_providers: Set of provider names the user has API keys for
+                              (e.g., {"anthropic", "openai"})
+    """
     available = get_ollama_available_models()
+    user_cloud_providers = user_cloud_providers or set()
     result = []
 
+    # Local models
     for model in AVAILABLE_MODELS.values():
         model_dict = model.model_dump()
-        # Check availability
         is_available = model.id in available or f"{model.id}:latest" in available
         model_dict["is_available"] = is_available
+        result.append(model_dict)
+
+    # Cloud models
+    for model in CLOUD_MODELS.values():
+        model_dict = model.model_dump()
+        # Cloud model is available if user has an API key for its provider
+        model_dict["is_available"] = model.provider.value in user_cloud_providers
         result.append(model_dict)
 
     return result

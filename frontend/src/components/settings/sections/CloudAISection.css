@@ -1,0 +1,267 @@
+/* Cloud AI Section Styles - Neural Glass design */
+
+.cloud-ai-section .cloud-ai-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.1));
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: auto;
+}
+
+.cloud-ai-warning {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(251, 191, 36, 0.04));
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  margin-bottom: 16px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary, #a0a0b0);
+}
+
+.cloud-ai-warning svg {
+  flex-shrink: 0;
+  color: #f59e0b;
+  margin-top: 2px;
+}
+
+.cloud-ai-warning strong {
+  color: #f59e0b;
+}
+
+/* Provider tabs */
+.cloud-ai-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 16px 0 12px;
+  padding: 3px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cloud-ai-tab {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary, #a0a0b0);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cloud-ai-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary, #e0e0e8);
+}
+
+.cloud-ai-tab.active {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.cloud-ai-tab .tab-check {
+  color: #10b981;
+}
+
+/* Key management */
+.cloud-ai-key-section {
+  margin: 12px 0;
+}
+
+.cloud-ai-saved-key {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.saved-key-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.saved-key-info svg { color: var(--text-secondary); }
+
+.key-hint {
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.key-status {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.key-status.valid {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.key-status.invalid {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.saved-key-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* Key input */
+.cloud-ai-key-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cloud-ai-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-primary, #e0e0e8);
+  font-size: 13px;
+  font-family: monospace;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.cloud-ai-input:focus {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+.cloud-ai-input::placeholder {
+  color: var(--text-tertiary, #606070);
+}
+
+/* Buttons */
+.cloud-ai-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cloud-ai-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cloud-ai-btn-save {
+  background: rgba(139, 92, 246, 0.2);
+  color: #a78bfa;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  align-self: flex-end;
+}
+
+.cloud-ai-btn-save:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.cloud-ai-btn-test {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.cloud-ai-btn-test:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+.cloud-ai-btn-delete {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 6px 8px;
+}
+
+.cloud-ai-btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Test result */
+.cloud-ai-test-result {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.cloud-ai-test-result.success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.cloud-ai-test-result.error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.models-count {
+  margin-left: auto;
+  opacity: 0.7;
+}
+
+/* Provider select */
+.cloud-ai-provider-select {
+  margin: 16px 0 12px;
+}
+
+.cloud-ai-provider-select label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+/* Cloud model grid */
+.cloud-ai-model-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+@media (max-width: 600px) {
+  .cloud-ai-model-grid {
+    grid-template-columns: 1fr;
+  }
+}

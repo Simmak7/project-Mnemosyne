@@ -7,11 +7,11 @@ Shared utilities for brain chat endpoints.
 import json
 import logging
 
-import requests
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from core import config
+from core.llm import get_default_provider, LLMMessage
 from features.mnemosyne_brain.models.brain_file import BrainFile
 from features.mnemosyne_brain.models.brain_conversation import (
     BrainConversation,
@@ -19,8 +19,6 @@ from features.mnemosyne_brain.models.brain_conversation import (
 )
 
 logger = logging.getLogger(__name__)
-
-OLLAMA_HOST = config.OLLAMA_HOST
 
 
 def generate_conversation_title(query: str, max_length: int = 50) -> str:
@@ -85,7 +83,7 @@ def get_query_embedding(query: str):
 def call_ollama_generate(
     prompt: str, system_prompt: str, model: str = None, context_window: int = None,
 ) -> str:
-    """Non-streaming Ollama call for brain using /api/chat."""
+    """Non-streaming LLM call for brain using provider abstraction."""
     if model is None:
         model = getattr(config, "BRAIN_MODEL", "llama3.2:3b")
     temperature = getattr(config, "BRAIN_TEMPERATURE", 0.7)
@@ -96,38 +94,30 @@ def call_ollama_generate(
     )
 
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
+        LLMMessage(role="system", content=system_prompt),
+        LLMMessage(role="user", content=prompt),
     ]
 
-    options = {"temperature": temperature, "num_predict": 2048}
-    if context_window:
-        options["num_ctx"] = context_window
-
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/chat",
-            json={
-                "model": model,
-                "messages": messages,
-                "stream": False,
-                "think": False,
-                "options": options,
-            },
+        provider = get_default_provider()
+        response = provider.generate(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=2048,
+            context_window=context_window,
             timeout=180,
         )
-        response.raise_for_status()
-        msg = response.json().get("message", {})
-        return msg.get("content", "")
+        return response.content
     except Exception as e:
-        logger.error(f"Ollama brain generate failed: {e}")
+        logger.error(f"Brain generate failed: {e}")
         return f"I'm sorry, I couldn't process that right now. ({e})"
 
 
 def call_ollama_stream(
     prompt: str, system_prompt: str, model: str = None, context_window: int = None,
 ):
-    """Streaming Ollama call for brain using /api/chat."""
+    """Streaming LLM call for brain using provider abstraction."""
     if model is None:
         model = getattr(config, "BRAIN_MODEL", "llama3.2:3b")
     temperature = getattr(config, "BRAIN_TEMPERATURE", 0.7)
@@ -138,43 +128,26 @@ def call_ollama_stream(
     )
 
     messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
+        LLMMessage(role="system", content=system_prompt),
+        LLMMessage(role="user", content=prompt),
     ]
 
-    options = {"temperature": temperature, "num_predict": 2048}
-    if context_window:
-        options["num_ctx"] = context_window
-
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/chat",
-            json={
-                "model": model,
-                "messages": messages,
-                "stream": True,
-                "think": False,
-                "options": options,
-            },
-            stream=True,
+        provider = get_default_provider()
+        for chunk in provider.stream(
+            messages=messages,
+            model=model,
+            temperature=temperature,
+            max_tokens=2048,
+            context_window=context_window,
             timeout=180,
-        )
-        response.raise_for_status()
-
-        for line in response.iter_lines():
-            if line:
-                try:
-                    data = json.loads(line)
-                    msg = data.get("message", {})
-                    token = msg.get("content", "")
-                    if token:
-                        yield token
-                    if data.get("done", False):
-                        break
-                except json.JSONDecodeError:
-                    continue
+        ):
+            if chunk.content:
+                yield chunk.content
+            if chunk.done:
+                break
     except Exception as e:
-        logger.error(f"Ollama brain stream failed: {e}")
+        logger.error(f"Brain stream failed: {e}")
         yield f"[ERROR: {e}]"
 
 

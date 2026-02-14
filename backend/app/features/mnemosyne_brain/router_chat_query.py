@@ -14,8 +14,10 @@ from slowapi.util import get_remote_address
 
 from core.database import get_db
 from core.auth import get_current_user
-from core.model_service import get_effective_brain_model, get_effective_context_budget
+from core.model_service import get_effective_brain_model, get_effective_context_budget, get_provider_for_user
 from core.models_registry import get_model_info
+from core.llm.base import LLMMessage
+from core.llm.cost_tracker import log_token_usage
 import models
 
 from features.mnemosyne_brain.models.brain_conversation import (
@@ -119,13 +121,31 @@ async def brain_query(
     if conv_history:
         prompt = f"Conversation so far:\n{conv_history}\n\nUser: {query}"
 
-    # Get user's preferred model and its context window
-    user_model = get_effective_brain_model(db, current_user.id)
-    model_info = get_model_info(user_model)
-    ctx_window = model_info.context_length if model_info else 4096
+    # Generate response (cloud-aware)
+    provider, user_model, provider_name = get_provider_for_user(db, current_user.id, "brain")
 
-    # Generate response
-    answer = call_ollama_generate(prompt, context.system_prompt, model=user_model, context_window=ctx_window)
+    if provider_name != "ollama":
+        # Cloud provider path
+        messages = [
+            LLMMessage(role="system", content=context.system_prompt),
+            LLMMessage(role="user", content=prompt),
+        ]
+        try:
+            llm_response = provider.generate(
+                messages=messages, model=user_model, temperature=0.7, max_tokens=2048,
+            )
+            answer = llm_response.content
+            log_token_usage(db, current_user.id, llm_response, "brain")
+        except Exception as cloud_err:
+            logger.warning(f"Cloud provider {provider_name} failed, falling back to Ollama: {cloud_err}")
+            user_model = get_effective_brain_model(db, current_user.id)
+            model_info = get_model_info(user_model)
+            ctx_window = model_info.context_length if model_info else 4096
+            answer = call_ollama_generate(prompt, context.system_prompt, model=user_model, context_window=ctx_window)
+    else:
+        model_info = get_model_info(user_model)
+        ctx_window = model_info.context_length if model_info else 4096
+        answer = call_ollama_generate(prompt, context.system_prompt, model=user_model, context_window=ctx_window)
 
     # Save to conversation
     conversation_id = body.conversation_id

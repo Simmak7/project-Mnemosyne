@@ -72,6 +72,10 @@ async def update_preferences(
         rag_model=data.rag_model,
         brain_model=data.brain_model,
         nexus_model=data.nexus_model,
+        cloud_ai_enabled=data.cloud_ai_enabled,
+        cloud_ai_provider=data.cloud_ai_provider,
+        cloud_rag_model=data.cloud_rag_model,
+        cloud_brain_model=data.cloud_brain_model,
     )
 
     if error:
@@ -304,6 +308,10 @@ async def get_activity_stats(
 # ============================================
 
 from features.settings import notifications
+from features.settings.api_keys_router import router as api_keys_router
+
+# Include API keys sub-router
+router.include_router(api_keys_router)
 
 
 @router.get("/notifications", response_model=schemas.NotificationPreferencesResponse)
@@ -379,3 +387,33 @@ async def get_notification_options():
         Available notification types and their descriptions
     """
     return schemas.NotificationOptions()
+
+
+# ============================================
+# Cloud AI Usage Tracking
+# ============================================
+
+@router.get("/ai-usage")
+async def get_ai_usage(
+    days: int = 30,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get AI usage summary and daily breakdown.
+
+    Args:
+        days: Number of days to look back (default 30)
+
+    Returns:
+        Usage summary with cost estimates and daily breakdown
+    """
+    from core.llm.cost_tracker import get_usage_summary, get_daily_usage
+
+    summary = get_usage_summary(db, current_user.id, days)
+    daily = get_daily_usage(db, current_user.id, days)
+
+    return {
+        "summary": summary,
+        "daily": daily,
+    }

@@ -9,10 +9,10 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional
 
-import requests
 from sqlalchemy.orm import Session
 
 from core import config
+from core.llm import get_default_provider, LLMMessage
 from features.mnemosyne_brain.models.brain_conversation import (
     BrainConversation,
     BrainMessage,
@@ -20,7 +20,6 @@ from features.mnemosyne_brain.models.brain_conversation import (
 
 logger = logging.getLogger(__name__)
 
-OLLAMA_HOST = getattr(config, "OLLAMA_HOST", "http://ollama:11434")
 SUMMARY_MODEL = "llama3.2:3b"  # Fast model for summarization
 
 SUMMARY_PROMPT = """Summarize this conversation segment concisely, preserving:
@@ -43,21 +42,19 @@ def should_update_summary(conversation: BrainConversation) -> bool:
 
 
 def _call_ollama_summary(prompt: str) -> Optional[str]:
-    """Call Ollama for summarization with fast model."""
+    """Call LLM provider for summarization with fast model."""
+    messages = [LLMMessage(role="user", content=prompt)]
+
     try:
-        response = requests.post(
-            f"{OLLAMA_HOST}/api/generate",
-            json={
-                "model": SUMMARY_MODEL,
-                "prompt": prompt,
-                "stream": False,
-                "think": False,
-                "options": {"temperature": 0.3, "num_predict": 500},
-            },
+        provider = get_default_provider()
+        response = provider.generate(
+            messages=messages,
+            model=SUMMARY_MODEL,
+            temperature=0.3,
+            max_tokens=500,
             timeout=60,
         )
-        response.raise_for_status()
-        return response.json().get("response", "").strip()
+        return response.content.strip()
     except Exception as e:
         logger.error(f"Summarization LLM call failed: {e}")
         return None
