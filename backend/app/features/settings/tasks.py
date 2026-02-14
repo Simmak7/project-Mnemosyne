@@ -204,21 +204,21 @@ def _export_images(db, user: models.User, temp_dir: str):
     images_metadata = []
     for image in images:
         # Copy image file if it exists
-        if image.file_path and os.path.exists(image.file_path):
-            filename = os.path.basename(image.file_path)
+        if image.filepath and os.path.exists(image.filepath):
+            filename = os.path.basename(image.filepath)
             dest_path = os.path.join(images_dir, filename)
-            shutil.copy2(image.file_path, dest_path)
+            shutil.copy2(image.filepath, dest_path)
         else:
             filename = None
 
         # Collect metadata
         images_metadata.append({
             "id": image.id,
-            "original_filename": image.original_filename,
+            "original_filename": image.filename,
+            "display_name": image.display_name,
             "file": filename,
-            "description": image.description,
-            "ai_analysis": image.ai_analysis,
-            "created_at": image.created_at.isoformat() if image.created_at else None,
+            "ai_analysis": image.ai_analysis_result,
+            "uploaded_at": image.uploaded_at.isoformat() if image.uploaded_at else None,
             "tags": [tag.name for tag in image.tags] if image.tags else []
         })
 
@@ -239,7 +239,6 @@ def _export_tags(db, user: models.User, temp_dir: str):
         tags_data.append({
             "id": tag.id,
             "name": tag.name,
-            "color": tag.color,
             "created_at": tag.created_at.isoformat() if tag.created_at else None
         })
 

@@ -113,6 +113,7 @@ class DataExportStatus(BaseModel):
     job_id: str
     status: str  # pending, processing, completed, failed
     progress: Optional[int] = None  # 0-100
+    file_size: Optional[int] = None
     download_url: Optional[str] = None
     expires_at: Optional[datetime] = None
     error_message: Optional[str] = None
@@ -121,6 +122,11 @@ class DataExportStatus(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class DataExportHistoryResponse(BaseModel):
+    """Schema for export job history."""
+    jobs: list[DataExportStatus]
 
 
 # ============================================

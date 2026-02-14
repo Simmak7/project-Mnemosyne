@@ -1,39 +1,48 @@
 /**
- * Brain mode settings - simplified, only temperature
+ * Brain mode settings - model display, temperature, streaming
+ *
+ * Reads the user's brain_model preference to show the actual active model.
  */
 import React, { useState, useEffect } from 'react';
-import { Sliders, ChevronUp, ChevronDown } from 'lucide-react';
+import { Sliders, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react';
 import { useAIChatContext } from '../../hooks/AIChatContext';
+import { api } from '../../../../utils/api';
 
 function BrainSettingsSection() {
   const { settings, updateSettings } = useAIChatContext();
   const [isExpanded, setIsExpanded] = useState(true);
   const [availableModels, setAvailableModels] = useState([]);
-  const [currentModel, setCurrentModel] = useState(null);
+  const [systemDefault, setSystemDefault] = useState(null);
+  const [userModel, setUserModel] = useState(undefined); // undefined = loading
 
-  // Fetch available models on mount
   useEffect(() => {
-    const fetchModels = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/models', {
-          credentials: 'include'
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setAvailableModels(data.models || []);
-          setCurrentModel(data.current_brain_model);
-        }
+        const [modelsData, prefs] = await Promise.all([
+          api.get('/models'),
+          api.get('/settings/preferences'),
+        ]);
+        setAvailableModels(modelsData.models || []);
+        setSystemDefault(modelsData.current_brain_model);
+        setUserModel(prefs.brain_model || null);
       } catch (error) {
-        console.error('Failed to fetch models:', error);
+        console.error('Failed to fetch brain model info:', error);
       }
     };
-    fetchModels();
+    fetchData();
   }, []);
 
-  // Get Brain-capable models
   const brainModels = availableModels.filter(
     m => m.use_cases?.includes('brain') || m.use_cases?.includes('both')
   );
+
+  // Resolve the actual active model: user preference > system default
+  const activeModelId = userModel || systemDefault;
+  const activeModelInfo = brainModels.find(m => m.id === activeModelId);
+  const displayName = activeModelInfo?.name
+    || activeModelId?.split('/').pop()?.split(':').join(' ')
+    || 'Loading...';
+  const isCustom = userModel && userModel !== systemDefault;
 
   return (
     <div className="settings-section">
@@ -53,17 +62,20 @@ function BrainSettingsSection() {
           {/* Model Display */}
           <div className="setting-item">
             <label>Active Model</label>
-            {brainModels.length > 0 ? (
-              <div className="model-display brain">
-                <span className="model-name">
-                  {brainModels.find(m => m.id === currentModel)?.name || currentModel?.split('/').pop() || 'Loading...'}
-                </span>
-                <span className="model-hint">Configure in Settings</span>
-              </div>
-            ) : (
-              <div className="model-display brain">
-                <span className="model-name">{currentModel?.split('/').pop() || 'Loading...'}</span>
-              </div>
+            <div className="model-display brain">
+              <span className="model-name">{displayName}</span>
+              {activeModelInfo?.parameters && (
+                <span className="model-params">{activeModelInfo.parameters}</span>
+              )}
+            </div>
+            <span className="setting-hint">
+              Change model in Settings &gt; AI Models
+            </span>
+            {isCustom && (
+              <span className="setting-hint warning">
+                <AlertTriangle size={11} />
+                After changing models, we recommend rebuilding the Brain index
+              </span>
             )}
           </div>
 

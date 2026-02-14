@@ -174,6 +174,43 @@ async def request_data_export(
     }
 
 
+@router.get("/export-data/history", response_model=schemas.DataExportHistoryResponse)
+async def get_export_history(
+    limit: int = 5,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get recent export jobs for the current user.
+
+    Args:
+        limit: Max jobs to return (default 5)
+
+    Returns:
+        List of recent export jobs
+    """
+    if limit > 20:
+        limit = 20
+
+    jobs = data_export.get_user_export_jobs(db, current_user, limit)
+    return {
+        "jobs": [
+            {
+                "job_id": j.job_id,
+                "status": j.status,
+                "progress": j.progress,
+                "file_size": j.file_size,
+                "download_url": data_export.get_download_url(j),
+                "expires_at": j.expires_at,
+                "error_message": j.error_message,
+                "created_at": j.created_at,
+                "completed_at": j.completed_at,
+            }
+            for j in jobs
+        ]
+    }
+
+
 @router.get("/export-data/{job_id}", response_model=schemas.DataExportStatus)
 async def get_export_status(
     job_id: str,
@@ -200,6 +237,7 @@ async def get_export_status(
         "job_id": job.job_id,
         "status": job.status,
         "progress": job.progress,
+        "file_size": job.file_size,
         "download_url": download_url,
         "expires_at": job.expires_at,
         "error_message": job.error_message,
