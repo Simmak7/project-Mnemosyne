@@ -147,6 +147,19 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
     });
   }, [setPreview]);
 
+  // Handle citation double-click - insert source title into chat input
+  const handleCitationDoubleClick = useCallback((citation) => {
+    if (!citation?.title) return;
+    const mention = `"${citation.title}" `;
+    setInputValue(prev => {
+      if (!prev.trim()) return mention;
+      return prev.trimEnd() + ' ' + mention;
+    });
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
   // Handle message regeneration
   const handleRegenerate = useCallback(async (message) => {
     if (!regenerateMessage || isLoading || regeneratingId) return;
@@ -203,6 +216,7 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
                 <MessageBubble
                   message={message}
                   onCitationClick={handleCitationClick}
+                  onCitationDoubleClick={handleCitationDoubleClick}
                   onRegenerate={handleRegenerate}
                   isRegenerating={regeneratingId === message.id}
                 />
@@ -219,6 +233,7 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
         key={message.id}
         message={message}
         onCitationClick={handleCitationClick}
+        onCitationDoubleClick={handleCitationDoubleClick}
         onRegenerate={handleRegenerate}
         isRegenerating={regeneratingId === message.id}
       />

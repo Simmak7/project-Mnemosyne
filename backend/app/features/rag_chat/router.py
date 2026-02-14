@@ -81,6 +81,45 @@ async def backfill_chunks(
         return {"status": "error", "message": str(e)}
 
 
+@main_router.post("/rag/backfill-embeddings")
+async def backfill_embeddings(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Generate embeddings for notes that are missing them.
+    Only queues tasks for notes with content but no embedding.
+    """
+    try:
+        from sqlalchemy import text
+        from features.search.tasks import generate_note_embedding_task
+
+        result = db.execute(text("""
+            SELECT id FROM notes
+            WHERE owner_id = :owner_id
+              AND embedding IS NULL
+              AND is_trashed = false
+              AND LENGTH(TRIM(COALESCE(content, ''))) > 10
+        """), {"owner_id": current_user.id})
+
+        note_ids = [row.id for row in result]
+
+        queued = 0
+        for note_id in note_ids:
+            generate_note_embedding_task.delay(note_id)
+            queued += 1
+
+        logger.info(f"Backfill-embeddings: queued {queued} notes for user {current_user.id}")
+        return {
+            "status": "queued",
+            "notes_queued": queued,
+            "message": f"Embedding generation queued for {queued} notes missing embeddings.",
+        }
+    except Exception as e:
+        logger.error(f"Failed to queue embedding backfill: {e}")
+        return {"status": "error", "message": str(e)}
+
+
 # Re-export combined router
 # The sub-routers already have /rag prefix, so include them at root
 def get_rag_router() -> APIRouter:

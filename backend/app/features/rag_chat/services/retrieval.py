@@ -9,6 +9,7 @@ Provides multi-level retrieval:
 Uses pgvector cosine similarity for semantic search.
 """
 
+import re
 import logging
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
@@ -347,6 +348,38 @@ def semantic_search_document_chunks(
         return []
 
 
+def _extract_search_terms(query: str) -> str:
+    """Extract meaningful search terms from natural language query, joined with OR.
+
+    Preserves date patterns (YYYY-MM-DD) as AND-grouped terms so fulltext
+    search can match notes containing those date components.
+    """
+    STOP_WORDS = {
+        'tell', 'about', 'what', 'note', 'notes', 'show', 'find', 'give',
+        'the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'has',
+        'how', 'does', 'can', 'could', 'would', 'should', 'which', 'where',
+        'know', 'anything', 'something', 'everything', 'related', 'me',
+        'any', 'all', 'some', 'your', 'you', 'my', 'its', 'are', 'is',
+        'do', 'did', 'was', 'were', 'been', 'being', 'get', 'got',
+    }
+
+    terms = []
+    remaining = query
+
+    # Preserve date patterns as AND-grouped terms for tsquery
+    dates = re.findall(r'\d{4}-\d{2}-\d{2}', query)
+    for date in dates:
+        remaining = remaining.replace(date, '')
+        parts = date.split('-')
+        terms.append('(' + ' & '.join(parts) + ')')
+
+    # Extract regular tokens from remaining text
+    tokens = remaining.lower().split()
+    terms.extend(t for t in tokens if t not in STOP_WORDS and len(t) >= 2)
+
+    return ' | '.join(terms) if terms else query
+
+
 def fulltext_search_notes(
     db: Session,
     query: str,
@@ -354,7 +387,10 @@ def fulltext_search_notes(
     limit: int = 10
 ) -> List[RetrievalResult]:
     """
-    Full-text search using PostgreSQL tsvector.
+    Full-text search using PostgreSQL tsvector with OR logic.
+
+    Extracts meaningful terms from natural language queries and uses
+    OR logic so "give me notes about cars" matches any note containing "cars".
 
     Args:
         db: Database session
@@ -366,9 +402,7 @@ def fulltext_search_notes(
         List of RetrievalResult objects
     """
     try:
-        # Convert query to tsquery format
-        # Replace spaces with & for AND search
-        ts_query = ' & '.join(query.split())
+        processed_query = _extract_search_terms(query)
 
         result = db.execute(text("""
             SELECT
@@ -377,17 +411,17 @@ def fulltext_search_notes(
                 content,
                 ts_rank(
                     to_tsvector('english', COALESCE(title, '') || ' ' || COALESCE(content, '')),
-                    plainto_tsquery('english', :query)
+                    to_tsquery('english', :processed_query)
                 ) AS rank
             FROM notes
             WHERE owner_id = :owner_id
               AND is_trashed = false
               AND to_tsvector('english', COALESCE(title, '') || ' ' || COALESCE(content, ''))
-                  @@ plainto_tsquery('english', :query)
+                  @@ to_tsquery('english', :processed_query)
             ORDER BY rank DESC
             LIMIT :limit
         """), {
-            "query": query,
+            "processed_query": processed_query,
             "owner_id": owner_id,
             "limit": limit
         })

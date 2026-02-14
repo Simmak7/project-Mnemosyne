@@ -18,6 +18,7 @@ import { formatMessageTime } from '../utils';
 function MessageBubble({
   message,
   onCitationClick,
+  onCitationDoubleClick,
   onRegenerate,
   isRegenerating,
   showActions = true,
@@ -78,7 +79,11 @@ function MessageBubble({
           className="citation-chip"
           onClick={() => onCitationClick(citation)}
           onMouseEnter={() => onCitationClick(citation)}
-          title={citation ? `${citation.source_type}: ${citation.title || 'Source'}` : 'Citation'}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            if (onCitationDoubleClick) onCitationDoubleClick(citation);
+          }}
+          title={citation ? `[${citationIndex}] ${citation.title || 'Source'} — double-click to insert` : 'Citation'}
         >
           [{citationIndex}]
         </button>

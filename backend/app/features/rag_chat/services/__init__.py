@@ -62,6 +62,7 @@ from .ranking import (
     reciprocal_rank_fusion,
     apply_recency_boost,
     deduplicate_results,
+    enforce_source_diversity,
     merge_and_rank,
     get_retrieval_summary,
 )
@@ -158,6 +159,7 @@ __all__ = [
     "reciprocal_rank_fusion",
     "apply_recency_boost",
     "deduplicate_results",
+    "enforce_source_diversity",
     "merge_and_rank",
     "get_retrieval_summary",
 

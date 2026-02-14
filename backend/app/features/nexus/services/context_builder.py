@@ -37,10 +37,10 @@ logger = logging.getLogger(__name__)
 @dataclass
 class NexusContextConfig:
     """Token budgets for NEXUS context assembly."""
-    source_token_budget: int = 4000
+    source_token_budget: int = 6000
     connection_token_budget: int = 800
     origin_token_budget: int = 400
-    max_content_per_source: int = 800
+    max_content_per_source: int = 600
 
 
 @dataclass

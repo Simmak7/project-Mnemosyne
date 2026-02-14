@@ -31,34 +31,96 @@ from features.rag_chat.services.ranking import (
     reciprocal_rank_fusion,
     deduplicate_results,
     ensure_image_slots,
+    enforce_source_diversity,
 )
 
 logger = logging.getLogger(__name__)
 
 
-def _title_search(db: Session, query: str, owner_id: int, limit: int = 3) -> List[RetrievalResult]:
-    """
-    Find notes whose title closely matches words in the query.
+_TITLE_STOP_WORDS = {
+    'tell', 'about', 'what', 'notes', 'show', 'find', 'give',
+    'the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'has',
+    'how', 'does', 'can', 'could', 'would', 'should', 'which', 'where',
+    'know', 'anything', 'something', 'everything', 'related', 'titled',
+    'called', 'named', 'document', 'documents', 'image', 'images',
+    'any', 'all', 'some', 'your', 'you', 'my', 'me', 'its',
+}
 
-    Uses ILIKE with normalized query tokens to catch references like
-    'EN_US-AI-Principles' that semantic/fulltext search miss.
+
+def _title_query_exact(
+    db: Session, search_str: str, owner_id: int, limit: int
+) -> List[RetrievalResult]:
+    """Execute exact ILIKE title search, prioritizing perfect matches."""
+    try:
+        result = db.execute(sql_text("""
+            SELECT id, title, content
+            FROM notes
+            WHERE owner_id = :owner_id AND is_trashed = false
+              AND LENGTH(TRIM(COALESCE(content, ''))) > 10
+              AND title ILIKE :search
+            ORDER BY
+              CASE WHEN LOWER(title) = LOWER(:exact) THEN 0 ELSE 1 END,
+              LENGTH(title) ASC
+            LIMIT :limit
+        """), {
+            "owner_id": owner_id,
+            "search": f"%{search_str}%",
+            "exact": search_str,
+            "limit": limit,
+        })
+        results = []
+        for row in result:
+            results.append(RetrievalResult(
+                source_type='note', source_id=row.id,
+                title=row.title or 'Untitled', content=row.content or '',
+                similarity=0.95, retrieval_method='direct',
+                metadata={'full_note': True, 'title_match': True, 'exact_match': True}
+            ))
+        if results:
+            logger.info(f"Title search found {len(results)} notes (exact: '{search_str}')")
+        return results
+    except Exception as e:
+        logger.error(f"Exact title search failed: {e}")
+        return []
+
+
+def _title_search(db: Session, query: str, owner_id: int, limit: int = 5) -> List[RetrievalResult]:
     """
-    # Common words that match too many titles
-    STOP_WORDS = {
-        'tell', 'about', 'what', 'note', 'notes', 'show', 'find', 'give',
-        'the', 'and', 'for', 'that', 'this', 'with', 'from', 'have', 'has',
-        'how', 'does', 'can', 'could', 'would', 'should', 'which', 'where',
-        'know', 'anything', 'something', 'everything', 'related', 'titled',
-        'called', 'named', 'document', 'documents', 'image', 'images',
-        'any', 'all', 'some', 'your', 'you', 'my', 'me', 'its',
-    }
-    # Extract potential title tokens (3+ chars, alphanumeric/hyphens/underscores)
+    Find notes whose title matches the query using tiered strategy.
+
+    Tiers: quoted string > exact cleaned query > date pattern > AND tokens.
+    """
+    # Tier 0: Quoted string detection
+    quoted = re.findall(r'"([^"]+)"', query)
+    if quoted:
+        results = _title_query_exact(db, quoted[0], owner_id, limit)
+        if results:
+            return results
+
+    # Tier 1: Clean filler words for exact title match
+    cleaned = re.sub(
+        r'^(what\s+is|tell\s+me\s+about|show\s+me|find|give\s+me)\s+',
+        '', query.strip(), flags=re.IGNORECASE
+    )
+    cleaned = re.sub(r'\s*(about|\?)\s*$', '', cleaned, flags=re.IGNORECASE).strip()
+    if len(cleaned) >= 3:
+        results = _title_query_exact(db, cleaned, owner_id, limit)
+        if results:
+            return results
+
+    # Tier 2: Date pattern detection (e.g. "2025-12-10")
+    date_match = re.search(r'\d{4}-\d{2}-\d{2}', query)
+    if date_match:
+        results = _title_query_exact(db, date_match.group(), owner_id, limit)
+        if results:
+            return results
+
+    # Tier 3: AND-based multi-token fallback
     tokens = re.findall(r'[\w-]{3,}', query)
-    tokens = [t for t in tokens if t.lower() not in STOP_WORDS]
+    tokens = [t for t in tokens if t.lower() not in _TITLE_STOP_WORDS]
     if not tokens:
         return []
 
-    # Build ILIKE conditions for each token
     conditions = []
     params = {"owner_id": owner_id, "limit": limit}
     for i, token in enumerate(tokens):
@@ -66,7 +128,7 @@ def _title_search(db: Session, query: str, owner_id: int, limit: int = 3) -> Lis
         conditions.append(f"title ILIKE :{key}")
         params[key] = f"%{token}%"
 
-    where = " OR ".join(conditions)
+    where = " AND ".join(conditions)
     try:
         result = db.execute(sql_text(f"""
             SELECT id, title, content
@@ -77,23 +139,19 @@ def _title_search(db: Session, query: str, owner_id: int, limit: int = 3) -> Lis
             ORDER BY LENGTH(title) ASC
             LIMIT :limit
         """), params)
-
         results = []
         for row in result:
             results.append(RetrievalResult(
-                source_type='note',
-                source_id=row.id,
-                title=row.title or 'Untitled',
-                content=row.content or '',
-                similarity=0.85,
-                retrieval_method='direct',
+                source_type='note', source_id=row.id,
+                title=row.title or 'Untitled', content=row.content or '',
+                similarity=0.85, retrieval_method='direct',
                 metadata={'full_note': True, 'title_match': True}
             ))
         if results:
-            logger.info(f"Title search found {len(results)} notes")
+            logger.info(f"Title search found {len(results)} notes (AND-match)")
         return results
     except Exception as e:
-        logger.error(f"Title search failed: {e}")
+        logger.error(f"Title search AND-fallback failed: {e}")
         return []
 
 
@@ -137,8 +195,8 @@ def nexus_vector_search(
     # Multi-source retrieval
     semantic_results = semantic_search_notes(db, query_embedding, owner_id, note_config)
     chunk_results = semantic_search_chunks(db, query_embedding, owner_id, chunk_config)
-    fulltext_results = fulltext_search_notes(db, query, owner_id, limit=5)
-    title_results = _title_search(db, query, owner_id, limit=3)
+    fulltext_results = fulltext_search_notes(db, query, owner_id, limit=10)
+    title_results = _title_search(db, query, owner_id)
 
     image_results = []
     if include_images:
@@ -175,6 +233,7 @@ def nexus_vector_search(
     ranked = reciprocal_rank_fusion(result_lists, config)
     ranked = deduplicate_results(ranked)
     ranked = ensure_image_slots(ranked, config)
+    ranked = enforce_source_diversity(ranked)
 
     logger.info(
         f"NEXUS vector search: {len(ranked)} results "

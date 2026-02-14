@@ -18,6 +18,8 @@ class ComponentStatus(BaseModel):
 class HealthResponse(BaseModel):
     """Response schema for health check endpoint."""
     status: str  # 'healthy', 'degraded', 'unhealthy'
+    version: Optional[str] = None
+    build: Optional[int] = None
     components: Dict[str, str]
 
 

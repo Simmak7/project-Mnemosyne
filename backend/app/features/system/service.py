@@ -153,7 +153,10 @@ def get_system_status() -> Dict[str, any]:
     except ImportError:
         components["redis"] = "not_configured"
 
+    from core.config import API_VERSION, APP_BUILD
     return {
         "status": status,
+        "version": API_VERSION,
+        "build": APP_BUILD,
         "components": components
     }

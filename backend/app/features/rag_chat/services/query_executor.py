@@ -36,6 +36,7 @@ from features.rag_chat.services.cache import (
     get_cached_retrieval_results,
     cache_retrieval_results,
 )
+from features.nexus.services.vector_search import _title_search
 
 
 @dataclass
@@ -112,18 +113,18 @@ def execute_retrieval(
     user_id: int,
     config: QueryExecutionConfig,
     skip_rag: bool = False
-) -> tuple[List, List, List, List, List]:
+) -> tuple[List, List, List, List, List, List]:
     """
     Execute multi-source retrieval in parallel using ThreadPoolExecutor.
 
-    Runs semantic, chunk, and fulltext searches concurrently for better performance.
+    Runs semantic, chunk, fulltext, and title searches concurrently.
     Image and graph searches depend on semantic results, so run sequentially after.
 
     Returns:
-        Tuple of (semantic_results, chunk_results, fulltext_results, image_results, graph_results)
+        Tuple of (semantic, chunk, fulltext, image, graph, title) results
     """
     if skip_rag:
-        return [], [], [], [], []
+        return [], [], [], [], [], []
 
     retrieval_config = RetrievalConfig(
         min_similarity=config.min_similarity,
@@ -135,16 +136,18 @@ def execute_retrieval(
 
     logger = logging.getLogger(__name__)
 
-    # Run primary searches in parallel
+    # Run primary searches in parallel (including title search)
     semantic_results = []
     chunk_results = []
     fulltext_results = []
+    title_results = []
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         futures = {
             executor.submit(semantic_search_notes, db, query_embedding, user_id, retrieval_config): 'semantic',
             executor.submit(semantic_search_chunks, db, query_embedding, user_id, retrieval_config): 'chunk',
-            executor.submit(fulltext_search_notes, db, query, user_id, 5): 'fulltext',
+            executor.submit(fulltext_search_notes, db, query, user_id, 10): 'fulltext',
+            executor.submit(_title_search, db, query, user_id): 'title',
         }
 
         for future in as_completed(futures):
@@ -157,6 +160,8 @@ def execute_retrieval(
                     chunk_results = result
                 elif search_type == 'fulltext':
                     fulltext_results = result
+                elif search_type == 'title':
+                    title_results = result
             except Exception as e:
                 logger.warning(f"Parallel {search_type} search failed: {e}")
 
@@ -180,7 +185,7 @@ def execute_retrieval(
         except Exception as e:
             logger.warning(f"Graph traversal failed: {e}")
 
-    return semantic_results, chunk_results, fulltext_results, image_results, graph_results
+    return semantic_results, chunk_results, fulltext_results, image_results, graph_results, title_results
 
 
 def build_context_from_previous_citations(
@@ -262,7 +267,11 @@ def execute_query(
         cached_results = get_cached_retrieval_results(user_id, query, config)
         if cached_results:
             logger.info(f"Cache hit for query: {query[:50]}...")
-            semantic_results, chunk_results, fulltext_results, image_results, graph_results = cached_results
+            if len(cached_results) == 6:
+                semantic_results, chunk_results, fulltext_results, image_results, graph_results, title_results = cached_results
+            else:
+                semantic_results, chunk_results, fulltext_results, image_results, graph_results = cached_results
+                title_results = []
         else:
             logger.debug(f"Cache miss for query: {query[:50]}...")
 
@@ -274,7 +283,7 @@ def execute_query(
             raise ValueError("Failed to generate query embedding")
 
         # Execute retrieval
-        semantic_results, chunk_results, fulltext_results, image_results, graph_results = execute_retrieval(
+        semantic_results, chunk_results, fulltext_results, image_results, graph_results, title_results = execute_retrieval(
             db, query, query_embedding, user_id, config, skip_rag
         )
 
@@ -282,7 +291,7 @@ def execute_query(
         if not skip_rag:
             cache_retrieval_results(
                 user_id, query, config,
-                (semantic_results, chunk_results, fulltext_results, image_results, graph_results)
+                (semantic_results, chunk_results, fulltext_results, image_results, graph_results, title_results)
             )
 
     # Rank results
@@ -294,7 +303,8 @@ def execute_query(
         fulltext_results=fulltext_results,
         image_results=image_results,
         config=ranking_config,
-        query=query
+        query=query,
+        title_results=title_results
     )
 
     # Build context

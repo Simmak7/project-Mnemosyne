@@ -147,6 +147,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
+  user-select: none;
 }
 
 .citation-chip:hover {

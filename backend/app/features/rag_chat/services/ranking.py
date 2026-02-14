@@ -414,6 +414,40 @@ def ensure_image_slots(
     return new_ranked
 
 
+def enforce_source_diversity(
+    ranked: List[RankedResult],
+    max_daily_notes: int = 3
+) -> List[RankedResult]:
+    """
+    Cap how many daily notes appear in top results to prevent dominance.
+
+    Daily notes contain broad content that matches many queries semantically,
+    crowding out more topically relevant notes.
+    """
+    kept = []
+    demoted = []
+    daily_count = 0
+
+    for rr in ranked:
+        title = (rr.result.title or '').strip()
+        is_daily = title.startswith('Daily Note')
+
+        if is_daily and daily_count >= max_daily_notes:
+            demoted.append(rr)
+        else:
+            kept.append(rr)
+            if is_daily:
+                daily_count += 1
+
+    combined = kept + demoted
+    for i, rr in enumerate(combined):
+        rr.rank = i + 1
+
+    if demoted:
+        logger.info(f"Source diversity: demoted {len(demoted)} excess daily notes")
+    return combined
+
+
 def merge_and_rank(
     semantic_results: List[RetrievalResult],
     chunk_results: List[RetrievalResult],
@@ -421,7 +455,8 @@ def merge_and_rank(
     fulltext_results: List[RetrievalResult],
     image_results: List[RetrievalResult],
     config: RankingConfig = None,
-    query: str = None
+    query: str = None,
+    title_results: List[RetrievalResult] = None
 ) -> List[RankedResult]:
     """
     Convenience function to merge all result types and rank.
@@ -451,6 +486,10 @@ def merge_and_rank(
         'fulltext': fulltext_results,
     }
 
+    # Add title/direct results if provided
+    if title_results:
+        result_lists['direct'] = title_results
+
     # Categorize image results by method
     for img_result in image_results:
         method = img_result.retrieval_method
@@ -469,6 +508,9 @@ def merge_and_rank(
 
     # Apply image slot reservation
     ranked = ensure_image_slots(ranked, config)
+
+    # Enforce source diversity (cap daily notes)
+    ranked = enforce_source_diversity(ranked)
 
     return ranked
 

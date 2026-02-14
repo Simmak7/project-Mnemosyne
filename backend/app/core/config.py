@@ -52,7 +52,9 @@ UPLOAD_DIR = "uploaded_images"
 
 # API Configuration
 API_TITLE = "AI Notes Notetaker API"
-API_VERSION = "1.0.0"
+API_VERSION = "1.1.0"
+# Build number tracks development iterations (project started November 2025)
+APP_BUILD = 20
 
 # RAG (Retrieval-Augmented Generation) Configuration
 # Default: Qwen3 8B - excellent reasoning with thinking mode
