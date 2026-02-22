@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { API_URL } from '../../../../utils/api';
 import useDebounce from '../../../../hooks/useDebounce';
 
 /**
@@ -72,7 +73,7 @@ export function useSearchState(isOpen, onClose) {
           limit: '50'
         });
 
-        const url = `http://localhost:8000/search/fulltext?${params.toString()}`;
+        const url = `${API_URL}/search/fulltext?${params.toString()}`;
 
         const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` },

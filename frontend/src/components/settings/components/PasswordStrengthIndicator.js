@@ -2,6 +2,7 @@
  * Password strength indicator with visual bar and label
  */
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../../../utils/api';
 
 const STRENGTH_COLORS = {
   weak: '#ef4444',
@@ -22,7 +23,7 @@ function PasswordStrengthIndicator({ password }) {
 
     const checkStrength = async () => {
       try {
-        const response = await fetch('http://localhost:8000/check-password-strength', {
+        const response = await fetch(`${API_URL}/check-password-strength`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password })

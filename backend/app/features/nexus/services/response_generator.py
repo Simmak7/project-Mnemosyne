@@ -96,17 +96,24 @@ def stream_nexus_response(
         )
 
     # Try primary model, detect errors, and fallback if needed
-    for token in call_ollama_stream(
+    for chunk in call_ollama_stream(
         prompt=user_message, system_prompt=system_prompt, model=model,
     ):
-        if token.startswith("[ERROR:") and fallback_model and fallback_model != model:
+        if chunk.is_error and fallback_model and fallback_model != model:
             logger.warning(f"Model {model} failed, falling back to {fallback_model}")
-            yield from call_ollama_stream(
+            for fb_chunk in call_ollama_stream(
                 prompt=user_message, system_prompt=system_prompt,
                 model=fallback_model,
-            )
+            ):
+                if fb_chunk.content:
+                    yield fb_chunk.content
+                if fb_chunk.done:
+                    break
             return
-        yield token
+        if chunk.content:
+            yield chunk.content
+        if chunk.done:
+            break
 
 
 def _citation_to_source(citation):

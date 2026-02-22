@@ -14,6 +14,7 @@ import {
   Check
 } from 'lucide-react';
 import { useAlbums } from '../hooks/useAlbums';
+import { API_URL } from '../../../utils/api';
 import './GallerySidebar.css';
 
 /**
@@ -254,7 +255,7 @@ function GallerySidebar({ currentView, selectedAlbumId, onViewChange }) {
                       <div className="album-thumbnail">
                         {album.cover_image ? (
                           <img
-                            src={`http://localhost:8000/image/${album.cover_image.id}`}
+                            src={`${API_URL}/image/${album.cover_image.id}`}
                             alt=""
                           />
                         ) : (

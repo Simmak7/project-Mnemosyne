@@ -8,6 +8,7 @@ import { useNoteList } from './hooks/useNoteList';
 import NoteCard from './components/NoteCard';
 import NoteDetailPanel from './components/NoteDetailPanel';
 import NoteEditorModal from './components/NoteEditorModal';
+import { API_URL } from '../../../utils/api';
 import '../VirtualizedNoteList.css';
 
 function VirtualizedNoteList({ selectedNoteId, searchQuery, onNavigateToGraph }) {
@@ -79,8 +80,8 @@ function VirtualizedNoteList({ selectedNoteId, searchQuery, onNavigateToGraph })
     }
 
     const url = editingNote
-      ? `http://localhost:8000/notes/${editingNote.id}`
-      : 'http://localhost:8000/notes/';
+      ? `${API_URL}/notes/${editingNote.id}`
+      : `${API_URL}/notes/`;
 
     const method = editingNote ? 'PUT' : 'POST';
 
@@ -121,7 +122,7 @@ function VirtualizedNoteList({ selectedNoteId, searchQuery, onNavigateToGraph })
       return;
     }
 
-    const response = await fetch(`http://localhost:8000/notes/${editingNote.id}`, {
+    const response = await fetch(`${API_URL}/notes/${editingNote.id}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` },
     });

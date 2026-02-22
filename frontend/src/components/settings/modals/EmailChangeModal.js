@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { X, Mail, Eye, EyeOff, Check, AlertTriangle } from 'lucide-react';
+import { API_URL } from '../../../utils/api';
 
 function EmailChangeModal({ isOpen, onClose, currentEmail, onSuccess }) {
   const [newEmail, setNewEmail] = useState('');
@@ -18,7 +19,7 @@ function EmailChangeModal({ isOpen, onClose, currentEmail, onSuccess }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/email/change', {
+      const response = await fetch(`${API_URL}/email/change`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

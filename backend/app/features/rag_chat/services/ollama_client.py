@@ -11,7 +11,8 @@ from fastapi import HTTPException
 import requests
 
 from core import config
-from core.llm import get_default_provider, LLMMessage, ProviderType
+from core.llm import get_default_provider, LLMMessage, LLMStreamChunk, ProviderType
+from core.llm.base import classify_llm_error
 
 logger = logging.getLogger(__name__)
 
@@ -74,9 +75,9 @@ def call_ollama_stream(
     system_prompt: str,
     model: str = None,
     timeout: int = None
-) -> Generator[str, None, None]:
+) -> Generator[LLMStreamChunk, None, None]:
     """
-    Stream tokens from LLM provider.
+    Stream LLMStreamChunk objects from LLM provider.
 
     Args:
         prompt: User prompt with context
@@ -85,7 +86,7 @@ def call_ollama_stream(
         timeout: Request timeout (defaults to RAG_TIMEOUT)
 
     Yields:
-        Token strings as they're generated
+        LLMStreamChunk objects (callers can inspect is_error)
     """
     model = model or RAG_MODEL
     timeout = timeout or RAG_TIMEOUT
@@ -104,14 +105,17 @@ def call_ollama_stream(
             max_tokens=1024,
             timeout=timeout,
         ):
-            if chunk.content:
-                yield chunk.content
+            yield chunk
             if chunk.done:
                 break
 
     except Exception as e:
         logger.error(f"LLM streaming failed: {e}")
-        yield "[ERROR: AI service unavailable]"
+        error_type, user_msg = classify_llm_error(e)
+        yield LLMStreamChunk(
+            content=user_msg, done=True,
+            is_error=True, error_type=error_type,
+        )
 
 
 def check_ollama_health() -> dict:

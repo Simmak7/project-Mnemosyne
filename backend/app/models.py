@@ -377,6 +377,7 @@ class UserPreferences(Base):
     rag_model = Column(String(100), nullable=True)   # User's preferred RAG model
     brain_model = Column(String(100), nullable=True)  # User's preferred Brain model
     nexus_model = Column(String(100), nullable=True)  # User's preferred NEXUS model
+    vision_model = Column(String(100), nullable=True)  # User's preferred vision model
     # Phase 4: Pinned brain topics for topic selection UI
     pinned_brain_topics = Column(JSONB, default=list)  # ["cooking", "travel", ...]
     # Cloud AI preferences

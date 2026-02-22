@@ -152,6 +152,17 @@ def assemble_context(
         knowledge_sections.append("## Deep Knowledge (Selected Topics)")
         knowledge_sections.extend(topic_parts)
 
+    # If topics exist but none matched, add honest-answer instruction
+    if all_topics and not topics_matched:
+        knowledge_sections.append(
+            "## NOTE: No topics closely matched this query. "
+            "Be honest with the user that you don't have detailed knowledge "
+            "on this specific subject. Share what you can from the Knowledge Map "
+            "summaries, but clearly indicate the limits of your knowledge. "
+            "Suggest the user check if they have notes on this topic or try "
+            "different search terms."
+        )
+
     knowledge_context = "\n\n".join(knowledge_sections)
     if knowledge_context:
         system_prompt += f"\n\n--- YOUR KNOWLEDGE ---\n{knowledge_context}\n--- END KNOWLEDGE ---"

@@ -6,6 +6,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FolderPlus, Check, Plus, X, ChevronDown } from 'lucide-react';
 import { useAlbums } from '../../gallery/hooks/useAlbums';
+import { API_URL } from '../../../utils/api';
 
 import './AlbumSelector.css';
 
@@ -164,7 +165,7 @@ function AlbumSelector({ selectedAlbumId, onAlbumChange }) {
                   <div className="album-selector-thumb">
                     {album.cover_image ? (
                       <img
-                        src={`http://localhost:8000/image/${album.cover_image.id}`}
+                        src={`${API_URL}/image/${album.cover_image.id}`}
                         alt=""
                       />
                     ) : (

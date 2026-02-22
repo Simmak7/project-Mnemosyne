@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Link2, AlertCircle, Loader, Check } from 'lucide-react';
 import { useWorkspaceState } from '../../hooks/useWorkspaceState';
+import { API_URL } from '../../utils/api';
 import './ContextPanels.css';
 
 /**
@@ -35,7 +36,7 @@ function UnlinkedMentionsPanel() {
     try {
       const token = localStorage.getItem('token');
       const response = await fetch(
-        `http://localhost:8000/search/notes/${selectedNoteId}/unlinked-mentions?limit=10&threshold=${threshold}`,
+        `${API_URL}/search/notes/${selectedNoteId}/unlinked-mentions?limit=10&threshold=${threshold}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -71,7 +72,7 @@ function UnlinkedMentionsPanel() {
     try {
       // Fetch current note
       const noteResponse = await fetch(
-        `http://localhost:8000/notes/${selectedNoteId}`,
+        `${API_URL}/notes/${selectedNoteId}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -91,7 +92,7 @@ function UnlinkedMentionsPanel() {
 
       // Update note
       const updateResponse = await fetch(
-        `http://localhost:8000/notes/${selectedNoteId}`,
+        `${API_URL}/notes/${selectedNoteId}`,
         {
           method: 'PUT',
           headers: {

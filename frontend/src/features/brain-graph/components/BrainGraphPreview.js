@@ -11,6 +11,7 @@ import ForceGraph2D from 'react-force-graph-2d';
 import { Network } from 'lucide-react';
 import { NODE_COLORS, getNodeSize } from '../utils/nodeRendering';
 import { EDGE_COLORS } from '../utils/edgeRendering';
+import { API_URL } from '../../../utils/api';
 import './BrainGraphPreview.css';
 
 export function BrainGraphPreview({
@@ -31,7 +32,7 @@ export function BrainGraphPreview({
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No authentication token');
 
-      const response = await fetch('http://localhost:8000/graph/data', {
+      const response = await fetch(`${API_URL}/graph/data`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 

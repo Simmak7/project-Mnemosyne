@@ -4,6 +4,7 @@ import { useWorkspaceState } from '../../hooks/useWorkspaceState';
 import { useContentAnalysis } from '../../hooks/useContentAnalysis';
 import { Link2, ExternalLink, FileText } from 'lucide-react';
 import { format } from 'date-fns';
+import { API_URL } from '../../utils/api';
 import './ContextPanels.css';
 
 /**
@@ -24,7 +25,7 @@ function BacklinksPanel() {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`http://localhost:8000/notes/${selectedNoteId}/backlinks`, {
+      const response = await fetch(`${API_URL}/notes/${selectedNoteId}/backlinks`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

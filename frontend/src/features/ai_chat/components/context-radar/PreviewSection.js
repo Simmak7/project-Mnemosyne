@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { FileText, Image as ImageIcon, ExternalLink, X } from 'lucide-react';
 import ActiveCitationsList from './ActiveCitationsList';
 import ArtifactOriginCard from './ArtifactOriginCard';
+import { API_URL } from '../../../../utils/api';
 
 function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavigateToImage, onClear, onSelectCitation }) {
   const [noteData, setNoteData] = useState(null);
@@ -33,7 +34,7 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
 
         if (!isImageType && (previewItem.type === 'note' || previewItem.type === 'chunk')) {
           const response = await fetch(
-            `http://localhost:8000/notes/${previewItem.id}`,
+            `${API_URL}/notes/${previewItem.id}`,
             { headers }
           );
           if (response.ok) {
@@ -43,7 +44,7 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
           }
         } else if (isImageType) {
           const response = await fetch(
-            `http://localhost:8000/images/${previewItem.id}`,
+            `${API_URL}/images/${previewItem.id}`,
             { headers }
           );
           if (response.ok) {
@@ -145,7 +146,7 @@ function PreviewSection({ previewItem, activeCitations, onNavigateToNote, onNavi
         <div className="preview-content image">
           <div className="preview-image-wrapper">
             <img
-              src={`http://localhost:8000/image/${imageData.id}`}
+              src={`${API_URL}/image/${imageData.id}`}
               alt={imageData.filename || 'Image'}
             />
           </div>

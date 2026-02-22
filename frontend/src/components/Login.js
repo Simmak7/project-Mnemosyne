@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_URL } from '../utils/api';
 import './Login.css';
 
 function Login({ onLoginSuccess }) {
@@ -23,7 +24,7 @@ function Login({ onLoginSuccess }) {
     try {
       if (isRegistering) {
         // Register
-        const registerResponse = await fetch('http://localhost:8000/register', {
+        const registerResponse = await fetch(`${API_URL}/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -43,7 +44,7 @@ function Login({ onLoginSuccess }) {
         }
       } else if (requires2FA) {
         // Complete 2FA login
-        const response = await fetch('http://localhost:8000/login/2fa', {
+        const response = await fetch(`${API_URL}/login/2fa`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -69,7 +70,7 @@ function Login({ onLoginSuccess }) {
         formData.append('username', username);
         formData.append('password', password);
 
-        const loginResponse = await fetch('http://localhost:8000/login', {
+        const loginResponse = await fetch(`${API_URL}/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',

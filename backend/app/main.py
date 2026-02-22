@@ -32,6 +32,7 @@ from features.auth.router import router as auth_router
 from features.auth.router_account import router as auth_account_router
 from features.settings.router import router as settings_router
 from features.system.router import router as system_router
+from features.system.router_models import router as models_router
 from features.notes.router import router as notes_router
 from features.tags.router import router as tags_router, image_tag_router
 from features.graph.router import router as graph_router
@@ -155,6 +156,14 @@ try:
 except Exception as e:
     logger.warning(f"AI usage tracking migration skipped: {str(e)}")
 
+# Run vision model preference migration
+try:
+    from migrations.add_vision_model_preference import upgrade as add_vision_model_pref
+    add_vision_model_pref()
+    logger.info("Vision model preference migration completed")
+except Exception as e:
+    logger.warning(f"Vision model preference migration skipped: {str(e)}")
+
 # Initialize LLM provider registry
 try:
     initialize_providers()
@@ -176,6 +185,7 @@ app.include_router(auth_router)
 app.include_router(auth_account_router)  # Phase 2: Account management endpoints
 app.include_router(settings_router)  # Phase 3: User preferences endpoints
 app.include_router(system_router)
+app.include_router(models_router)  # Model pull/delete endpoints
 app.include_router(notes_router)
 app.include_router(tags_router)
 app.include_router(image_tag_router)  # Image-tag association endpoints

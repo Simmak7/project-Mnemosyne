@@ -17,6 +17,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import AlbumPicker from './AlbumPicker';
+import { API_URL } from '../../../utils/api';
 import './ImageLightbox.css';
 
 /**
@@ -262,6 +263,11 @@ function ImageLightbox({
           </div>
 
           <div className="lightbox-actions">
+            {isProcessing && (
+              <span className="action-btn analyzing" title="AI analysis in progress">
+                <RefreshCw size={16} className="spin" />
+              </span>
+            )}
             {isFailed && (
               <button
                 className="action-btn retry"
@@ -324,7 +330,7 @@ function ImageLightbox({
         <div className="lightbox-main">
           <div className="lightbox-image-container">
             <img
-              src={`http://localhost:8000/image/${image.id}`}
+              src={`${API_URL}/image/${image.id}`}
               alt={image.filename}
               className="lightbox-image"
             />

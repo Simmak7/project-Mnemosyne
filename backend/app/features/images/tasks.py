@@ -12,28 +12,35 @@ Workflow:
 5. Image linked to note via image_note_relations table
 6. User polls task status until completion
 
-AI Models (via ModelRouter):
-- llama3.2-vision:11b (stable, 4.7GB)
-- qwen2.5vl:7b-q4_K_M (experimental, quantized)
+Error handling uses categorised retries:
+- Transient (connection/timeout): exponential backoff retries
+- Permanent (file not found, bad format): fail immediately
+- Unknown: retry up to max_retries, then fail with message
+
+Two-phase commit pattern:
+  Phase 1 - Save AI analysis result and mark image completed (MUST succeed)
+  Phase 2 - Add tags, create note, link to album (best-effort, failures safe)
 """
 
 from celery import Task
 from core.celery_app import celery_app
 import logging
-from pathlib import Path
+from requests.exceptions import ConnectionError, Timeout
 
 from core import database, config
 import crud
 from model_router import ModelRouter
-from features.albums.service import AlbumService
-from features.images.tasks_helpers import (
-    extract_image_metadata,
-    generate_note_title,
-    format_note_content,
-    extract_tags_from_ai_response,
+from features.images.tasks_enrichment import (
+    extract_tags,
+    add_tags_to_image,
+    create_and_link_note,
+    add_to_album,
 )
 
 logger = logging.getLogger(__name__)
+
+# Errors that should never be retried
+PERMANENT_ERRORS = (FileNotFoundError, ValueError, PermissionError)
 
 
 class DatabaseTask(Task):
@@ -41,284 +48,144 @@ class DatabaseTask(Task):
     _db = None
 
     @property
-    def db(self):
+    def db(self) -> "database.SessionLocal":
         if self._db is None:
             self._db = database.SessionLocal()
         return self._db
 
-    def after_return(self, *args, **kwargs):
+    def after_return(self, *args, **kwargs) -> None:
         """Close database session after task completes."""
         if self._db is not None:
             self._db.close()
             self._db = None
 
 
-@celery_app.task(bind=True, base=DatabaseTask, name="features.images.tasks.analyze_image")
-def analyze_image_task(self, image_id: int, image_path: str, prompt: str, album_id: int = None,
-                       auto_tagging: bool = True, max_tags: int = 10, auto_create_note: bool = True):
+@celery_app.task(
+    bind=True,
+    base=DatabaseTask,
+    name="features.images.tasks.analyze_image",
+    max_retries=3,
+    default_retry_delay=60,
+    acks_late=True,
+    reject_on_worker_lost=True,
+)
+def analyze_image_task(
+    self,
+    image_id: int,
+    image_path: str,
+    prompt: str,
+    album_id: int = None,
+    auto_tagging: bool = True,
+    max_tags: int = 10,
+    auto_create_note: bool = True,
+    vision_model: str = None,
+) -> dict:
     """
     Celery task to analyze an image with Ollama AI in the background.
 
-    Task flow:
-    1. Update image status to 'processing'
-    2. Call AI model via ModelRouter (handles model selection)
-    3. Extract tags and wikilinks from AI response (if auto_tagging)
-    4. Create note with formatted content (if auto_create_note)
-    5. Link image to note
-    6. Add tags to both image and note
-    7. Add image to album (if album_id provided)
-
-    Args:
-        image_id: Database ID of the image
-        image_path: File system path to the image
-        prompt: Analysis prompt for the AI (optional, router selects if empty)
-        album_id: Album ID to add image to after analysis (optional)
-        auto_tagging: Whether to extract and apply tags automatically
-        max_tags: Maximum number of tags to extract
-        auto_create_note: Whether to auto-create a note from the analysis
-
-    Returns:
-        dict: Task result with status and analysis text
+    Uses two-phase commit: core analysis is saved first, then best-effort
+    enrichment (tags, notes, album) runs without risking the analysis data.
     """
     logger.info(f"[Task {self.request.id}] Starting AI analysis for image {image_id}")
 
     try:
-        # Update image status to processing
+        crud.update_image_analysis_result(db=self.db, image_id=image_id, status="processing")
+
+        # Call AI model via ModelRouter (with optional user-selected vision model)
+        router = ModelRouter(ollama_host=config.OLLAMA_HOST, vision_model=vision_model)
+        result = _call_model_router(router, image_path, prompt)
+
+        if result.get("status") != "success":
+            return _handle_router_error(self, image_id, result)
+
+        analysis_text = result.get("response", "No response from AI")
+        logger.info(f"[Task {self.request.id}] AI analysis successful for image {image_id}")
+
+        # ── Phase 1: Commit core analysis (must succeed) ──
+        # Image analysis data is committed BEFORE any tag/note operations
+        # so a tag failure cannot roll back the analysis result.
         crud.update_image_analysis_result(
-            db=self.db,
-            image_id=image_id,
-            status="processing"
+            db=self.db, image_id=image_id, status="completed", result=analysis_text,
         )
-        logger.debug(f"[Task {self.request.id}] Image {image_id} status updated to processing")
+        logger.info(f"[Task {self.request.id}] Phase 1 complete: analysis saved")
 
-        # Initialize model router
-        router = ModelRouter(ollama_host=config.OLLAMA_HOST)
+        # ── Phase 2: Best-effort enrichment (tags, note, album) ──
+        image = crud.get_image(self.db, image_id=image_id)
+        content_metadata = result.get("content_metadata", {})
 
-        logger.debug(f"[Task {self.request.id}] Routing analysis request for image {image_id}")
+        extracted_tags = extract_tags(
+            self.request.id, analysis_text, content_metadata, auto_tagging, max_tags,
+        )
+        wikilinks = (content_metadata.get("wikilinks", []) if content_metadata else [])
 
-        try:
-            # Call model router (handles model selection, prompt selection, and API call)
-            if prompt:
-                result = router.analyze_image(
-                    image_path=image_path,
-                    custom_prompt=prompt,
-                    timeout=300
-                )
-            else:
-                # No custom prompt - let router select based on PROMPT_ROLLOUT_PERCENT
-                result = router.analyze_image(
-                    image_path=image_path,
-                    timeout=300
-                )
+        if image and extracted_tags:
+            add_tags_to_image(self.db, self.request.id, image, extracted_tags)
 
-            # Check if analysis was successful
-            if result.get("status") == "success":
-                analysis_text = result.get("response", "No response from AI")
-                logger.info(f"[Task {self.request.id}] AI analysis successful for image {image_id}")
-
-                # Update image analysis result
-                crud.update_image_analysis_result(
-                    db=self.db,
-                    image_id=image_id,
-                    status="completed",
-                    result=analysis_text
-                )
-
-                # Extract tags and wikilinks from AI response
-                extracted_tags = []
-                extracted_wikilinks = []
-
-                if auto_tagging:
-                    try:
-                        # Use adaptive prompt metadata if available
-                        content_metadata = result.get("content_metadata", {})
-
-                        if content_metadata and content_metadata.get("tags"):
-                            extracted_tags = content_metadata["tags"]
-                            logger.info(f"[Task {self.request.id}] Using adaptive prompt tags: {len(extracted_tags)} tags")
-                        else:
-                            extracted_tags = extract_tags_from_ai_response(analysis_text)
-                            logger.info(f"[Task {self.request.id}] Using legacy tag extraction: {len(extracted_tags)} tags")
-
-                        # Limit to max_tags
-                        if len(extracted_tags) > max_tags:
-                            extracted_tags = extracted_tags[:max_tags]
-                            logger.info(f"[Task {self.request.id}] Trimmed to {max_tags} tags")
-
-                        # Extract wikilinks from metadata
-                        extracted_wikilinks = content_metadata.get("wikilinks", []) if content_metadata else []
-                        if extracted_wikilinks:
-                            logger.info(f"[Task {self.request.id}] Extracted {len(extracted_wikilinks)} wikilinks")
-
-                        image = crud.get_image(self.db, image_id=image_id)
-
-                        if image and extracted_tags:
-                            logger.info(f"[Task {self.request.id}] Extracted {len(extracted_tags)} tags: {extracted_tags}")
-
-                            for tag_name in extracted_tags:
-                                try:
-                                    crud.add_tag_to_image(
-                                        db=self.db,
-                                        image_id=image_id,
-                                        tag_name=tag_name,
-                                        owner_id=image.owner_id
-                                    )
-                                except Exception as tag_err:
-                                    logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}': {str(tag_err)}")
-                                    self.db.rollback()
-
-                            logger.info(f"[Task {self.request.id}] Tags added to image {image_id}")
-                    except Exception as e:
-                        logger.warning(f"[Task {self.request.id}] Failed to extract/add tags: {str(e)}")
-                        self.db.rollback()
-                else:
-                    logger.info(f"[Task {self.request.id}] Auto-tagging disabled, skipping tag extraction")
-
-                # Create note with analysis (if enabled)
-                if auto_create_note:
-                    try:
-                        image = crud.get_image(self.db, image_id=image_id)
-
-                        # Extract EXIF metadata for better title generation
-                        metadata = extract_image_metadata(image_path)
-
-                        # Generate meaningful title from AI analysis
-                        note_title = generate_note_title(
-                            ai_analysis=analysis_text,
-                            image_filename=Path(image_path).name,
-                            metadata=metadata
-                        )
-
-                        # Format note content with tags and wikilinks
-                        note_content = format_note_content(
-                            ai_analysis=analysis_text,
-                            tags=extracted_tags,
-                            wikilinks=extracted_wikilinks
-                        )
-
-                        note = crud.create_note(
-                            db=self.db,
-                            title=note_title,
-                            content=note_content,
-                            owner_id=image.owner_id if image else None,
-                            source='image_analysis',
-                            is_standalone=False
-                        )
-                        logger.info(f"[Task {self.request.id}] Note created: ID {note.id}, title '{note_title}'")
-
-                        # Auto-set image display_name from note title
-                        try:
-                            crud.update_image_display_name(
-                                db=self.db,
-                                image_id=image_id,
-                                display_name=note_title
-                            )
-                            logger.info(f"[Task {self.request.id}] Image display_name set to '{note_title}'")
-                        except Exception as name_err:
-                            logger.warning(f"[Task {self.request.id}] Failed to set display_name: {str(name_err)}")
-                            self.db.rollback()
-
-                        # Link the note to the image
-                        try:
-                            crud.add_image_to_note(db=self.db, image_id=image_id, note_id=note.id)
-                            logger.info(f"[Task {self.request.id}] Linked note {note.id} to image {image_id}")
-                        except Exception as link_err:
-                            logger.warning(f"[Task {self.request.id}] Failed to link note to image: {str(link_err)}")
-                            self.db.rollback()
-
-                        # Add tags to the note
-                        if extracted_tags:
-                            for tag_name in extracted_tags:
-                                try:
-                                    crud.add_tag_to_note(
-                                        db=self.db,
-                                        note_id=note.id,
-                                        tag_name=tag_name,
-                                        owner_id=image.owner_id
-                                    )
-                                except Exception as tag_err:
-                                    logger.warning(f"[Task {self.request.id}] Failed to add tag '{tag_name}' to note: {str(tag_err)}")
-                                    self.db.rollback()
-                    except Exception as e:
-                        logger.error(f"[Task {self.request.id}] Failed to create note: {str(e)}", exc_info=True)
-                        self.db.rollback()
-                else:
-                    logger.info(f"[Task {self.request.id}] Auto-create note disabled, skipping note creation")
-
-                # Add image to album if album_id was provided
-                if album_id:
-                    try:
-                        image = crud.get_image(self.db, image_id=image_id)
-                        if image:
-                            added = AlbumService.add_images_to_album(
-                                db=self.db,
-                                album_id=album_id,
-                                owner_id=image.owner_id,
-                                image_ids=[image_id]
-                            )
-                            if added > 0:
-                                logger.info(f"[Task {self.request.id}] Added image {image_id} to album {album_id}")
-                            else:
-                                logger.warning(f"[Task {self.request.id}] Image {image_id} already in album {album_id} or album not found")
-                    except Exception as album_err:
-                        logger.warning(f"[Task {self.request.id}] Failed to add image to album {album_id}: {str(album_err)}")
-                        self.db.rollback()
-
-                return {
-                    "status": "completed",
-                    "analysis": analysis_text,
-                    "image_id": image_id
-                }
-
-            else:
-                # Handle router error response
-                error_msg = result.get("error", "Unknown error from model router")
-                model_used = result.get("model", "unknown")
-                logger.error(f"[Task {self.request.id}] Model router error ({model_used}): {error_msg}")
-
-                crud.update_image_analysis_result(
-                    db=self.db,
-                    image_id=image_id,
-                    status="failed",
-                    result=f"Model: {model_used} - {error_msg}"
-                )
-
-                # Retry if connection error detected
-                if "connect" in error_msg.lower() or "connection" in error_msg.lower():
-                    logger.info(f"[Task {self.request.id}] Connection error detected, retrying in 60s")
-                    raise self.retry(exc=Exception(error_msg), countdown=60, max_retries=3)
-
-                return {"status": "failed", "error": error_msg}
-
-        except FileNotFoundError as e:
-            error_msg = f"Image file not found: {str(e)}"
-            logger.error(f"[Task {self.request.id}] {error_msg}")
-            crud.update_image_analysis_result(
-                db=self.db,
-                image_id=image_id,
-                status="failed",
-                result=error_msg
+        if auto_create_note and image:
+            create_and_link_note(
+                self.db, self.request.id, image, image_path,
+                analysis_text, extracted_tags, wikilinks,
             )
-            return {"status": "failed", "error": error_msg}
 
-        except Exception as e:
-            error_msg = f"Unexpected error during analysis: {str(e)}"
-            logger.error(f"[Task {self.request.id}] {error_msg}", exc_info=True)
-            crud.update_image_analysis_result(
-                db=self.db,
-                image_id=image_id,
-                status="failed",
-                result=error_msg
-            )
-            return {"status": "failed", "error": error_msg}
+        if album_id:
+            add_to_album(self.db, self.request.id, image_id, album_id)
+
+        return {"status": "completed", "analysis": analysis_text, "image_id": image_id}
+
+    except PERMANENT_ERRORS as e:
+        error_msg = f"Permanent error: {e}"
+        logger.error(f"[Task {self.request.id}] {error_msg}")
+        _mark_image_failed(self.db, image_id, error_msg)
+        return {"status": "failed", "error": error_msg}
+
+    except (ConnectionError, Timeout, OSError) as e:
+        error_msg = f"Transient error: {e}"
+        logger.warning(f"[Task {self.request.id}] {error_msg}, scheduling retry")
+        _mark_image_failed(self.db, image_id, error_msg)
+        raise self.retry(exc=e, countdown=120 * (self.request.retries + 1))
 
     except Exception as e:
-        error_msg = f"Unexpected error during AI analysis: {str(e)}"
+        error_msg = f"Unexpected error during AI analysis: {e}"
         logger.error(f"[Task {self.request.id}] {error_msg}", exc_info=True)
-        crud.update_image_analysis_result(
-            db=self.db,
-            image_id=image_id,
-            status="failed",
-            result=error_msg
-        )
+        _mark_image_failed(self.db, image_id, error_msg)
+        if self.request.retries < self.max_retries:
+            raise self.retry(exc=e, countdown=120 * (self.request.retries + 1))
         return {"status": "failed", "error": error_msg}
+
+
+# ── Private helpers ───────────────────────────────────────────────
+
+
+def _mark_image_failed(db, image_id: int, error_msg: str) -> None:
+    """Safely mark image as failed, tolerating DB errors."""
+    try:
+        crud.update_image_analysis_result(
+            db=db, image_id=image_id, status="failed", result=error_msg[:500],
+        )
+    except Exception:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+
+
+def _call_model_router(router: ModelRouter, image_path: str, prompt: str) -> dict:
+    """Call AI model, with or without custom prompt."""
+    if prompt:
+        return router.analyze_image(image_path=image_path, custom_prompt=prompt, timeout=300)
+    return router.analyze_image(image_path=image_path, timeout=300)
+
+
+def _handle_router_error(task, image_id: int, result: dict) -> dict:
+    """Handle non-success response from model router."""
+    error_msg = result.get("error", "Unknown error from model router")
+    model_used = result.get("model", "unknown")
+    logger.error(f"[Task {task.request.id}] Model router error ({model_used}): {error_msg}")
+
+    _mark_image_failed(task.db, image_id, f"Model: {model_used} - {error_msg}")
+
+    # Retry transient connection errors from the router
+    if any(kw in error_msg.lower() for kw in ("connect", "timeout", "refused")):
+        raise task.retry(exc=Exception(error_msg), countdown=120 * (task.request.retries + 1))
+
+    return {"status": "failed", "error": error_msg}

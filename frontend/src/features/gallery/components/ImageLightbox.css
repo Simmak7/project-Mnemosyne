@@ -239,6 +239,20 @@
   border-color: rgba(239, 68, 68, 0.25);
 }
 
+.lightbox-actions .action-btn.analyzing {
+  color: #22d3ee;
+  cursor: default;
+}
+
+.lightbox-actions .action-btn.analyzing .spin {
+  animation: lightbox-spin 1s linear infinite;
+}
+
+@keyframes lightbox-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .lightbox-actions .action-btn.retry {
   color: #fbbf24;
 }

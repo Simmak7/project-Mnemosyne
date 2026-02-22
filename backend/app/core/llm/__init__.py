@@ -16,6 +16,7 @@ from core.llm.registry import (
     get_provider,
     get_default_provider,
     register_provider,
+    create_cloud_provider,
     register_cloud_provider,
     has_provider,
     initialize_providers,

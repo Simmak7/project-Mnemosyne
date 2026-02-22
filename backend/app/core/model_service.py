@@ -8,78 +8,146 @@ This service resolves which model to use for a user, considering:
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Tuple
 from sqlalchemy.orm import Session
 
+from fastapi import HTTPException
+
 from core import config
-from core.models_registry import get_model_info, get_all_models
+from core.models_registry import (
+    get_model_info,
+    get_all_models,
+    is_model_available,
+    find_available_fallback,
+    ProviderSource,
+)
 
 logger = logging.getLogger(__name__)
 
 
-def get_effective_rag_model(db: Session, user_id: int) -> str:
+def _ensure_model_available(
+    model_id: str, use_case: str,
+) -> Tuple[str, Optional[str]]:
+    """
+    Verify an Ollama model is downloaded; find a fallback if not.
+
+    Returns:
+        (resolved_model_id, fallback_warning_or_None)
+
+    Raises:
+        HTTPException(503) if model is unavailable and no fallback exists
+    """
+    info = get_model_info(model_id)
+    # Skip check for cloud models
+    if info and info.provider != ProviderSource.OLLAMA:
+        return model_id, None
+
+    if is_model_available(model_id):
+        return model_id, None
+
+    logger.warning(f"Model '{model_id}' not available in Ollama, searching for fallback")
+    fallback = find_available_fallback(model_id, use_case)
+
+    if fallback:
+        fb_info = get_model_info(fallback)
+        name = fb_info.name if fb_info else fallback
+        warning = f"Model '{model_id}' is not installed. Using fallback: {name} ({fallback})"
+        logger.warning(warning)
+        return fallback, warning
+
+    raise HTTPException(
+        status_code=503,
+        detail=(
+            f"Model '{model_id}' is not installed. "
+            f"Please run 'ollama pull {model_id}' or select a "
+            f"different model in Settings > AI Models."
+        ),
+    )
+
+
+def get_effective_rag_model(
+    db: Session, user_id: int, check_available: bool = True,
+) -> str:
     """
     Get the effective RAG model for a user.
 
     Priority:
     1. User's rag_model preference (if set and valid)
     2. System default (config.RAG_MODEL)
+
+    If check_available is True, verifies the model is downloaded
+    in Ollama and falls back to an available alternative if not.
     """
     from models import UserPreferences
 
-    # Try to get user preference
     prefs = db.query(UserPreferences).filter(
         UserPreferences.user_id == user_id
     ).first()
 
     if prefs and prefs.rag_model:
-        # Validate the model exists in registry
-        model_info = get_model_info(prefs.rag_model)
-        if model_info:
+        info = get_model_info(prefs.rag_model)
+        if info:
             logger.debug(f"Using user RAG model preference: {prefs.rag_model}")
-            return prefs.rag_model
+            model_id = prefs.rag_model
         else:
             logger.warning(
                 f"User {user_id} has invalid RAG model preference: {prefs.rag_model}, "
                 f"falling back to system default"
             )
+            model_id = config.RAG_MODEL
+    else:
+        logger.debug(f"Using system default RAG model: {config.RAG_MODEL}")
+        model_id = config.RAG_MODEL
 
-    logger.debug(f"Using system default RAG model: {config.RAG_MODEL}")
-    return config.RAG_MODEL
+    if check_available:
+        model_id, _warning = _ensure_model_available(model_id, "rag")
+
+    return model_id
 
 
-def get_effective_brain_model(db: Session, user_id: int) -> str:
+def get_effective_brain_model(
+    db: Session, user_id: int, check_available: bool = True,
+) -> str:
     """
     Get the effective Brain model for a user.
 
     Priority:
     1. User's brain_model preference (if set and valid)
     2. System default (config.BRAIN_MODEL)
+
+    If check_available is True, verifies the model is downloaded
+    in Ollama and falls back to an available alternative if not.
     """
     from models import UserPreferences
 
-    # Try to get user preference
     prefs = db.query(UserPreferences).filter(
         UserPreferences.user_id == user_id
     ).first()
 
     if prefs and prefs.brain_model:
-        # Validate the model exists in registry
-        model_info = get_model_info(prefs.brain_model)
-        if model_info:
+        info = get_model_info(prefs.brain_model)
+        if info:
             logger.debug(f"Using user Brain model preference: {prefs.brain_model}")
-            return prefs.brain_model
+            model_id = prefs.brain_model
         else:
             logger.warning(
                 f"User {user_id} has invalid Brain model preference: {prefs.brain_model}, "
                 f"falling back to system default"
             )
+            model_id = config.BRAIN_MODEL
+    else:
+        logger.debug(f"Using system default Brain model: {config.BRAIN_MODEL}")
+        model_id = config.BRAIN_MODEL
 
-    logger.debug(f"Using system default Brain model: {config.BRAIN_MODEL}")
-    return config.BRAIN_MODEL
+    if check_available:
+        model_id, _warning = _ensure_model_available(model_id, "brain")
+
+    return model_id
 
 
-def get_effective_nexus_model(db: Session, user_id: int) -> str:
+def get_effective_nexus_model(
+    db: Session, user_id: int, check_available: bool = True,
+) -> str:
     """
     Get the effective NEXUS generation model for a user.
 
@@ -87,6 +155,9 @@ def get_effective_nexus_model(db: Session, user_id: int) -> str:
     1. User's nexus_model preference (if set and valid)
     2. User's rag_model preference (if set and valid)
     3. System default (config.RAG_MODEL)
+
+    If check_available is True, verifies the model is downloaded
+    in Ollama and falls back to an available alternative if not.
     """
     from models import UserPreferences
 
@@ -95,18 +166,21 @@ def get_effective_nexus_model(db: Session, user_id: int) -> str:
     ).first()
 
     if prefs and getattr(prefs, 'nexus_model', None):
-        model_info = get_model_info(prefs.nexus_model)
-        if model_info:
+        info = get_model_info(prefs.nexus_model)
+        if info:
             logger.debug(f"Using user NEXUS model preference: {prefs.nexus_model}")
-            return prefs.nexus_model
+            model_id = prefs.nexus_model
+            if check_available:
+                model_id, _warning = _ensure_model_available(model_id, "nexus")
+            return model_id
         else:
             logger.warning(
                 f"User {user_id} has invalid NEXUS model preference: {prefs.nexus_model}, "
                 f"trying RAG model fallback"
             )
 
-    # Fall back to RAG model
-    return get_effective_rag_model(db, user_id)
+    # Fall back to RAG model (which already does its own availability check)
+    return get_effective_rag_model(db, user_id, check_available=check_available)
 
 
 def get_effective_context_budget(db: Session, user_id: int) -> int:
@@ -248,7 +322,7 @@ def get_provider_for_user(db: Session, user_id: int, use_case: str = "rag"):
                 key_info = get_api_key_with_url(db, user_id, cloud_provider)
                 if key_info:
                     try:
-                        from core.llm.registry import register_cloud_provider
+                        from core.llm.registry import create_cloud_provider
                         provider_map = {
                             "anthropic": PT.ANTHROPIC,
                             "openai": PT.OPENAI,
@@ -256,7 +330,7 @@ def get_provider_for_user(db: Session, user_id: int, use_case: str = "rag"):
                         }
                         ptype = provider_map.get(cloud_provider)
                         if ptype:
-                            provider = register_cloud_provider(
+                            provider = create_cloud_provider(
                                 ptype,
                                 key_info["api_key"],
                                 key_info.get("base_url"),

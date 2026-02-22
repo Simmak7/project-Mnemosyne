@@ -2,6 +2,7 @@
  * useGalleryData - Data fetching and management for image gallery
  */
 import { useState, useCallback } from 'react';
+import { API_URL } from '../../../../utils/api';
 
 export function useGalleryData() {
   const [images, setImages] = useState([]);
@@ -29,7 +30,7 @@ export function useGalleryData() {
       }
 
       const response = await fetch(
-        `http://localhost:8000/images/?skip=${(pageNum - 1) * 50}&limit=50`,
+        `${API_URL}/images/?skip=${(pageNum - 1) * 50}&limit=50`,
         {
           headers: { 'Authorization': `Bearer ${token}` },
         }
@@ -54,7 +55,7 @@ export function useGalleryData() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/tags/', {
+      const response = await fetch(`${API_URL}/tags/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -82,7 +83,7 @@ export function useGalleryData() {
         )
       );
 
-      const response = await fetch(`http://localhost:8000/retry-image/${imageId}`, {
+      const response = await fetch(`${API_URL}/retry-image/${imageId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -143,7 +144,7 @@ export function useGalleryData() {
     setDeletingImages(prev => new Set(prev).add(imageId));
 
     try {
-      const response = await fetch(`http://localhost:8000/images/${imageId}`, {
+      const response = await fetch(`${API_URL}/images/${imageId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

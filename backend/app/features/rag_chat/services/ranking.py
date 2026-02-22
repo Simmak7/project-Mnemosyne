@@ -304,24 +304,33 @@ def apply_recency_boost(
     return results
 
 
-def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
+def deduplicate_results(
+    results: List[RankedResult],
+    max_chunks_per_source: int = 1,
+) -> List[RankedResult]:
     """
-    Remove duplicate sources, keeping highest-ranked version.
+    Remove duplicate sources, keeping highest-ranked version(s).
 
-    Handles cases where a note appears both as full note and as chunk.
+    For document_chunk sources, allows multiple chunks per document
+    (up to max_chunks_per_source) with a quality threshold: only keep
+    chunks scoring above 50% of the top chunk's score for that document.
+
+    For notes/chunks, keeps 1 per parent note.
 
     Args:
         results: Ranked results to deduplicate
+        max_chunks_per_source: Max chunks to keep per document (default 1)
 
     Returns:
         Deduplicated results
     """
     seen_notes: Set[int] = set()
-    seen_documents: Set[int] = set()
+    # Track per-document: count and top score
+    doc_counts: Dict[int, int] = defaultdict(int)
+    doc_top_scores: Dict[int, float] = {}
     deduplicated: List[RankedResult] = []
 
     for rr in results:
-        # For chunks, use the parent note ID
         if rr.result.source_type == 'chunk':
             note_id = rr.result.metadata.get('note_id')
             if note_id and note_id in seen_notes:
@@ -334,12 +343,20 @@ def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
             seen_notes.add(rr.result.source_id)
         elif rr.result.source_type == 'document_chunk':
             doc_id = rr.result.metadata.get('document_id')
-            if doc_id and doc_id in seen_documents:
-                continue
             if doc_id:
-                seen_documents.add(doc_id)
+                if doc_id not in doc_top_scores:
+                    doc_top_scores[doc_id] = rr.final_score
+                # Quality gate: skip if below 50% of top chunk score
+                if rr.final_score < doc_top_scores[doc_id] * 0.5:
+                    continue
+                if doc_counts[doc_id] >= max_chunks_per_source:
+                    continue
+                doc_counts[doc_id] += 1
 
         deduplicated.append(rr)
+
+    # Sort document chunks by position within each document for coherent context
+    _sort_document_chunks_by_position(deduplicated)
 
     # Re-assign ranks
     for i, rr in enumerate(deduplicated):
@@ -347,6 +364,34 @@ def deduplicate_results(results: List[RankedResult]) -> List[RankedResult]:
 
     logger.debug(f"Deduplication: {len(results)} -> {len(deduplicated)} results")
     return deduplicated
+
+
+def _sort_document_chunks_by_position(results: List[RankedResult]) -> None:
+    """
+    Sort document chunks from the same document by page_number/chunk_index
+    while preserving relative ordering of other result types.
+    """
+    # Group consecutive document chunks from the same doc
+    i = 0
+    while i < len(results):
+        if results[i].result.source_type != 'document_chunk':
+            i += 1
+            continue
+        doc_id = results[i].result.metadata.get('document_id')
+        j = i + 1
+        while j < len(results):
+            if (results[j].result.source_type == 'document_chunk'
+                    and results[j].result.metadata.get('document_id') == doc_id):
+                j += 1
+            else:
+                break
+        if j - i > 1:
+            chunk_slice = results[i:j]
+            chunk_slice.sort(
+                key=lambda rr: rr.result.metadata.get('page_number', 0) or 0
+            )
+            results[i:j] = chunk_slice
+        i = j
 
 
 def ensure_image_slots(
@@ -503,8 +548,8 @@ def merge_and_rank(
     # Apply RRF
     ranked = reciprocal_rank_fusion(result_lists, config)
 
-    # Deduplicate
-    ranked = deduplicate_results(ranked)
+    # Deduplicate (allow up to 3 chunks per document for better recall)
+    ranked = deduplicate_results(ranked, max_chunks_per_source=3)
 
     # Apply image slot reservation
     ranked = ensure_image_slots(ranked, config)

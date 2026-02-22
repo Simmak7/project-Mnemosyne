@@ -72,6 +72,7 @@ async def update_preferences(
         rag_model=data.rag_model,
         brain_model=data.brain_model,
         nexus_model=data.nexus_model,
+        vision_model=data.vision_model,
         cloud_ai_enabled=data.cloud_ai_enabled,
         cloud_ai_provider=data.cloud_ai_provider,
         cloud_rag_model=data.cloud_rag_model,

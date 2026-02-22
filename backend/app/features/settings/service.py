@@ -77,6 +77,7 @@ def update_user_preferences(
     rag_model: Optional[str] = None,
     brain_model: Optional[str] = None,
     nexus_model: Optional[str] = None,
+    vision_model: Optional[str] = None,
     cloud_ai_enabled: Optional[bool] = None,
     cloud_ai_provider: Optional[str] = None,
     cloud_rag_model: Optional[str] = None,
@@ -148,6 +149,14 @@ def update_user_preferences(
             preferences.nexus_model = nexus_model
         else:
             return None, f"Invalid NEXUS model: {nexus_model}"
+
+    if vision_model is not None:
+        if vision_model == "":
+            preferences.vision_model = None
+        elif validate_model_id(vision_model):
+            preferences.vision_model = vision_model
+        else:
+            return None, f"Invalid vision model: {vision_model}"
 
     # Cloud AI preferences
     if cloud_ai_enabled is not None:

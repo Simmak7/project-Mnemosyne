@@ -2,6 +2,7 @@
  * useNoteList - Data fetching and state management for note list
  */
 import { useState, useCallback, useEffect } from 'react';
+import { API_URL } from '../../../../utils/api';
 
 export function useNoteList() {
   const [notes, setNotes] = useState([]);
@@ -18,7 +19,7 @@ export function useNoteList() {
       }
 
       const response = await fetch(
-        `http://localhost:8000/notes/?skip=${(pageNum - 1) * 50}&limit=50`,
+        `${API_URL}/notes/?skip=${(pageNum - 1) * 50}&limit=50`,
         {
           headers: { 'Authorization': `Bearer ${token}` },
         }

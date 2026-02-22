@@ -42,6 +42,38 @@ class LLMStreamChunk:
     done: bool = False
     input_tokens: int = 0
     output_tokens: int = 0
+    is_error: bool = False
+    error_type: Optional[str] = None
+
+
+# User-friendly error messages by error type
+ERROR_MESSAGES = {
+    "connection": "AI service is temporarily unavailable. Please try again in a moment.",
+    "timeout": "The AI took too long to respond. Try a shorter question or try again.",
+    "model_unavailable": "The selected AI model is not available. Check Settings > AI Models.",
+    "cloud_fallback": "Cloud AI unavailable, using local AI instead.",
+    "unknown": "Something went wrong with the AI service. Please try again.",
+}
+
+
+def classify_llm_error(error: Exception) -> tuple[str, str]:
+    """Classify an LLM exception into (error_type, user_message)."""
+    import requests
+
+    error_str = str(error).lower()
+
+    if isinstance(error, requests.exceptions.Timeout):
+        return "timeout", ERROR_MESSAGES["timeout"]
+    if isinstance(error, requests.exceptions.ConnectionError):
+        return "connection", ERROR_MESSAGES["connection"]
+    if "connection" in error_str or "refused" in error_str:
+        return "connection", ERROR_MESSAGES["connection"]
+    if "timeout" in error_str or "timed out" in error_str:
+        return "timeout", ERROR_MESSAGES["timeout"]
+    if "not found" in error_str or "does not exist" in error_str:
+        return "model_unavailable", ERROR_MESSAGES["model_unavailable"]
+
+    return "unknown", ERROR_MESSAGES["unknown"]
 
 
 class LLMProvider(ABC):

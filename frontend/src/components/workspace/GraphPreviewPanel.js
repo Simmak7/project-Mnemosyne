@@ -4,6 +4,7 @@ import { useWorkspaceState } from '../../hooks/useWorkspaceState';
 import { useContentAnalysis } from '../../hooks/useContentAnalysis';
 import { Network } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
+import { API_URL } from '../../utils/api';
 import './ContextPanels.css';
 import './GraphPreviewPanel.css';
 
@@ -33,7 +34,7 @@ function GraphPreviewPanel() {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`http://localhost:8000/graph/data`, {
+      const response = await fetch(`${API_URL}/graph/data`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

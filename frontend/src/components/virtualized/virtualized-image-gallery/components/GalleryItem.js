@@ -4,6 +4,7 @@
 import React from 'react';
 import { Sparkles, RefreshCw, Trash2 } from 'lucide-react';
 import LazyImage from '../../../layout/LazyImage';
+import { API_URL } from '../../../../utils/api';
 
 function GalleryItem({
   image,
@@ -17,7 +18,7 @@ function GalleryItem({
     <div className="gallery-item" onClick={() => onOpenLightbox(image)}>
       <div className="image-wrapper">
         <LazyImage
-          src={`http://localhost:8000/image/${image.id}`}
+          src={`${API_URL}/image/${image.id}`}
           alt={image.filename}
           className="gallery-image"
           imageId={image.id}

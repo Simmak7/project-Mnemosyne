@@ -5,6 +5,7 @@ import useDebounce from '../../hooks/useDebounce';
 import WikilinkAutocomplete from './WikilinkAutocomplete';
 import TagSelector from './TagSelector';
 import EditorToolbar from './EditorToolbar';
+import { API_URL } from '../../utils/api';
 import './MarkdownEditor.css';
 
 /**
@@ -58,8 +59,8 @@ function MarkdownEditor({ noteId, initialNote, onSave, onClose }) {
     try {
       const token = localStorage.getItem('token');
       const url = noteId
-        ? `http://localhost:8000/notes/${noteId}`
-        : 'http://localhost:8000/notes/';
+        ? `${API_URL}/notes/${noteId}`
+        : `${API_URL}/notes/`;
 
       const method = noteId ? 'PUT' : 'POST';
 

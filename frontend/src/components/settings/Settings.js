@@ -57,6 +57,7 @@ function Settings({ isOpen, onClose, username, userEmail }) {
     updateNotification,
     revokeSession,
     revokeAllSessions,
+    refreshModels,
   } = useSettingsData(isOpen);
 
   if (!isOpen) return null;
@@ -104,6 +105,7 @@ function Settings({ isOpen, onClose, username, userEmail }) {
             modelConfig={modelConfig}
             preferences={preferences}
             onPreferenceUpdate={updatePreference}
+            onModelsChanged={refreshModels}
           />
 
           <CloudAISection

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { API_URL } from '../utils/api';
 import './AIChat.css';
 
 function AIChat({ mode = 'standalone', context = null, onClose }) {
@@ -62,7 +63,7 @@ function AIChat({ mode = 'standalone', context = null, onClose }) {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/chat-with-ai/', {
+      const response = await fetch(`${API_URL}/chat-with-ai/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -15,12 +15,21 @@ class ComponentStatus(BaseModel):
     message: Optional[str] = None
 
 
+class CircuitBreakerStatus(BaseModel):
+    """Status of a circuit breaker."""
+    state: str  # 'closed', 'open', 'half_open'
+    failure_count: int
+    failure_threshold: int
+    recovery_timeout_s: float
+
+
 class HealthResponse(BaseModel):
     """Response schema for health check endpoint."""
     status: str  # 'healthy', 'degraded', 'unhealthy'
     version: Optional[str] = None
     build: Optional[int] = None
     components: Dict[str, str]
+    circuit_breakers: Optional[Dict[str, CircuitBreakerStatus]] = None
 
 
 class RootResponse(BaseModel):
@@ -37,6 +46,24 @@ class SystemInfoResponse(BaseModel):
     environment: str
     uptime_seconds: Optional[float] = None
     components: Dict[str, str]
+
+
+class GpuLoadedModel(BaseModel):
+    """A model currently loaded in Ollama."""
+    name: str
+    size: int = 0
+    size_vram: int = 0
+    digest: str = ""
+    expires_at: str = ""
+
+
+class GpuInfoResponse(BaseModel):
+    """Response schema for GPU info endpoint."""
+    gpu_detected: bool
+    total_vram_bytes: int = 0
+    total_vram_gb: float = 0.0
+    loaded_models: list[GpuLoadedModel] = []
+    error: Optional[str] = None
 
 
 class ModelInfoResponse(BaseModel):
@@ -72,3 +99,18 @@ class ModelConfigResponse(BaseModel):
     brain_model: str
     rag_model_info: Optional[ModelInfoResponse] = None
     brain_model_info: Optional[ModelInfoResponse] = None
+
+
+class ModelUpdateStatus(BaseModel):
+    """Update status for a single model."""
+    model: str
+    update_available: bool
+    status: str  # 'up_to_date', 'update_available', 'unknown', 'error'
+    local_digest: Optional[str] = None
+    remote_digest: Optional[str] = None
+
+
+class ModelUpdatesResponse(BaseModel):
+    """Response schema for model updates check."""
+    updates: list[ModelUpdateStatus]
+    checked_count: int

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { FiTag, FiX } from 'react-icons/fi';
+import { API_URL } from '../../utils/api';
 import './TagSelector.css';
 
 /**
@@ -24,7 +25,7 @@ function TagSelector({ selectedTags = [], onChange }) {
       setLoading(true);
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:8000/tags/', {
+        const response = await fetch(`${API_URL}/tags/`, {
           headers: { 'Authorization': `Bearer ${token}` },
         });
 

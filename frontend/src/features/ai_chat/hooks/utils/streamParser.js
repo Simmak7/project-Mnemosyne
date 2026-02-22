@@ -57,6 +57,9 @@ export async function parseSSEStream(reader, handlers) {
               break;
           }
         } catch (parseError) {
+          if (parseError.message && !parseError.message.includes('parse')) {
+            throw parseError;
+          }
           console.warn('Failed to parse SSE data:', parseError);
         }
       }

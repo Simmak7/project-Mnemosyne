@@ -4,6 +4,7 @@ import { useWorkspaceState } from '../../hooks/useWorkspaceState';
 import { useContentAnalysis } from '../../hooks/useContentAnalysis';
 import { Info, Calendar, FileText, Hash, Link2, Image as ImageIcon, Activity } from 'lucide-react';
 import { format } from 'date-fns';
+import { API_URL } from '../../utils/api';
 import './ContextPanels.css';
 
 /**
@@ -24,7 +25,7 @@ function InfoPanel() {
         throw new Error('No authentication token');
       }
 
-      const response = await fetch(`http://localhost:8000/notes/${selectedNoteId}`, {
+      const response = await fetch(`${API_URL}/notes/${selectedNoteId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },

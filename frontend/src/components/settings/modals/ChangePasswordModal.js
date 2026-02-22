@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { X, Key, Eye, EyeOff, Check, AlertTriangle } from 'lucide-react';
 import PasswordStrengthIndicator from '../components/PasswordStrengthIndicator';
+import { API_URL } from '../../../utils/api';
 
 function ChangePasswordModal({ isOpen, onClose }) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -27,7 +28,7 @@ function ChangePasswordModal({ isOpen, onClose }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/change-password', {
+      const response = await fetch(`${API_URL}/change-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

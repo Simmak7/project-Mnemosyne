@@ -3,7 +3,7 @@ import { useGalleryImages, useGalleryTags } from '../../../hooks/useGalleryImage
 import { useAlbums } from '../../../hooks/useAlbums';
 import { preloadImageDimensions } from '../../../utils/justifiedLayout';
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 /**
  * Hook for managing gallery grid state - image loading, dimensions, filtering
@@ -105,7 +105,7 @@ export function useGalleryGridState({
       sourceImages = imagesWithDimensions.map(img => {
         const latest = latestPropsMap.get(img.id);
         if (latest) {
-          return { ...img, is_favorite: latest.is_favorite, tags: latest.tags };
+          return { ...img, is_favorite: latest.is_favorite, tags: latest.tags, ai_analysis_status: latest.ai_analysis_status };
         }
         return img;
       });

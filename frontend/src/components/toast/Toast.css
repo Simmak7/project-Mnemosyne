@@ -1,0 +1,349 @@
+/**
+ * Toast & ConfirmDialog - Neural Glass Design System styling
+ *
+ * Uses CSS variables from neural-glass/ for colors, spacing,
+ * borders, z-index, and blur values. Fully supports light mode.
+ */
+
+/* ============================================
+   Toast Container
+   Fixed top-right, above everything
+   ============================================ */
+
+.toast-container {
+  position: fixed;
+  top: var(--ng-space-4, 16px);
+  right: var(--ng-space-4, 16px);
+  z-index: var(--ng-z-toast, 1700);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 12px);
+  max-width: 400px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* ============================================
+   Individual Toast
+   ============================================ */
+
+.toast-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-3, 12px) var(--ng-space-4, 16px);
+  background: var(--ng-glass-bg-solid, rgba(10, 10, 10, 0.85));
+  backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-lg, 20px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-xl, 12px);
+  box-shadow: var(--ng-shadow-lg, 0 10px 15px rgba(0, 0, 0, 0.5));
+  overflow: hidden;
+  pointer-events: auto;
+  font-family: var(--ng-font-ui, Inter, sans-serif);
+}
+
+/* Type-specific border glow */
+.toast-success {
+  border-color: var(--ng-success-border, rgba(34, 197, 94, 0.3));
+}
+
+.toast-error {
+  border-color: var(--ng-error-border, rgba(239, 68, 68, 0.3));
+}
+
+.toast-warning {
+  border-color: var(--ng-warning-border, rgba(245, 158, 11, 0.3));
+}
+
+.toast-info {
+  border-color: var(--ng-info-border, rgba(59, 130, 246, 0.3));
+}
+
+/* ============================================
+   Toast Icon
+   ============================================ */
+
+.toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--ng-radius-md, 6px);
+  margin-top: 1px;
+}
+
+.toast-success .toast-icon {
+  color: var(--ng-success, #22c55e);
+  background: var(--ng-success-bg, rgba(34, 197, 94, 0.1));
+}
+
+.toast-error .toast-icon {
+  color: var(--ng-error, #ef4444);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+}
+
+.toast-warning .toast-icon {
+  color: var(--ng-warning, #f59e0b);
+  background: var(--ng-warning-bg, rgba(245, 158, 11, 0.1));
+}
+
+.toast-info .toast-icon {
+  color: var(--ng-info, #3b82f6);
+  background: var(--ng-info-bg, rgba(59, 130, 246, 0.1));
+}
+
+/* ============================================
+   Toast Body
+   ============================================ */
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.toast-description {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+/* ============================================
+   Toast Close Button
+   ============================================ */
+
+.toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin-top: 1px;
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  color: var(--ng-text-muted, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toast-close:hover {
+  color: var(--ng-text-secondary, #d1d5db);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================
+   Progress Bar (auto-dismiss countdown)
+   ============================================ */
+
+.toast-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.toast-progress-bar {
+  height: 100%;
+  width: 100%;
+  transform-origin: left;
+  animation: toast-progress-shrink linear forwards;
+  border-radius: 0 0 0 var(--ng-radius-xl, 12px);
+}
+
+@keyframes toast-progress-shrink {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+
+.toast-progress-success { background: var(--ng-success, #22c55e); }
+.toast-progress-error { background: var(--ng-error, #ef4444); }
+.toast-progress-warning { background: var(--ng-warning, #f59e0b); }
+.toast-progress-info { background: var(--ng-info, #3b82f6); }
+
+/* ============================================
+   Confirm Dialog
+   ============================================ */
+
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--ng-z-modal-backdrop, 1300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.confirm-dialog {
+  position: relative;
+  z-index: var(--ng-z-modal, 1400);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ng-space-3, 12px);
+  width: 100%;
+  max-width: 380px;
+  padding: var(--ng-space-6, 24px);
+  background: var(--ng-glass-bg-solid, rgba(10, 10, 10, 0.85));
+  backdrop-filter: blur(var(--ng-blur-xl, 32px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl, 32px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-2xl, 16px);
+  box-shadow: var(--ng-shadow-2xl, 0 25px 50px rgba(0, 0, 0, 0.7));
+  text-align: center;
+  font-family: var(--ng-font-ui, Inter, sans-serif);
+}
+
+.confirm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--ng-radius-full, 9999px);
+  background: var(--ng-warning-bg, rgba(245, 158, 11, 0.1));
+  color: var(--ng-warning, #f59e0b);
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.confirm-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ng-text-tertiary, #9ca3af);
+  max-width: 300px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: var(--ng-space-3, 12px);
+  margin-top: var(--ng-space-2, 8px);
+  width: 100%;
+}
+
+.confirm-btn {
+  flex: 1;
+  padding: var(--ng-space-2-5, 10px) var(--ng-space-4, 16px);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--ng-radius-lg, 8px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: var(--ng-font-ui, Inter, sans-serif);
+}
+
+.confirm-btn-cancel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.confirm-btn-cancel:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--ng-glass-border-hover, rgba(255, 255, 255, 0.1));
+}
+
+.confirm-btn-confirm {
+  background: var(--ng-error, #ef4444);
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+
+.confirm-btn-confirm:hover {
+  background: var(--ng-error-dark, #dc2626);
+}
+
+.confirm-btn-confirm:focus-visible {
+  outline: 2px solid var(--ng-error, #ef4444);
+  outline-offset: 2px;
+}
+
+.confirm-btn-cancel:focus-visible {
+  outline: 2px solid var(--ng-focus-ring, #818cf8);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Light Mode Overrides
+   ============================================ */
+
+[data-theme="light"] .toast-item {
+  background: var(--ng-glass-bg-heavy, rgba(255, 255, 255, 0.85));
+  box-shadow: var(--ng-shadow-lg);
+}
+
+[data-theme="light"] .toast-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .toast-progress-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .confirm-backdrop {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .confirm-dialog {
+  background: var(--ng-glass-bg-heavy, rgba(255, 255, 255, 0.85));
+  box-shadow: var(--ng-shadow-2xl);
+}
+
+[data-theme="light"] .confirm-btn-cancel {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .confirm-btn-cancel:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================
+   Responsive
+   ============================================ */
+
+@media (max-width: 480px) {
+  .toast-container {
+    left: var(--ng-space-3, 12px);
+    right: var(--ng-space-3, 12px);
+    max-width: none;
+  }
+
+  .confirm-dialog {
+    margin: 0 var(--ng-space-4, 16px);
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .toast-progress-bar {
+    animation-duration: 0.01ms !important;
+  }
+}

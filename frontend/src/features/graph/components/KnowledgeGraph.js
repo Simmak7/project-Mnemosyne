@@ -9,6 +9,7 @@ import NodePreview from './NodePreview';
 import GraphHelp from './GraphHelp';
 import RAGChat from '../../rag_chat/components/RAGChat';
 import { transformToGraphData } from '../utils/graphDataTransform';
+import { API_URL } from '../../../utils/api';
 import './KnowledgeGraph.css';
 
 /**
@@ -56,7 +57,7 @@ function KnowledgeGraph({ onNavigateToNote, onNavigateToImage, onNavigateToTag }
       }
 
       // Fetch all notes with their relationships (enhanced with tags, wikilinks, backlinks)
-      const notesResponse = await fetch('http://localhost:8000/notes-enhanced/', {
+      const notesResponse = await fetch(`${API_URL}/notes-enhanced/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -73,14 +74,14 @@ function KnowledgeGraph({ onNavigateToNote, onNavigateToImage, onNavigateToTag }
       const notes = await notesResponse.json();
 
       // Fetch all tags
-      const tagsResponse = await fetch('http://localhost:8000/tags/', {
+      const tagsResponse = await fetch(`${API_URL}/tags/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
       const tags = tagsResponse.ok ? await tagsResponse.json() : [];
 
       // Fetch all images
-      const imagesResponse = await fetch('http://localhost:8000/images/', {
+      const imagesResponse = await fetch(`${API_URL}/images/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 

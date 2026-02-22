@@ -1,19 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TOTAL_STEPS } from '../constants/onboardingSteps';
 
-const STORAGE_KEY = 'onboarding_completed';
+const STORAGE_KEY_PREFIX = 'onboarding_completed';
 
 /**
  * useOnboarding - manages tutorial wizard state.
  *
- * Uses a non-prefixed localStorage key so it survives logout
- * (useAuth clears all `mnemosyne:*` keys on logout).
+ * Key is per-user so each new account sees the tutorial on first login.
  * Listens for 'replay-onboarding' custom event from Settings.
  */
 export function useOnboarding() {
+  const storageKey = useMemo(() => {
+    const username = localStorage.getItem('username');
+    return username ? `${STORAGE_KEY_PREFIX}_${username}` : STORAGE_KEY_PREFIX;
+  }, []);
+
   const [completed, setCompletedState] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) === 'true';
+      return localStorage.getItem(storageKey) === 'true';
     } catch {
       return false;
     }
@@ -25,12 +29,12 @@ export function useOnboarding() {
     setCompletedState(val);
     try {
       if (val) {
-        localStorage.setItem(STORAGE_KEY, 'true');
+        localStorage.setItem(storageKey, 'true');
       } else {
-        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(storageKey);
       }
     } catch { /* ignore */ }
-  }, []);
+  }, [storageKey]);
 
   const isVisible = !completed;
   const isFirstStep = currentStep === 0;

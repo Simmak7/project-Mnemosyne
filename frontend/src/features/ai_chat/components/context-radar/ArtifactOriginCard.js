@@ -6,6 +6,7 @@
  */
 import React from 'react';
 import { Camera, FileText, ExternalLink } from 'lucide-react';
+import { API_URL } from '../../../../utils/api';
 
 function ArtifactOriginCard({ citation, onNavigateToImage, onNavigateToNote }) {
   if (!citation) return null;
@@ -40,7 +41,7 @@ function ArtifactOriginCard({ citation, onNavigateToImage, onNavigateToNote }) {
         {isImage && (
           <div className="artifact-thumbnail">
             <img
-              src={`http://localhost:8000/image/${artifact_id}`}
+              src={`${API_URL}/image/${artifact_id}`}
               alt={displayName}
             />
           </div>

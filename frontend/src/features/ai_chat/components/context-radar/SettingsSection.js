@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sliders, ChevronUp, ChevronDown } from 'lucide-react';
 import { useAIChatContext } from '../../hooks/AIChatContext';
+import { API_URL } from '../../../../utils/api';
 
 function SettingsSection() {
   const { settings, updateSettings } = useAIChatContext();
@@ -15,7 +16,7 @@ function SettingsSection() {
   useEffect(() => {
     const fetchModels = async () => {
       try {
-        const response = await fetch('http://localhost:8000/models', {
+        const response = await fetch(`${API_URL}/models`, {
           credentials: 'include'
         });
         if (response.ok) {

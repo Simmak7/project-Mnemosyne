@@ -45,7 +45,8 @@ export function useLightbox({
       const updatedImage = images.find(img => img.id === selectedImage.id);
       if (updatedImage && (
         updatedImage.is_favorite !== selectedImage.is_favorite ||
-        updatedImage.display_name !== selectedImage.display_name
+        updatedImage.display_name !== selectedImage.display_name ||
+        updatedImage.ai_analysis_status !== selectedImage.ai_analysis_status
       )) {
         setSelectedImage(updatedImage);
       }

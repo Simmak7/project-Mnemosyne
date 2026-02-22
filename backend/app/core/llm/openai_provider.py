@@ -14,6 +14,7 @@ from core.llm.base import (
     LLMResponse,
     LLMStreamChunk,
     ProviderType,
+    classify_llm_error,
 )
 
 logger = logging.getLogger(__name__)
@@ -117,7 +118,11 @@ class OpenAIProvider(LLMProvider):
 
         except Exception as e:
             logger.error(f"OpenAI streaming failed: {e}")
-            yield LLMStreamChunk(content=f"[ERROR: {e}]", done=True)
+            error_type, user_msg = classify_llm_error(e)
+            yield LLMStreamChunk(
+                content=user_msg, done=True,
+                is_error=True, error_type=error_type,
+            )
 
     def health_check(self) -> dict:
         """Verify OpenAI API key is valid."""

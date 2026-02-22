@@ -22,6 +22,7 @@ import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
 import OnboardingModal from './features/onboarding';
+import { ToastProvider } from './components/toast';
 
 // Lazy load heavy components
 const GalleryLayout = lazy(() => import('./features/gallery').then(m => ({ default: m.GalleryLayout })));
@@ -72,6 +73,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <ToastProvider>
       <div className="App">
         <Sidebar
           activeTab={tab}
@@ -192,6 +194,7 @@ function App() {
           </div>
         )}
       </div>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

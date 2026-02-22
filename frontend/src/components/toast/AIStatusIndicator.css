@@ -1,0 +1,226 @@
+/**
+ * AIStatusIndicator - Neural Glass styling
+ */
+
+/* ============================================
+   Status Button (Sidebar compact)
+   ============================================ */
+
+.ai-status-wrapper {
+  position: relative;
+}
+
+.ai-status-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  width: 100%;
+  padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  background: transparent;
+  border: none;
+  border-radius: var(--ng-radius-lg, 8px);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  font-family: var(--ng-font-ui, Inter, sans-serif);
+}
+
+.ai-status-btn:hover {
+  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+/* ============================================
+   Status Dot
+   ============================================ */
+
+.ai-status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--ng-radius-full, 9999px);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ai-status-healthy {
+  background: var(--ng-success, #22c55e);
+  box-shadow: 0 0 6px var(--ng-success, #22c55e);
+}
+
+.ai-status-degraded {
+  background: var(--ng-warning, #f59e0b);
+  box-shadow: 0 0 6px var(--ng-warning, #f59e0b);
+  animation: status-pulse-amber 2s ease-in-out infinite;
+}
+
+.ai-status-offline {
+  background: var(--ng-error, #ef4444);
+  box-shadow: 0 0 6px var(--ng-error, #ef4444);
+  animation: status-pulse-red 2s ease-in-out infinite;
+}
+
+.ai-status-checking {
+  background: var(--ng-text-muted, #6b7280);
+  box-shadow: none;
+  animation: status-pulse-gray 1.5s ease-in-out infinite;
+}
+
+@keyframes status-pulse-amber {
+  0%, 100% { box-shadow: 0 0 4px var(--ng-warning, #f59e0b); }
+  50% { box-shadow: 0 0 10px var(--ng-warning, #f59e0b); }
+}
+
+@keyframes status-pulse-red {
+  0%, 100% { box-shadow: 0 0 4px var(--ng-error, #ef4444); }
+  50% { box-shadow: 0 0 10px var(--ng-error, #ef4444); }
+}
+
+@keyframes status-pulse-gray {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ============================================
+   Status Label
+   ============================================ */
+
+.ai-status-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ng-text-tertiary, #9ca3af);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   Popover
+   ============================================ */
+
+.ai-status-popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  width: 240px;
+  padding: var(--ng-space-3, 12px);
+  background: var(--ng-glass-bg-solid, rgba(10, 10, 10, 0.85));
+  backdrop-filter: blur(var(--ng-blur-xl, 32px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl, 32px));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-xl, 12px);
+  box-shadow: var(--ng-shadow-xl, 0 20px 25px rgba(0, 0, 0, 0.6));
+  z-index: var(--ng-z-popover, 1500);
+  animation: ng-fade-up 0.2s ease forwards;
+  font-family: var(--ng-font-ui, Inter, sans-serif);
+}
+
+.ai-status-popover-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-2, 8px);
+  margin-bottom: var(--ng-space-3, 12px);
+  padding-bottom: var(--ng-space-2, 8px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+/* ============================================
+   Component Status Rows
+   ============================================ */
+
+.ai-status-components {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-1-5, 6px);
+}
+
+.ai-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ng-space-1, 4px) 0;
+}
+
+.ai-status-component-name {
+  font-size: 12px;
+  color: var(--ng-text-tertiary, #9ca3af);
+  text-transform: capitalize;
+}
+
+.ai-status-component-value {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: var(--ng-radius-sm, 4px);
+}
+
+.ai-cv-connected,
+.ai-cv-ok {
+  color: var(--ng-success, #22c55e);
+  background: var(--ng-success-bg, rgba(34, 197, 94, 0.1));
+}
+
+.ai-cv-disconnected,
+.ai-cv-missing {
+  color: var(--ng-error, #ef4444);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+}
+
+.ai-cv-timeout,
+.ai-cv-read_only,
+.ai-cv-degraded {
+  color: var(--ng-warning, #f59e0b);
+  background: var(--ng-warning-bg, rgba(245, 158, 11, 0.1));
+}
+
+.ai-cv-not_configured {
+  color: var(--ng-text-muted, #6b7280);
+  background: rgba(107, 114, 128, 0.1);
+}
+
+/* ============================================
+   Version & Error
+   ============================================ */
+
+.ai-status-version {
+  margin-top: var(--ng-space-2, 8px);
+  padding-top: var(--ng-space-2, 8px);
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+  font-size: 10px;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.ai-status-error-msg {
+  margin: var(--ng-space-2, 8px) 0 0;
+  padding: var(--ng-space-2, 8px);
+  font-size: 11px;
+  color: var(--ng-error, #ef4444);
+  background: var(--ng-error-bg, rgba(239, 68, 68, 0.1));
+  border-radius: var(--ng-radius-md, 6px);
+  line-height: 1.4;
+}
+
+/* ============================================
+   Light Mode
+   ============================================ */
+
+[data-theme="light"] .ai-status-popover {
+  background: var(--ng-glass-bg-heavy, rgba(255, 255, 255, 0.85));
+  box-shadow: var(--ng-shadow-xl);
+}
+
+[data-theme="light"] .ai-status-btn:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-status-degraded,
+  .ai-status-offline,
+  .ai-status-checking {
+    animation: none;
+  }
+}

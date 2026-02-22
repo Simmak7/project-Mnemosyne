@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_URL } from '../utils/api';
 import './ImageGallery.css';
 
 function ImageGallery({ images, refreshTrigger }) {
@@ -27,7 +28,7 @@ function ImageGallery({ images, refreshTrigger }) {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/images/', {
+      const response = await fetch(`${API_URL}/images/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -59,7 +60,7 @@ function ImageGallery({ images, refreshTrigger }) {
 
     for (const image of images) {
       try {
-        const response = await fetch(`http://localhost:8000/image/${image.id}`, {
+        const response = await fetch(`${API_URL}/image/${image.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
           },

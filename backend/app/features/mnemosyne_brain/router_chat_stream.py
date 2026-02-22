@@ -116,6 +116,9 @@ async def brain_query_stream(
                 query=query,
             )
 
+            # Emit topics-matched count so frontend can show indicator
+            yield f"data: {json.dumps({'type': 'sources_found', 'sources_found': len(context.topics_matched)})}\n\n"
+
             prompt = query
             if conversation:
                 messages = (
@@ -137,6 +140,7 @@ async def brain_query_stream(
             full_response = ""
             stream_input_tokens = 0
             stream_output_tokens = 0
+            had_error = False
 
             if provider_name != "ollama":
                 messages = [
@@ -147,6 +151,10 @@ async def brain_query_stream(
                     for chunk in provider.stream(
                         messages=messages, model=user_model, temperature=0.7, max_tokens=2048,
                     ):
+                        if chunk.is_error:
+                            had_error = True
+                            yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                            break
                         if chunk.content:
                             full_response += chunk.content
                             yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
@@ -154,23 +162,38 @@ async def brain_query_stream(
                             stream_input_tokens = chunk.input_tokens
                             stream_output_tokens = chunk.output_tokens
                             break
-                    from core.llm.base import ProviderType as PT
-                    ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
-                    log_stream_usage(db, user_id, ptype, user_model, stream_input_tokens, stream_output_tokens, "brain")
+                    if not had_error:
+                        from core.llm.base import ProviderType as PT
+                        ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
+                        log_stream_usage(db, user_id, ptype, user_model, stream_input_tokens, stream_output_tokens, "brain")
                 except Exception as cloud_err:
                     logger.warning(f"Cloud stream failed, falling back to Ollama: {cloud_err}")
                     user_model = get_effective_brain_model(db, user_id)
                     model_info = get_model_info(user_model)
                     ctx_window = model_info.context_length if model_info else 4096
-                    for token in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
-                        full_response += token
-                        yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+                    for chunk in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
+                        if chunk.is_error:
+                            had_error = True
+                            yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                            break
+                        if chunk.content:
+                            full_response += chunk.content
+                            yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                        if chunk.done:
+                            break
             else:
                 model_info = get_model_info(user_model)
                 ctx_window = model_info.context_length if model_info else 4096
-                for token in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
-                    full_response += token
-                    yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+                for chunk in call_ollama_stream(prompt, context.system_prompt, model=user_model, context_window=ctx_window):
+                    if chunk.is_error:
+                        had_error = True
+                        yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                        break
+                    if chunk.content:
+                        full_response += chunk.content
+                        yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                    if chunk.done:
+                        break
 
             yield f"data: {json.dumps({'type': 'brain_meta', 'brain_files_used': context.brain_files_used, 'topics_matched': context.topics_matched, 'model_used': user_model, 'brain_is_stale': stale})}\n\n"
             yield f"data: {json.dumps({'type': 'metadata', 'metadata': {'conversation_id': conversation_id, 'model_used': user_model}})}\n\n"

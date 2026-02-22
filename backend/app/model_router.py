@@ -12,6 +12,7 @@ from enum import Enum
 
 from adapters.llama_vision_adapter import LlamaVisionAdapter
 from adapters.qwen_vision_adapter import QwenVisionAdapter
+from adapters.generic_vision_adapter import GenericVisionAdapter
 from prompts.adaptive_vision_prompt import AdaptiveVisionPrompt, ADAPTIVE_VISION_PROMPT_V1, LEGACY_PROMPT_TEXT
 from core import config
 
@@ -58,7 +59,8 @@ class ModelRouter:
         ollama_host: Optional[str] = None,
         use_new_model: Optional[bool] = None,
         new_model_rollout_percent: Optional[int] = None,
-        prompt_rollout_percent: Optional[int] = None
+        prompt_rollout_percent: Optional[int] = None,
+        vision_model: Optional[str] = None,
     ):
         """
         Initialize Model Router.
@@ -82,6 +84,9 @@ class ModelRouter:
         )
         self.log_selection = getattr(config, "LOG_MODEL_SELECTION", True)
 
+        # User-selected vision model override (bypasses feature flags)
+        self.vision_model_override = vision_model
+
         # Initialize adapters
         self.llama_adapter = LlamaVisionAdapter(
             ollama_host=self.ollama_host,
@@ -92,11 +97,20 @@ class ModelRouter:
             model_name=getattr(config, "OLLAMA_MODEL_NEW", "qwen2.5vl:7b-q4_K_M")
         )
 
+        # Generic adapter for user-selected models
+        self.generic_adapter = None
+        if vision_model:
+            self.generic_adapter = GenericVisionAdapter(
+                ollama_host=self.ollama_host,
+                model_name=vision_model,
+            )
+
         logger.info(
             f"ModelRouter initialized: "
             f"use_new_model={self.use_new_model}, "
             f"rollout={self.new_model_rollout_percent}%, "
             f"prompt_rollout={self.prompt_rollout_percent}%"
+            f"{f', vision_override={vision_model}' if vision_model else ''}"
         )
 
     def _should_use_new_model(self) -> bool:
@@ -210,6 +224,10 @@ class ModelRouter:
             - error: Error message (if status="error")
             - (other model-specific fields)
         """
+        # If user selected a specific vision model, use generic adapter directly
+        if self.generic_adapter:
+            return self._analyze_with_generic(image_path, custom_prompt, timeout)
+
         # Decide which model to use
         use_new = self._should_use_new_model()
         model_selection = ModelSelection.NEW_MODEL if use_new else ModelSelection.OLD_MODEL
@@ -326,6 +344,31 @@ Please incorporate this context into your analysis while following all the instr
                         )
             except Exception as e:
                 logger.warning(f"Failed to extract metadata: {str(e)}")
+
+        return result
+
+    def _analyze_with_generic(
+        self, image_path: str, custom_prompt: Optional[str], timeout: int,
+    ) -> Dict[str, any]:
+        """Route analysis through the generic adapter (user-selected model)."""
+        base_prompt, prompt_selection = self._get_prompt(True)
+        if custom_prompt and custom_prompt.strip():
+            prompt = f"{base_prompt}\n\nADDITIONAL CONTEXT FROM USER:\n{custom_prompt.strip()}"
+        else:
+            prompt = base_prompt
+
+        logger.info(f"Using user-selected vision model: {self.generic_adapter.model_name}")
+        result = self.generic_adapter.analyze_image(image_path, prompt, timeout)
+
+        result["model_selection"] = "user_override"
+        result["prompt_selection"] = prompt_selection.value
+
+        if result.get("status") == "success" and prompt_selection == PromptSelection.ADAPTIVE:
+            try:
+                metadata = AdaptiveVisionPrompt.extract_metadata(result["response"])
+                result["content_metadata"] = metadata
+            except Exception as e:
+                logger.warning(f"Failed to extract metadata: {e}")
 
         return result
 

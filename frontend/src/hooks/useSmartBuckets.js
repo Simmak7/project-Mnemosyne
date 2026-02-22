@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { API_URL } from '../utils/api';
 
 /**
  * Hook to manage smart bucket filtering for notes
@@ -28,7 +29,7 @@ export const useSmartBuckets = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:8000/notes/', {
+      const response = await fetch(`${API_URL}/notes/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -67,7 +68,7 @@ export const useSmartBuckets = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/buckets/daily?days=30', {
+      const response = await fetch(`${API_URL}/buckets/daily?days=30`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -95,7 +96,7 @@ export const useSmartBuckets = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:8000/buckets/orphans?limit=50', {
+      const response = await fetch(`${API_URL}/buckets/orphans?limit=50`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -123,7 +124,7 @@ export const useSmartBuckets = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/buckets/clusters?k=${k}`, {
+      const response = await fetch(`${API_URL}/buckets/clusters?k=${k}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -181,7 +182,7 @@ export const useSmartBuckets = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:8000/buckets/daily/today', {
+      const response = await fetch(`${API_URL}/buckets/daily/today`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

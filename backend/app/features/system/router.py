@@ -4,6 +4,7 @@ System Feature - API Router
 FastAPI endpoints for system operations:
 - GET / - Root endpoint (API info)
 - GET /health - Health check for all services
+- GET /system/stuck-tasks - View items stuck in processing
 - GET /models - List available AI models
 - GET /models/config - Get current model configuration
 """
@@ -14,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from core import config
 from core.database import get_db
-from core.auth import get_current_user_optional
+from core.auth import get_current_user_optional, get_current_user
 from core.models_registry import (
     get_all_models, get_all_models_with_status, get_model_info,
     get_models_for_use_case, ModelUseCase, is_model_available
@@ -71,6 +72,43 @@ async def health_check():
     return system_status
 
 
+@router.get("/system/stuck-tasks")
+async def get_stuck_tasks(
+    current_user=Depends(get_current_user),
+):
+    """
+    View items currently stuck in 'processing' status.
+
+    Returns images and documents that have been in 'processing' state
+    longer than the recovery threshold (10 minutes). These items are
+    candidates for automatic recovery by the periodic beat task.
+
+    Requires authentication.
+    """
+    from features.system.tasks import get_stuck_tasks_summary
+    summary = get_stuck_tasks_summary()
+    logger.info(
+        "Stuck tasks query: %d total stuck items",
+        summary["total_stuck"],
+    )
+    return summary
+
+
+@router.get("/system/gpu-info", response_model=schemas.GpuInfoResponse)
+async def get_gpu_info(
+    current_user=Depends(get_current_user),
+):
+    """
+    Get GPU/VRAM diagnostic information from Ollama.
+
+    Returns loaded models with their VRAM usage.
+    If total_vram_bytes > 0, GPU acceleration is active.
+    """
+    info = service.get_gpu_info()
+    logger.info(f"GPU info: gpu_detected={info.get('gpu_detected')}")
+    return info
+
+
 @router.get("/models", response_model=schemas.ModelsListResponse)
 async def list_models(
     db: Session = Depends(get_db),
@@ -95,11 +133,21 @@ async def list_models(
         schemas.ModelInfoResponse(**m) for m in models_with_status
     ]
 
-    # Compute active vision model from feature flags
-    if getattr(config, "USE_NEW_MODEL", False) and getattr(config, "NEW_MODEL_ROLLOUT_PERCENT", 0) >= 100:
-        current_vision = getattr(config, "OLLAMA_MODEL_NEW", "qwen2.5vl:7b-q4_K_M")
-    else:
-        current_vision = getattr(config, "OLLAMA_MODEL_OLD", "llama3.2-vision:11b")
+    # Check user's vision model preference first, then fall back to feature flags
+    current_vision = None
+    if current_user:
+        from models import UserPreferences
+        prefs = db.query(UserPreferences).filter(
+            UserPreferences.user_id == current_user.id
+        ).first()
+        if prefs and getattr(prefs, "vision_model", None):
+            current_vision = prefs.vision_model
+
+    if not current_vision:
+        if getattr(config, "USE_NEW_MODEL", False) and getattr(config, "NEW_MODEL_ROLLOUT_PERCENT", 0) >= 100:
+            current_vision = getattr(config, "OLLAMA_MODEL_NEW", "qwen2.5vl:7b-q4_K_M")
+        else:
+            current_vision = getattr(config, "OLLAMA_MODEL_OLD", "llama3.2-vision:11b")
 
     logger.info(f"Models list requested, returning {len(models_response)} models")
     return schemas.ModelsListResponse(

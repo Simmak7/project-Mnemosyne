@@ -31,6 +31,7 @@ class UserPreferencesResponse(BaseModel):
     rag_model: Optional[str] = None
     brain_model: Optional[str] = None
     nexus_model: Optional[str] = None
+    vision_model: Optional[str] = None
     # Cloud AI preferences
     cloud_ai_enabled: Optional[bool] = False
     cloud_ai_provider: Optional[str] = None
@@ -55,6 +56,7 @@ class UserPreferencesUpdate(BaseModel):
     rag_model: Optional[str] = None
     brain_model: Optional[str] = None
     nexus_model: Optional[str] = None
+    vision_model: Optional[str] = None
     # Cloud AI preferences
     cloud_ai_enabled: Optional[bool] = None
     cloud_ai_provider: Optional[str] = None

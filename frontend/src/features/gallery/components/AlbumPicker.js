@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { FolderPlus, Check, Plus, X } from 'lucide-react';
 import { useAlbums } from '../hooks/useAlbums';
+import { API_URL } from '../../../utils/api';
 import './AlbumPicker.css';
 
 /**
@@ -171,7 +172,7 @@ function AlbumPicker({ imageIds, onClose, anchorRect }) {
               <div className="album-picker-thumb">
                 {album.cover_image ? (
                   <img
-                    src={`http://localhost:8000/image/${album.cover_image.id}`}
+                    src={`${API_URL}/image/${album.cover_image.id}`}
                     alt=""
                   />
                 ) : (

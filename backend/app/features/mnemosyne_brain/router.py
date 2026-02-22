@@ -27,6 +27,7 @@ from features.mnemosyne_brain.services.topic_selector import (
     _compute_keyword_score,
     _compute_embedding_score,
 )
+from features.mnemosyne_brain.services.memory_evolver import get_memory_stats, prune_memory
 
 logger = logging.getLogger(__name__)
 limiter = Limiter(key_func=get_remote_address)
@@ -267,6 +268,7 @@ async def get_brain_status(
     total_tokens = sum(f.token_count_approx or 0 for f in files)
 
     min_notes = getattr(config, "BRAIN_MIN_NOTES", 3)
+    memory_stats = get_memory_stats(db, current_user.id)
 
     return schemas.BrainStatusResponse(
         has_brain=len(files) > 0,
@@ -281,7 +283,39 @@ async def get_brain_status(
         last_build_at=last_build.completed_at if last_build else None,
         notes_count=note_count,
         min_notes_required=min_notes,
+        memory_entry_count=memory_stats["memory_entry_count"],
+        memory_size_chars=memory_stats["memory_size_chars"],
     )
+
+
+@router.post("/memory/prune", response_model=schemas.BrainStatusResponse)
+@limiter.limit("10/minute")
+async def prune_brain_memory(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """Manually prune the brain memory file to stay within size limits."""
+    from features.mnemosyne_brain.services.topic_generator import compute_content_hash, estimate_tokens
+
+    memory_file = (
+        db.query(BrainFile)
+        .filter(BrainFile.owner_id == current_user.id, BrainFile.file_key == "memory")
+        .first()
+    )
+    if not memory_file:
+        raise HTTPException(status_code=404, detail="No memory file found")
+
+    old_size = len(memory_file.content)
+    memory_file.content = prune_memory(memory_file.content)
+    memory_file.content_hash = compute_content_hash(memory_file.content)
+    memory_file.token_count_approx = estimate_tokens(memory_file.content)
+    db.commit()
+
+    logger.info(f"Memory pruned for user {current_user.id}: {old_size} -> {len(memory_file.content)} chars")
+
+    # Re-use status endpoint logic
+    return await get_brain_status(db=db, current_user=current_user)
 
 
 # ============================================

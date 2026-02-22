@@ -3,6 +3,7 @@
  */
 import React, { useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
+import { API_URL } from '../../../../utils/api';
 
 function LightboxModal({
   image,
@@ -40,7 +41,7 @@ function LightboxModal({
         </button>
         <div className="lightbox-image-container">
           <img
-            src={`http://localhost:8000/image/${image.id}`}
+            src={`${API_URL}/image/${image.id}`}
             alt={image.filename}
             className="lightbox-image"
           />

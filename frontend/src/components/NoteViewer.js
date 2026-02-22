@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { X, Plus, Hash, Network } from 'lucide-react';
+import { API_URL } from '../utils/api';
 import './NoteViewer.css';
 
 function NoteViewer({ notes, onNavigateToGraph }) {
@@ -25,7 +26,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/tags/', {
+      const response = await fetch(`${API_URL}/tags/`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -49,7 +50,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
       }
 
       // Use the enhanced notes endpoint
-      const response = await fetch('http://localhost:8000/notes-enhanced/', {
+      const response = await fetch(`${API_URL}/notes-enhanced/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -98,7 +99,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
       }
 
       const promises = backlinkIds.map(id =>
-        fetch(`http://localhost:8000/notes/${id}`, {
+        fetch(`${API_URL}/notes/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }).then(r => r.ok ? r.json() : null)
       );
@@ -119,7 +120,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/notes/${selectedNote.id}/tags/${tagName}`, {
+      const response = await fetch(`${API_URL}/notes/${selectedNote.id}/tags/${tagName}`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -142,7 +143,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:8000/notes/${selectedNote.id}/tags/${tagId}`, {
+      const response = await fetch(`${API_URL}/notes/${selectedNote.id}/tags/${tagId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -368,7 +369,7 @@ function NoteViewer({ notes, onNavigateToGraph }) {
                     {selectedNote.images.map(image => (
                       <div key={image.id} className="related-image">
                         <img
-                          src={`http://localhost:8000/image/${image.id}`}
+                          src={`${API_URL}/image/${image.id}`}
                           alt={image.filename}
                         />
                       </div>

@@ -153,10 +153,73 @@ def get_system_status() -> Dict[str, any]:
     except ImportError:
         components["redis"] = "not_configured"
 
+    # Collect circuit breaker states
+    circuit_breakers = _get_circuit_breaker_states()
+
     from core.config import API_VERSION, APP_BUILD
     return {
         "status": status,
         "version": API_VERSION,
         "build": APP_BUILD,
-        "components": components
+        "components": components,
+        "circuit_breakers": circuit_breakers,
     }
+
+
+def get_gpu_info() -> Dict[str, any]:
+    """
+    Get GPU/VRAM info from Ollama's running models.
+
+    Calls Ollama GET /api/ps which returns currently loaded models
+    with their VRAM usage. If size_vram > 0, GPU is being used.
+
+    Returns:
+        Dictionary with gpu_detected, loaded_models list, and total_vram.
+    """
+    try:
+        response = requests.get(
+            f"{config.OLLAMA_HOST}/api/ps",
+            timeout=5
+        )
+        if response.status_code != 200:
+            return {"gpu_detected": False, "loaded_models": [], "error": f"Ollama returned {response.status_code}"}
+
+        data = response.json()
+        models = data.get("models", [])
+
+        loaded = []
+        total_vram = 0
+        for m in models:
+            size_vram = m.get("size_vram", 0)
+            total_vram += size_vram
+            loaded.append({
+                "name": m.get("name", "unknown"),
+                "size": m.get("size", 0),
+                "size_vram": size_vram,
+                "digest": m.get("digest", "")[:12],
+                "expires_at": m.get("expires_at", ""),
+            })
+
+        return {
+            "gpu_detected": total_vram > 0,
+            "total_vram_bytes": total_vram,
+            "total_vram_gb": round(total_vram / (1024 ** 3), 2) if total_vram else 0,
+            "loaded_models": loaded,
+        }
+
+    except requests.exceptions.Timeout:
+        return {"gpu_detected": False, "loaded_models": [], "error": "Ollama timeout"}
+    except Exception as e:
+        logger.error(f"GPU info check failed: {e}")
+        return {"gpu_detected": False, "loaded_models": [], "error": str(e)}
+
+
+def _get_circuit_breaker_states() -> Dict[str, dict]:
+    """Gather status from all registered circuit breakers."""
+    breakers: Dict[str, dict] = {}
+    try:
+        from core.llm.ollama_provider import get_ollama_circuit_breaker
+        breakers["ollama"] = get_ollama_circuit_breaker().get_status()
+    except Exception as e:
+        logger.debug(f"Could not read Ollama circuit breaker: {e}")
+    return breakers

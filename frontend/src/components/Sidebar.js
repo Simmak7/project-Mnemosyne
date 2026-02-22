@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan, Sun, Moon } from 'lucide-react';
 import Settings from './Settings';
+import AIStatusIndicator from './toast/AIStatusIndicator';
 import './Sidebar.css';
 
 function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onToggleDarkMode, onOpenSearch }) {
@@ -106,6 +107,8 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
       </nav>
 
       <div className="sidebar-footer">
+        <AIStatusIndicator />
+
         <button
           className="theme-toggle"
           onClick={onToggleDarkMode}

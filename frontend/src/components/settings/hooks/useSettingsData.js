@@ -2,7 +2,7 @@
  * Hook for fetching and managing settings data
  */
 import { useState, useEffect, useCallback } from 'react';
-import { api } from '../../../utils/api';
+import { api, API_URL } from '../../../utils/api';
 import { FEATURE_FLAGS, ACCENT_COLORS, DENSITY_VALUES } from '../constants';
 
 export function useSettingsData(isOpen) {
@@ -28,7 +28,7 @@ export function useSettingsData(isOpen) {
   const fetchProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/profile', {
+      const response = await fetch(`${API_URL}/profile`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -60,10 +60,10 @@ export function useSettingsData(isOpen) {
     try {
       const token = localStorage.getItem('token');
       const [prefsRes, optionsRes] = await Promise.all([
-        fetch('http://localhost:8000/settings/preferences', {
+        fetch(`${API_URL}/settings/preferences`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:8000/settings/options', {
+        fetch(`${API_URL}/settings/options`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -82,10 +82,10 @@ export function useSettingsData(isOpen) {
     try {
       const token = localStorage.getItem('token');
       const [notifsRes, optionsRes] = await Promise.all([
-        fetch('http://localhost:8000/settings/notifications', {
+        fetch(`${API_URL}/settings/notifications`, {
           headers: { 'Authorization': `Bearer ${token}` }
         }),
-        fetch('http://localhost:8000/settings/notifications/options', {
+        fetch(`${API_URL}/settings/notifications/options`, {
           headers: { 'Authorization': `Bearer ${token}` }
         })
       ]);
@@ -99,7 +99,7 @@ export function useSettingsData(isOpen) {
   const fetchSessions = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/sessions', {
+      const response = await fetch(`${API_URL}/sessions`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -114,7 +114,7 @@ export function useSettingsData(isOpen) {
   const fetchModels = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/models', {
+      const response = await fetch(`${API_URL}/models`, {
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       });
       if (response.ok) {
@@ -240,6 +240,7 @@ export function useSettingsData(isOpen) {
     updateNotification,
     revokeSession,
     revokeAllSessions,
+    refreshModels: fetchModels,
   };
 }
 

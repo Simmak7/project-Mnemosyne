@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FiFileText, FiPlus } from 'react-icons/fi';
 import useDebounce from '../../hooks/useDebounce';
+import { API_URL } from '../../utils/api';
 import './WikilinkAutocomplete.css';
 
 /**
@@ -29,8 +30,8 @@ function WikilinkAutocomplete({ query, onSelect, onClose, position }) {
       try {
         const token = localStorage.getItem('token');
         const url = debouncedQuery
-          ? `http://localhost:8000/search/fulltext?q=${encodeURIComponent(debouncedQuery)}&limit=10`
-          : `http://localhost:8000/notes/?limit=10`; // Recent notes
+          ? `${API_URL}/search/fulltext?q=${encodeURIComponent(debouncedQuery)}&limit=10`
+          : `${API_URL}/notes/?limit=10`; // Recent notes
 
         const response = await fetch(url, {
           headers: { 'Authorization': `Bearer ${token}` },

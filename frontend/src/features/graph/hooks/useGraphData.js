@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { transformToGraphData, filterGraphData } from '../utils/graphDataTransform';
+import { API_URL } from '../../../utils/api';
 
 /**
  * Custom hook for managing knowledge graph data
@@ -40,7 +41,7 @@ export function useGraphData() {
       const token = localStorage.getItem('token');
       if (!token) throw new Error('No authentication token');
 
-      const response = await fetch('http://localhost:8000/notes-enhanced/', {
+      const response = await fetch(`${API_URL}/notes-enhanced/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -71,7 +72,7 @@ export function useGraphData() {
       const token = localStorage.getItem('token');
       if (!token) return [];
 
-      const response = await fetch('http://localhost:8000/tags/', {
+      const response = await fetch(`${API_URL}/tags/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -92,7 +93,7 @@ export function useGraphData() {
       const token = localStorage.getItem('token');
       if (!token) return [];
 
-      const response = await fetch('http://localhost:8000/images/', {
+      const response = await fetch(`${API_URL}/images/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 

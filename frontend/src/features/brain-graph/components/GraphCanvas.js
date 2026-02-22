@@ -199,6 +199,7 @@ export function GraphCanvas({
         d3AlphaMin={forceConfig.alphaMin}
         warmupTicks={50}
         cooldownTicks={200}
+        cooldownTime={4000}
         onEngineStop={stopAnimation}
       />
       <GraphTooltip tooltip={tooltip} />

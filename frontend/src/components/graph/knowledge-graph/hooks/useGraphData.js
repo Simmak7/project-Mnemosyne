@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { transformToGraphData } from '../../../../utils/graphDataTransform';
+import { API_URL } from '../../../../utils/api';
 
 /**
  * Hook for fetching and managing graph data
@@ -20,7 +21,7 @@ export function useGraphData() {
       }
 
       // Fetch all notes with their relationships
-      const notesResponse = await fetch('http://localhost:8000/notes-enhanced/', {
+      const notesResponse = await fetch(`${API_URL}/notes-enhanced/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
 
@@ -37,13 +38,13 @@ export function useGraphData() {
       const notes = await notesResponse.json();
 
       // Fetch all tags
-      const tagsResponse = await fetch('http://localhost:8000/tags/', {
+      const tagsResponse = await fetch(`${API_URL}/tags/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const tags = tagsResponse.ok ? await tagsResponse.json() : [];
 
       // Fetch all images
-      const imagesResponse = await fetch('http://localhost:8000/images/', {
+      const imagesResponse = await fetch(`${API_URL}/images/`, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
       const images = imagesResponse.ok ? await imagesResponse.json() : [];

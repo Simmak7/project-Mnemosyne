@@ -110,6 +110,8 @@ class BrainStatusResponse(BaseModel):
     last_build_at: Optional[datetime] = None
     notes_count: int = 0
     min_notes_required: int = 3
+    memory_entry_count: int = 0
+    memory_size_chars: int = 0
 
 
 # ============================================

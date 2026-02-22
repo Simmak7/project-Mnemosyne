@@ -98,6 +98,17 @@ async def upload_image(
         )
         logger.info(f"Image saved: {unique_filename} (ID: {image_data.id}) for user {current_user.username}")
 
+        # Resolve user's vision model preference
+        user_vision_model = None
+        try:
+            prefs = db.query(models.UserPreferences).filter(
+                models.UserPreferences.user_id == current_user.id
+            ).first()
+            if prefs and getattr(prefs, "vision_model", None):
+                user_vision_model = prefs.vision_model
+        except Exception:
+            pass  # Fall back to default if preference lookup fails
+
         task_id = None
         try:
             task = analyze_image_task.delay(
@@ -107,7 +118,8 @@ async def upload_image(
                 album_id=album_id,
                 auto_tagging=auto_tagging,
                 max_tags=max_tags,
-                auto_create_note=auto_create_note
+                auto_create_note=auto_create_note,
+                vision_model=user_vision_model,
             )
             logger.info(f"AI analysis task queued for image {image_data.id}, task_id: {task.id}, album_id: {album_id}")
             task_id = task.id
@@ -176,10 +188,22 @@ async def retry_image_analysis(
             result=None
         )
 
+        # Resolve user's vision model preference for retry
+        retry_vision_model = None
+        try:
+            prefs = db.query(models.UserPreferences).filter(
+                models.UserPreferences.user_id == current_user.id
+            ).first()
+            if prefs and getattr(prefs, "vision_model", None):
+                retry_vision_model = prefs.vision_model
+        except Exception:
+            pass
+
         task = analyze_image_task.delay(
             image_id=image_id,
             image_path=image.filepath,
-            prompt=image.prompt or "Analyze this image"
+            prompt=image.prompt or "Analyze this image",
+            vision_model=retry_vision_model,
         )
 
         logger.info(f"Retry: AI analysis task queued for image {image_id}, task_id: {task.id}")

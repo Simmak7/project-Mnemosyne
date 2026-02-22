@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Heart, Trash2, RefreshCw, Sparkles, Eye, RotateCcw, FolderPlus } from 'lucide-react';
 import BlurHashPlaceholder from './BlurHashPlaceholder';
 import AlbumPicker from './AlbumPicker';
+import { API_URL } from '../../../utils/api';
 import './PhotoThumbnail.css';
 
 /**
@@ -116,7 +117,7 @@ function PhotoThumbnail({
 
       {/* Image */}
       <img
-        src={`http://localhost:8000/image/${image.id}`}
+        src={`${API_URL}/image/${image.id}`}
         alt={image.filename}
         className={`thumbnail-image ${isLoaded ? 'loaded' : ''}`}
         onLoad={handleLoad}

@@ -2,9 +2,11 @@
 Celery application configuration for background task processing.
 
 Handles AI image analysis and embedding generation tasks.
+Includes beat schedule for periodic maintenance (stuck task recovery).
 """
 
 from celery import Celery
+from celery.signals import worker_process_init
 import os
 
 # Get Redis URL from environment
@@ -27,6 +29,7 @@ celery_app = Celery(
         "features.mnemosyne_brain.tasks",  # Mnemosyne Brain build & evolution
         "features.documents.tasks",  # Document PDF analysis
         "features.nexus.tasks",  # NEXUS consolidation and cache
+        "features.system.tasks",  # Stuck task recovery
     ]  # Import tasks modules
 )
 
@@ -55,6 +58,26 @@ celery_app.conf.task_routes = {
     "tasks_embeddings.generate_note_embedding": {"queue": "ai_analysis"},
     "tasks_embeddings.regenerate_all_embeddings": {"queue": "ai_analysis"},
 }
+
+# Beat schedule for periodic tasks
+celery_app.conf.beat_schedule = {
+    "recover-stuck-tasks-every-15-min": {
+        "task": "features.system.tasks.recover_stuck_tasks",
+        "schedule": 900.0,  # Every 15 minutes (in seconds)
+        "options": {"queue": "celery"},
+    },
+}
+
+@worker_process_init.connect
+def init_worker_llm(**kwargs):
+    """Initialize LLM providers in each Celery worker process."""
+    try:
+        from core.llm.registry import initialize_providers
+        initialize_providers()
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to init LLM in worker: {e}")
+
 
 if __name__ == "__main__":
     celery_app.start()

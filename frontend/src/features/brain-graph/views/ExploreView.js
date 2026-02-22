@@ -18,6 +18,7 @@ const TOP_HUBS_COUNT = 5;
 
 export function ExploreView({ graphState, filters, layout, onViewChange }) {
   const containerRef = useRef(null);
+  const prevFocusRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   const focusNodeId = graphState.focusNodeId;
@@ -96,6 +97,8 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
           isHub: hubNodeIds.has(node.id),
           isFocus: node.id === focusNodeId,
           depth: depths[node.id] ?? 99,
+          // Pin focus node at center to anchor the simulation (prevents spinning)
+          ...(node.id === focusNodeId ? { fx: 0, fy: 0, x: 0, y: 0 } : {}),
         };
       }),
       links: data.edges.map((edge) => ({
@@ -126,10 +129,23 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
     graphState.setEdgeBreakdown(Object.keys(counts).length > 0 ? counts : null);
   }, [selectedNodeId, graphData]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Center on focus node when data loads
+  // Center on focus node when data loads + unpin previous focus
   useEffect(() => {
     if (graphData && focusNodeId && layout.graphRef?.current) {
-      // Small delay to let graph settle
+      const fg = layout.graphRef.current;
+
+      // Unpin previous auto-pinned focus node (pinned at 0,0 by us)
+      if (prevFocusRef.current && prevFocusRef.current !== focusNodeId) {
+        const nodes = fg.graphData?.()?.nodes || [];
+        const oldFocus = nodes.find((n) => n.id === prevFocusRef.current);
+        if (oldFocus && oldFocus.fx === 0 && oldFocus.fy === 0) {
+          oldFocus.fx = undefined;
+          oldFocus.fy = undefined;
+        }
+      }
+      prevFocusRef.current = focusNodeId;
+
+      // Small delay to let graph settle, then center
       const timer = setTimeout(() => {
         layout.centerOnNode(focusNodeId);
       }, 500);
@@ -143,11 +159,16 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
       if (layout.graphRef?.current) {
         const nodes = layout.graphRef.current.graphData?.()?.nodes || [];
         nodes.forEach((n) => { n.fx = undefined; n.fy = undefined; });
+        // Re-pin focus node at center to keep simulation anchored
+        if (focusNodeId) {
+          const fn = nodes.find((n) => n.id === focusNodeId);
+          if (fn) { fn.fx = 0; fn.fy = 0; }
+        }
         layout.graphRef.current.d3ReheatSimulation?.();
         setTimeout(() => layout.fitToView(40), 600);
       }
     });
-  }, [refetch, layout]);
+  }, [refetch, layout, focusNodeId]);
 
   // Wire search results to canvas highlight
   const handleSearchResults = useCallback((results) => {

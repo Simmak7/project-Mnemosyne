@@ -3,6 +3,7 @@
  */
 import React, { useState } from 'react';
 import { User, Edit3, Check } from 'lucide-react';
+import { API_URL } from '../../../utils/api';
 
 function AccountSection({ profile, username, userEmail, onEmailChangeClick, onProfileUpdate }) {
   const [editingDisplayName, setEditingDisplayName] = useState(false);
@@ -11,7 +12,7 @@ function AccountSection({ profile, username, userEmail, onEmailChangeClick, onPr
   const updateDisplayName = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:8000/profile', {
+      const response = await fetch(`${API_URL}/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

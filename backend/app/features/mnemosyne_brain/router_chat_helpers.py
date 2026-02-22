@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from core import config
 from core.llm import get_default_provider, LLMMessage
+from core.llm.base import classify_llm_error, ERROR_MESSAGES
 from features.mnemosyne_brain.models.brain_file import BrainFile
 from features.mnemosyne_brain.models.brain_conversation import (
     BrainConversation,
@@ -111,13 +112,19 @@ def call_ollama_generate(
         return response.content
     except Exception as e:
         logger.error(f"Brain generate failed: {e}")
-        return f"I'm sorry, I couldn't process that right now. ({e})"
+        _error_type, user_msg = classify_llm_error(e)
+        return user_msg
 
 
 def call_ollama_stream(
     prompt: str, system_prompt: str, model: str = None, context_window: int = None,
 ):
-    """Streaming LLM call for brain using provider abstraction."""
+    """Streaming LLM call for brain using provider abstraction.
+
+    Yields LLMStreamChunk objects so callers can inspect is_error.
+    """
+    from core.llm.base import LLMStreamChunk as Chunk
+
     if model is None:
         model = getattr(config, "BRAIN_MODEL", "llama3.2:3b")
     temperature = getattr(config, "BRAIN_TEMPERATURE", 0.7)
@@ -142,13 +149,16 @@ def call_ollama_stream(
             context_window=context_window,
             timeout=180,
         ):
-            if chunk.content:
-                yield chunk.content
+            yield chunk
             if chunk.done:
                 break
     except Exception as e:
         logger.error(f"Brain stream failed: {e}")
-        yield f"[ERROR: {e}]"
+        error_type, user_msg = classify_llm_error(e)
+        yield Chunk(
+            content=user_msg, done=True,
+            is_error=True, error_type=error_type,
+        )
 
 
 def get_previous_topics(db: Session, user_id: int, conversation_id) -> list:

@@ -84,6 +84,16 @@ def build_brain(db: Session, user_id: int, build_log: BrainBuildLog) -> None:
 
         build_log.topic_files_generated = len(topic_results)
 
+        if not topic_results and total_groups > 0:
+            build_log.status = "failed"
+            build_log.error_message = (
+                f"LLM failed to generate any topic files from {total_groups} communities. "
+                "Check that the AI model is available and responding."
+            )
+            build_log.completed_at = datetime.utcnow()
+            db.commit()
+            return
+
         # Compress topics for knowledge map
         _update_progress(db, build_log, 60, "Compressing topics")
         for idx, t in enumerate(topic_results):

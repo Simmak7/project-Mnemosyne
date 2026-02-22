@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { BlockEditor } from '../../features/editor';
 import { DailyView } from '../../features/daily';
 import NoteContentRenderer from '../common/NoteContentRenderer';
+import { API_URL } from '../../utils/api';
 import './CenterPane.css';
 
 /**
@@ -64,7 +65,7 @@ function CenterPane() {
         return;
       }
 
-      const response = await fetch(`http://localhost:8000/notes/${noteId}`, {
+      const response = await fetch(`${API_URL}/notes/${noteId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -86,7 +87,7 @@ function CenterPane() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/notes/', {
+      const response = await fetch(`${API_URL}/notes/`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -106,7 +107,7 @@ function CenterPane() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch('http://localhost:8000/tags', {
+      const response = await fetch(`${API_URL}/tags`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -126,7 +127,7 @@ function CenterPane() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const response = await fetch(`http://localhost:8000/notes/${note.id}`, {
+      const response = await fetch(`${API_URL}/notes/${note.id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

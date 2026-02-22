@@ -176,7 +176,9 @@ export function useBrainChat() {
                 break;
             }
           } catch (parseError) {
-            if (parseError.message?.startsWith('Request failed')) throw parseError;
+            if (parseError.message && !parseError.message.includes('parse')) {
+              throw parseError;
+            }
           }
         }
       }

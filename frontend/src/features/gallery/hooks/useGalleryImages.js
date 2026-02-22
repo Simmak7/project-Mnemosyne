@@ -121,15 +121,35 @@ export function useGalleryImages(options = {}) {
     }
   });
 
-  // Retry AI analysis mutation
+  // Retry AI analysis mutation with optimistic update
   const retryAnalysis = useMutation({
     mutationFn: async (imageId) => {
       return api.post(`/retry-image/${imageId}`);
     },
+    onMutate: async (imageId) => {
+      await queryClient.cancelQueries({ queryKey: ['gallery-images'] });
+      const previousQueries = queryClient.getQueriesData({ queryKey: ['gallery-images'] });
+
+      queryClient.setQueriesData({ queryKey: ['gallery-images'] }, (oldData) => {
+        if (!oldData || !Array.isArray(oldData)) return oldData;
+        return oldData.map(img =>
+          img.id === imageId ? { ...img, ai_analysis_status: 'processing' } : img
+        );
+      });
+
+      return { previousQueries };
+    },
+    onError: (err, imageId, context) => {
+      if (context?.previousQueries) {
+        context.previousQueries.forEach(([qk, data]) => {
+          queryClient.setQueryData(qk, data);
+        });
+      }
+    },
     onSuccess: () => {
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['gallery-images'] });
-      }, 2000);
+      }, 3000);
     }
   });
 

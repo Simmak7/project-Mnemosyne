@@ -1,10 +1,30 @@
 /**
- * AI Models settings section - RAG and Brain model selection
+ * AI Models settings section - Model selection + Model Library with pull/delete
  */
-import React from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { Cpu, Sparkles, Brain, Eye } from 'lucide-react';
+import ModelLibrary from '../components/ModelLibrary';
+import { useModelManagement } from '../hooks/useModelManagement';
+import './AIModelsSection.css';
 
-function AIModelsSection({ availableModels, modelConfig, preferences, onPreferenceUpdate }) {
+function AIModelsSection({ availableModels, modelConfig, preferences, onPreferenceUpdate, onModelsChanged }) {
+  const {
+    pullProgress, pullModel, cancelPull, deleteModel, clearProgress,
+    updateStatus, checkingUpdates, checkForUpdates,
+  } = useModelManagement(onModelsChanged);
+
+  const checkedRef = useRef(false);
+  useEffect(() => {
+    if (availableModels?.length && !checkedRef.current) {
+      checkedRef.current = true;
+      checkForUpdates(false);
+    }
+  }, [availableModels, checkForUpdates]);
+
+  const handleUpdate = useCallback((modelId) => {
+    pullModel(modelId);
+  }, [pullModel]);
+
   if (!availableModels?.length || !preferences) {
     return (
       <div className="settings-section">
@@ -30,6 +50,9 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
   const brainModels = availableModels.filter(
     m => m.use_cases?.includes('brain') || m.use_cases?.includes('both')
   );
+  const visionModels = availableModels.filter(
+    m => m.use_cases?.includes('vision')
+  );
 
   return (
     <div className="settings-section">
@@ -38,93 +61,80 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
         <h3>AI Models</h3>
       </div>
       <p className="settings-section-description">
-        Choose which AI models power your NEXUS RAG and ZAIA AI.
+        Choose which AI models power your NEXUS RAG, ZAIA AI, and image analysis.
       </p>
+
+      {/* Model selectors */}
       <div className="settings-appearance-grid">
-        <div className="settings-appearance-item model-select-item">
-          <label>
-            <Sparkles size={14} className="label-icon" />
-            NEXUS RAG Model
-          </label>
-          <select
-            value={preferences.rag_model || ''}
-            onChange={(e) => onPreferenceUpdate('rag_model', e.target.value)}
-            className="settings-select"
-          >
-            <option value="">System Default ({modelConfig?.current_rag_model || 'auto'})</option>
-            {ragModels.map(m => (
-              <option key={m.id} value={m.id} disabled={m.is_available === false}>
-                {m.name} ({m.parameters}) {m.is_default_rag ? '\u2605' : ''}
-                {m.is_available === false ? ' \u26A0\uFE0F Not installed' : ''}
-              </option>
-            ))}
-          </select>
-          {preferences.rag_model && (
-            <div className="model-info">
-              {availableModels.find(m => m.id === preferences.rag_model)?.description}
-            </div>
-          )}
-        </div>
-        <div className="settings-appearance-item model-select-item">
-          <label>
-            <Brain size={14} className="label-icon" />
-            ZAIA AI Model
-          </label>
-          <select
-            value={preferences.brain_model || ''}
-            onChange={(e) => onPreferenceUpdate('brain_model', e.target.value)}
-            className="settings-select"
-          >
-            <option value="">
-              System Default ({modelConfig?.current_brain_model?.split('/').pop() || 'auto'})
-            </option>
-            {brainModels.map(m => (
-              <option key={m.id} value={m.id} disabled={m.is_available === false}>
-                {m.name} ({m.parameters}) {m.is_default_brain ? '\u2605' : ''}
-                {m.is_available === false ? ' \u26A0\uFE0F Not installed' : ''}
-              </option>
-            ))}
-          </select>
-          {preferences.brain_model && (
-            <div className="model-info">
-              {availableModels.find(m => m.id === preferences.brain_model)?.description}
-            </div>
-          )}
-        </div>
-        <VisionModelDisplay
-          availableModels={availableModels}
-          modelConfig={modelConfig}
+        <ModelSelect
+          icon={<Sparkles size={14} className="label-icon" />}
+          label="NEXUS RAG Model"
+          value={preferences.rag_model || ''}
+          onChange={v => onPreferenceUpdate('rag_model', v)}
+          models={ragModels}
+          defaultLabel={modelConfig?.current_rag_model || 'auto'}
+          allModels={availableModels}
+          defaultFlag="is_default_rag"
+        />
+        <ModelSelect
+          icon={<Brain size={14} className="label-icon" />}
+          label="ZAIA AI Model"
+          value={preferences.brain_model || ''}
+          onChange={v => onPreferenceUpdate('brain_model', v)}
+          models={brainModels}
+          defaultLabel={modelConfig?.current_brain_model?.split('/').pop() || 'auto'}
+          allModels={availableModels}
+          defaultFlag="is_default_brain"
+        />
+        <ModelSelect
+          icon={<Eye size={14} className="label-icon" />}
+          label="Image Analysis"
+          value={preferences.vision_model || ''}
+          onChange={v => onPreferenceUpdate('vision_model', v)}
+          models={visionModels}
+          defaultLabel={modelConfig?.current_vision_model || 'auto'}
+          allModels={availableModels}
         />
       </div>
+
+      {/* Model Library */}
+      <ModelLibrary
+        models={availableModels.filter(m => m.provider === 'ollama')}
+        pullProgress={pullProgress}
+        onPull={pullModel}
+        onDelete={deleteModel}
+        onCancelPull={cancelPull}
+        onPullCustom={pullModel}
+        updateStatus={updateStatus}
+        checkingUpdates={checkingUpdates}
+        onUpdate={handleUpdate}
+        onCheckUpdates={checkForUpdates}
+      />
     </div>
   );
 }
 
-function VisionModelDisplay({ availableModels, modelConfig }) {
-  const visionModelId = modelConfig?.current_vision_model;
-  const visionModel = availableModels.find(m => m.id === visionModelId);
+function ModelSelect({ icon, label, value, onChange, models, defaultLabel, allModels, defaultFlag }) {
+  const selectedInfo = allModels?.find(m => m.id === value);
 
   return (
     <div className="settings-appearance-item model-select-item">
-      <label>
-        <Eye size={14} className="label-icon" />
-        Image Analysis
-      </label>
-      <div className="model-readonly-display ng-glass-inset">
-        <span className="model-readonly-name">
-          {visionModel?.name || visionModelId || 'Unknown'}
-        </span>
-        {visionModel?.parameters && (
-          <span className="model-readonly-params">({visionModel.parameters})</span>
-        )}
-        {visionModel && (
-          <span className={`model-readonly-status ${visionModel.is_available !== false ? 'available' : 'unavailable'}`}>
-            {visionModel.is_available !== false ? 'Active' : 'Not installed'}
-          </span>
-        )}
-      </div>
-      {visionModel?.description && (
-        <div className="model-info">{visionModel.description}</div>
+      <label>{icon} {label}</label>
+      <select
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        className="settings-select"
+      >
+        <option value="">System Default ({defaultLabel})</option>
+        {models.map(m => (
+          <option key={m.id} value={m.id} disabled={m.is_available === false}>
+            {m.name} ({m.parameters}) {defaultFlag && m[defaultFlag] ? '\u2605' : ''}
+            {m.is_available === false ? ' - Not installed' : ''}
+          </option>
+        ))}
+      </select>
+      {value && selectedInfo?.description && (
+        <div className="model-info">{selectedInfo.description}</div>
       )}
     </div>
   );

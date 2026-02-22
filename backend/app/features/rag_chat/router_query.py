@@ -17,10 +17,9 @@ from slowapi.util import get_remote_address
 from core.database import get_db
 from core.model_service import get_effective_rag_model, get_provider_for_user
 from core.auth import get_current_user
-from core.llm.base import LLMMessage, ProviderType
+from core.llm.base import LLMMessage
 from core.llm.cost_tracker import log_token_usage, log_stream_usage
 from models import User
-from embeddings import generate_embedding
 
 from features.rag_chat.models import Conversation, ChatMessage, MessageCitation
 from features.rag_chat import schemas
@@ -28,24 +27,13 @@ from features.rag_chat.services import (
     RAGPromptConfig,
     RAG_SYSTEM_PROMPT,
     RAG_SYSTEM_PROMPT_CONCISE,
+    RAG_NO_CONTEXT_SYSTEM_PROMPT,
     format_user_message_with_context,
     format_no_context_message,
     extract_confidence_signals,
     extract_citations_from_response,
     detect_query_type,
     get_query_specific_instructions,
-    ContextConfig,
-    build_context,
-    RankingConfig,
-    merge_and_rank,
-    get_retrieval_summary,
-    RetrievalConfig,
-    semantic_search_notes,
-    semantic_search_chunks,
-    fulltext_search_notes,
-    combined_image_retrieval,
-    GraphTraversalConfig,
-    graph_traversal,
 )
 from features.rag_chat.services.ollama_client import call_ollama_generate, call_ollama_stream
 from features.rag_chat.services.title_generator import generate_conversation_title
@@ -147,7 +135,7 @@ async def rag_query(
         # Prepare LLM prompt
         if not result.assembled_context.sources:
             user_message = format_no_context_message(query)
-            system_prompt = RAG_SYSTEM_PROMPT_CONCISE
+            system_prompt = RAG_NO_CONTEXT_SYSTEM_PROMPT
         else:
             user_message = format_user_message_with_context(
                 query=query,
@@ -259,6 +247,10 @@ async def rag_query_stream(
     """
     Execute a streaming RAG query with SSE.
 
+    Phase 1 (sync): Runs the full execute_query pipeline
+    (intent detection, cache, title search, retrieval, ranking).
+    Phase 2 (SSE): Streams the LLM generation token-by-token.
+
     **Rate limit:** 20 requests/minute
     """
     query = body.query
@@ -284,60 +276,52 @@ async def rag_query_stream(
         db.refresh(conversation)
         conversation_id = conversation.id
 
+    # Phase 1: Retrieval (sync) - reuses full execute_query pipeline
+    try:
+        config = QueryExecutionConfig(
+            min_similarity=body.min_similarity,
+            max_sources=body.max_sources,
+            include_images=body.include_images,
+            include_graph=body.include_graph
+        )
+        result = execute_query(db, query, user_id, config, body.conversation_id)
+    except Exception as e:
+        logger.exception(f"Streaming RAG retrieval failed: {e}")
+        async def error_stream():
+            yield f"data: {json.dumps({'type': 'error', 'content': str(e)})}\n\n"
+        return StreamingResponse(error_stream(), media_type="text/event-stream")
+
+    # Prepare prompt from retrieval results
+    assembled_context = result.assembled_context
+    retrieval_summary = result.retrieval_summary
+
+    if not assembled_context.sources:
+        user_message = format_no_context_message(query)
+        system_prompt = RAG_NO_CONTEXT_SYSTEM_PROMPT
+    else:
+        user_message = format_user_message_with_context(
+            query=query,
+            context=assembled_context.formatted_context,
+            source_count=len(assembled_context.sources),
+            config=RAGPromptConfig(require_citations=True, allow_no_context_response=True)
+        )
+        query_type = detect_query_type(query)
+        system_prompt = f"{RAG_SYSTEM_PROMPT}\n\n{get_query_specific_instructions(query_type)}"
+
+    if result.conversation_context:
+        user_message = result.conversation_context + user_message
+
+    source_count = len(assembled_context.sources)
+
+    # Phase 2: Stream generation (async SSE)
     async def generate_stream():
         try:
-            query_embedding = generate_embedding(query)
-            if not query_embedding:
-                yield f"data: {json.dumps({'type': 'error', 'content': 'Failed to generate embedding'})}\n\n"
-                return
-
-            # Retrieval
-            retrieval_config = RetrievalConfig(
-                min_similarity=body.min_similarity,
-                max_results=body.max_sources,
-                include_notes=True, include_chunks=True, include_images=body.include_images
-            )
-
-            semantic_results = semantic_search_notes(db, query_embedding, user_id, retrieval_config)
-            chunk_results = semantic_search_chunks(db, query_embedding, user_id, retrieval_config)
-            fulltext_results = fulltext_search_notes(db, query, user_id, limit=5)
-
-            image_results = []
-            if body.include_images:
-                note_ids = [r.source_id for r in semantic_results if r.source_type == 'note']
-                image_results = combined_image_retrieval(db, query, user_id, note_ids, limit=5)
-
-            graph_results = []
-            if body.include_graph and semantic_results:
-                seed_ids = [r.source_id for r in semantic_results[:3] if r.source_type == 'note']
-                if seed_ids:
-                    graph_results = graph_traversal(db, seed_ids, user_id, GraphTraversalConfig(max_hops=2, max_results_per_hop=3))
-
-            ranked_results = merge_and_rank(
-                semantic_results=semantic_results, chunk_results=chunk_results,
-                graph_results=graph_results, fulltext_results=fulltext_results,
-                image_results=image_results, config=RankingConfig(max_results=body.max_sources), query=query
-            )
-
-            assembled_context = build_context(ranked_results, ContextConfig())
-
-            # Prepare prompt
-            if not assembled_context.sources:
-                user_message = format_no_context_message(query)
-                system_prompt = RAG_SYSTEM_PROMPT_CONCISE
-            else:
-                user_message = format_user_message_with_context(
-                    query=query, context=assembled_context.formatted_context,
-                    source_count=len(assembled_context.sources)
-                )
-                system_prompt = f"{RAG_SYSTEM_PROMPT}\n\n{get_query_specific_instructions(detect_query_type(query))}"
+            # Emit source count before tokens so frontend can show indicator
+            yield f"data: {json.dumps({'type': 'sources_found', 'sources_found': source_count})}\n\n"
 
             provider, user_model, provider_name = get_provider_for_user(db, user_id, "rag")
-
-            # Stream tokens (cloud-aware)
             full_response = ""
-            stream_input_tokens = 0
-            stream_output_tokens = 0
+            had_error = False
 
             if provider_name != "ollama":
                 messages = [
@@ -345,73 +329,71 @@ async def rag_query_stream(
                     LLMMessage(role="user", content=user_message),
                 ]
                 try:
+                    stream_in, stream_out = 0, 0
                     for chunk in provider.stream(
                         messages=messages, model=user_model, temperature=0.3, max_tokens=2048,
                     ):
+                        if chunk.is_error:
+                            had_error = True
+                            yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                            break
                         if chunk.content:
                             full_response += chunk.content
                             yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
                         if chunk.done:
-                            stream_input_tokens = chunk.input_tokens
-                            stream_output_tokens = chunk.output_tokens
+                            stream_in = chunk.input_tokens
+                            stream_out = chunk.output_tokens
                             break
-                    # Log cloud usage
-                    from core.llm.base import ProviderType as PT
-                    ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
-                    log_stream_usage(db, user_id, ptype, user_model, stream_input_tokens, stream_output_tokens, "rag")
+                    if not had_error:
+                        from core.llm.base import ProviderType as PT
+                        ptype = {"anthropic": PT.ANTHROPIC, "openai": PT.OPENAI, "custom": PT.CUSTOM}.get(provider_name, PT.OLLAMA)
+                        log_stream_usage(db, user_id, ptype, user_model, stream_in, stream_out, "rag")
                 except Exception as cloud_err:
                     logger.warning(f"Cloud stream failed, falling back to Ollama: {cloud_err}")
                     user_model = get_effective_rag_model(db, user_id)
-                    for token in call_ollama_stream(user_message, system_prompt, model=user_model):
-                        full_response += token
-                        yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+                    for chunk in call_ollama_stream(user_message, system_prompt, model=user_model):
+                        if chunk.is_error:
+                            had_error = True
+                            yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                            break
+                        if chunk.content:
+                            full_response += chunk.content
+                            yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                        if chunk.done:
+                            break
             else:
-                for token in call_ollama_stream(user_message, system_prompt, model=user_model):
-                    full_response += token
-                    yield f"data: {json.dumps({'type': 'token', 'content': token})}\n\n"
+                for chunk in call_ollama_stream(user_message, system_prompt, model=user_model):
+                    if chunk.is_error:
+                        had_error = True
+                        yield f"data: {json.dumps({'type': 'error', 'content': chunk.content, 'error_type': chunk.error_type})}\n\n"
+                        break
+                    if chunk.content:
+                        full_response += chunk.content
+                        yield f"data: {json.dumps({'type': 'token', 'content': chunk.content})}\n\n"
+                    if chunk.done:
+                        break
+
+            if had_error:
+                yield f"data: {json.dumps({'type': 'done'})}\n\n"
+                return
 
             # Post-process
             confidence = extract_confidence_signals(full_response)
             used_indices = extract_citations_from_response(full_response, assembled_context.sources)
-            retrieval_summary = get_retrieval_summary(ranked_results)
 
             citations = [
                 {'index': s.index, 'source_type': s.source_type, 'source_id': s.source_id,
                  'title': s.title, 'content_preview': s.content[:200], 'relevance_score': s.relevance_score,
-                 'retrieval_method': s.retrieval_method, 'hop_count': s.hop_count, 'relationship_chain': s.relationship_chain}
+                 'retrieval_method': s.retrieval_method, 'hop_count': s.hop_count,
+                 'relationship_chain': s.relationship_chain}
                 for s in assembled_context.sources
             ]
-
             yield f"data: {json.dumps({'type': 'citations', 'citations': citations, 'used_indices': used_indices})}\n\n"
 
             # Save conversation
-            message_id = None
-            if conversation:
-                try:
-                    user_msg = ChatMessage(conversation_id=conversation.id, role="user", content=query)
-                    db.add(user_msg)
-                    db.flush()
-
-                    assistant_msg = ChatMessage(
-                        conversation_id=conversation.id, role="assistant",
-                        content=full_response, confidence_score=confidence['confidence_score']
-                    )
-                    db.add(assistant_msg)
-                    db.flush()
-                    message_id = assistant_msg.id
-
-                    for c in citations:
-                        db.add(MessageCitation(
-                            message_id=message_id, source_type=c['source_type'], source_id=c['source_id'],
-                            citation_index=c['index'], relevance_score=c['relevance_score'],
-                            retrieval_method=c['retrieval_method'], hop_count=c['hop_count'] or 0
-                        ))
-
-                    conversation.updated_at = datetime.utcnow()
-                    db.commit()
-                except Exception as e:
-                    logger.error(f"Failed to save streaming conversation: {e}")
-                    db.rollback()
+            message_id = _save_streaming_conversation(
+                db, conversation, query, full_response, citations, confidence
+            )
 
             metadata = {
                 'total_sources_searched': retrieval_summary['total_sources_searched'],
@@ -440,3 +422,43 @@ async def rag_query_stream(
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "Connection": "keep-alive", "X-Accel-Buffering": "no"}
     )
+
+
+def _save_streaming_conversation(
+    db: Session,
+    conversation: Conversation | None,
+    query: str,
+    full_response: str,
+    citations: list,
+    confidence: dict
+) -> int | None:
+    """Save messages from a streaming conversation. Returns message_id or None."""
+    if not conversation:
+        return None
+    try:
+        user_msg = ChatMessage(conversation_id=conversation.id, role="user", content=query)
+        db.add(user_msg)
+        db.flush()
+
+        assistant_msg = ChatMessage(
+            conversation_id=conversation.id, role="assistant",
+            content=full_response, confidence_score=confidence['confidence_score']
+        )
+        db.add(assistant_msg)
+        db.flush()
+        message_id = assistant_msg.id
+
+        for c in citations:
+            db.add(MessageCitation(
+                message_id=message_id, source_type=c['source_type'], source_id=c['source_id'],
+                citation_index=c['index'], relevance_score=c['relevance_score'],
+                retrieval_method=c['retrieval_method'], hop_count=c['hop_count'] or 0
+            ))
+
+        conversation.updated_at = datetime.utcnow()
+        db.commit()
+        return message_id
+    except Exception as e:
+        logger.error(f"Failed to save streaming conversation: {e}")
+        db.rollback()
+        return None
