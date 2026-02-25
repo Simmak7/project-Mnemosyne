@@ -192,7 +192,9 @@ Get your private AI brain running in 3 steps:
 ### Prerequisites
 - [Docker](https://www.docker.com/get-started) and Docker Compose
 - 8GB RAM minimum (16GB recommended for AI features)
-- NVIDIA GPU optional (for faster AI processing)
+- NVIDIA GPU + [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) (recommended, not required)
+
+> **No NVIDIA GPU?** Remove the `deploy:` blocks from `ollama` and `celery_worker` in `docker-compose.yml`. AI will run on CPU (slower but works).
 
 ### Installation
 
@@ -219,14 +221,16 @@ docker exec -it ollama ollama pull llama3.2:3b             # Brain AI & NEXUS na
 docker exec -it ollama ollama pull nomic-embed-text        # Semantic embeddings
 ```
 
-> **About AI Models:** This beta ships with a curated set of models optimized for each task. In future releases, we plan to support **custom model selection** — letting you swap in your preferred models for each capability (vision, chat, embeddings) directly from the settings UI.
+> **About AI Models:** These are the recommended defaults. You can swap models per capability (vision, RAG, Brain) anytime from **Settings > AI Models** — including pulling new models directly from the UI.
 
 ### Access Your Brain
 
 | Service | URL |
 |---------|-----|
-| **App** | http://localhost:3000 |
-| **API Docs** | http://localhost:8000/docs |
+| **App** | http://localhost |
+| **API Docs** | http://localhost/docs |
+
+> **Custom port?** Change `WEB_PORT` in `.env` (default: 80). Access at `http://localhost:WEB_PORT`.
 
 ---
 
@@ -237,7 +241,7 @@ Don't feel like reading instructions? Just paste this into [Claude Code](https:/
 ```
 Clone https://github.com/Simmak7/project-Mnemosyne.git, set it up with
 Docker, pull all the required Ollama models, and get it running on
-localhost:3000. Surprise me when it's done.
+localhost. Surprise me when it's done.
 ```
 
 Sit back, grab a coffee, and let the machines do the work.
@@ -261,6 +265,8 @@ Sit back, grab a coffee, and let the machines do the work.
 
 ### v1.1.2-beta (Current Release)
 - **Dashboard Home Page** — Knowledge base overview with customizable widgets (metrics, Brain Focus, Quick Capture, Calendar, Favorite Images, Tasks, Knowledge Graph stats, System Status)
+- **Custom Model Selection** — Pick your own Ollama models per capability (vision, RAG, Brain) from Settings
+- **Data Export** — Export your notes (Markdown), images, tags, and activity as a downloadable ZIP archive
 - **Nginx Reverse Proxy** — Production-ready deployment with proper routing for 2FA, login, and API
 - **Self-Hosted Docker Setup** — Single `docker-compose up` deploys everything including Nginx on port 80
 
@@ -287,8 +293,6 @@ Sit back, grab a coffee, and let the machines do the work.
 - Two-factor authentication (TOTP) and session management
 
 ### v1.2.0 (Up Next)
-- Custom model selection — pick your own Ollama models per capability
-- Data export (Markdown, JSON, PDF)
 - Import from Obsidian, Notion, Evernote
 - Mobile-responsive design improvements
 - Browser extension for web clipping
