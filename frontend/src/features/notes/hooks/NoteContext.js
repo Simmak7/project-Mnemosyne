@@ -8,7 +8,7 @@ import { usePersistedState } from '../../../hooks/usePersistedState';
  */
 const NoteContext = createContext(null);
 
-export function NoteProvider({ children, initialNoteId = null }) {
+export function NoteProvider({ children, initialNoteId = null, initialSearchQuery = '' }) {
   // Persisted state - survives tab switches and page reloads
   const [currentCategory, setCurrentCategory] = usePersistedState('notes:category', 'all');
   const [selectedNoteId, setSelectedNoteId] = usePersistedState('notes:selectedId', null);
@@ -59,6 +59,18 @@ export function NoteProvider({ children, initialNoteId = null }) {
     }
     prevInitialId.current = initialNoteId;
   }, [initialNoteId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sync searchQuery when initialSearchQuery changes (external navigation from Dashboard tags/connections)
+  const prevSearchQuery = useRef('');
+  useLayoutEffect(() => {
+    if (initialSearchQuery && initialSearchQuery !== prevSearchQuery.current) {
+      setSearchQuery(initialSearchQuery);
+      setCurrentCategory('all');
+      setSelectedNoteId(null);
+      setSelectedTagFilter(null);
+    }
+    prevSearchQuery.current = initialSearchQuery;
+  }, [initialSearchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch category counts on mount
   useEffect(() => {

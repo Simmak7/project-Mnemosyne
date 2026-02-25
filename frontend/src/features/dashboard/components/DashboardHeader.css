@@ -1,0 +1,132 @@
+/**
+ * DashboardHeader styles
+ */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--ng-space-3, 12px);
+}
+
+.dashboard-header__greeting {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.dashboard-header__subtitle {
+  font-size: 14px;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 4px 0 0;
+}
+
+.dashboard-header__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.dashboard-header__date {
+  font-size: 13px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.dashboard-header__pulse {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pulse-label {
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.pulse-green .pulse-dot {
+  background: var(--ng-success, #22c55e);
+  box-shadow: 0 0 6px var(--ng-success, #22c55e);
+}
+
+.pulse-yellow .pulse-dot {
+  background: var(--ng-warning, #f59e0b);
+  box-shadow: 0 0 6px var(--ng-warning, #f59e0b);
+}
+
+.pulse-red .pulse-dot {
+  background: var(--ng-error, #ef4444);
+  box-shadow: 0 0 6px var(--ng-error, #ef4444);
+}
+
+.dashboard-customize-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-md, 6px);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-muted, #6b7280);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.dashboard-customize-btn:hover {
+  color: var(--ng-text-primary, #f9fafb);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.2);
+}
+
+/* Customize mode toolbar */
+.dashboard-customize-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dashboard-toolbar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--ng-radius-md, 6px);
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.dashboard-toolbar-btn--secondary {
+  color: var(--ng-text-secondary, #d1d5db);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+}
+
+.dashboard-toolbar-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.dashboard-toolbar-btn--primary {
+  color: #000;
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+.dashboard-toolbar-btn--primary:hover {
+  background: #a5b4fc;
+}

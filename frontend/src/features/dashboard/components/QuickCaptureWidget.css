@@ -1,0 +1,89 @@
+/**
+ * QuickCaptureWidget styles
+ */
+
+.quick-capture-form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.quick-capture-textarea {
+  flex: 1;
+  min-height: 36px;
+  max-height: 80px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: var(--ng-font-ui, 'Inter', sans-serif);
+  color: var(--ng-text-primary, #f9fafb);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-sm, 4px);
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s;
+  line-height: 1.4;
+}
+
+.quick-capture-textarea::placeholder {
+  color: var(--ng-text-muted, #6b7280);
+}
+
+.quick-capture-textarea:focus {
+  border-color: var(--ng-accent-ai, #818cf8);
+}
+
+.quick-capture-send {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  background: var(--ng-accent-ai, #818cf8);
+  color: #000;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.quick-capture-send:hover {
+  background: #a5b4fc;
+}
+
+.quick-capture-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.quick-capture-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  min-height: 20px;
+}
+
+.quick-capture-last {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+/* Captured flash animation */
+.quick-capture-flash {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ng-success, #22c55e);
+  animation: qc-flash 1.5s ease-out forwards;
+}
+
+@keyframes qc-flash {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+}

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, AlertTriangle, Loader, Mail } from 'lucide-react';
 import './EmailVerification.css';
-
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_URL as API_BASE } from '../../../utils/api';
 
 /**
  * Email verification page component.

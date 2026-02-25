@@ -70,6 +70,23 @@
   text-indent: 0.25em;
 }
 
+.logo-clickable {
+  cursor: pointer;
+  border-radius: 12px;
+  padding: 8px;
+  margin: -8px;
+  transition: background 0.2s ease;
+}
+
+.logo-clickable:hover {
+  background: var(--hover-bg);
+}
+
+.logo-clickable:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .sidebar-nav {
   flex: 1;
   padding: 20px 12px;

@@ -1,0 +1,68 @@
+/**
+ * CalendarWidget - Compact overrides for MiniCalendar inside dashboard
+ */
+
+.calendar-widget .mini-calendar {
+  padding: 0;
+}
+
+.calendar-widget .mini-calendar-header {
+  margin-bottom: 8px;
+}
+
+.calendar-widget .mini-calendar-title {
+  font-size: 12px;
+}
+
+.calendar-widget .mini-calendar-nav {
+  width: 24px;
+  height: 24px;
+}
+
+.calendar-widget .calendar-weekday {
+  font-size: 9px;
+  padding: 2px 0;
+}
+
+.calendar-widget .calendar-day {
+  padding: 1px;
+}
+
+.calendar-widget .calendar-day-number {
+  font-size: 10px;
+}
+
+.calendar-widget .calendar-legend {
+  display: none;
+}
+
+/* Day info bar below the calendar */
+.calendar-widget-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.calendar-widget-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ng-text-secondary, #d1d5db);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.calendar-day-info {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.calendar-day-info--empty {
+  font-style: italic;
+}

@@ -9,6 +9,7 @@ export function getFeatureFlags() {
 }
 
 export const PAGE_INFO = {
+  dashboard: { title: 'Dashboard', description: 'Your knowledge base command center' },
   journal: { title: 'Journal', description: 'Daily notes, quick capture, and personal reflections' },
   upload: { title: 'Upload Image', description: 'Upload and analyze images with AI' },
   gallery: { title: 'Gallery', description: 'Browse and organize your photos in a smart gallery layout' },

@@ -4,7 +4,7 @@ import Settings from './Settings';
 import AIStatusIndicator from './toast/AIStatusIndicator';
 import './Sidebar.css';
 
-function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onToggleDarkMode, onOpenSearch }) {
+function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onToggleDarkMode, onOpenSearch, onLogoClick }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const menuRef = useRef(null);
@@ -69,7 +69,14 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <div className="logo">
+        <div
+          className="logo logo-clickable"
+          onClick={onLogoClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && onLogoClick?.()}
+          title="Go to Dashboard"
+        >
           <div className="logo-monogram">M</div>
           <div className="logo-wordmark">MNEMOSYNE</div>
         </div>

@@ -1,0 +1,351 @@
+/**
+ * Shared widget styles for Dashboard
+ */
+
+/* Widget shell */
+.dashboard-widget {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ng-space-3, 12px);
+}
+
+.widget-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-icon {
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.widget-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.widget-action {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--ng-radius-sm, 4px);
+  transition: color 0.15s, background 0.15s;
+}
+
+.widget-action:hover {
+  color: var(--ng-text-primary, #f9fafb);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+}
+
+.widget-body {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Skeleton loading */
+.widget-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.widget-skeleton-line {
+  height: 12px;
+  border-radius: 4px;
+  background: var(--ng-charcoal-700, #1e1e1e);
+}
+
+/* Stats summary row */
+.widget-stats-summary {
+  display: flex;
+  gap: var(--ng-space-4, 16px);
+  padding-bottom: var(--ng-space-2, 8px);
+  margin-bottom: var(--ng-space-2, 8px);
+  border-bottom: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.widget-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.widget-stat-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-stat-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-muted, #6b7280);
+}
+
+/* Breakdown bars */
+.widget-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.widget-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+}
+
+.widget-bar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.widget-bar-label {
+  font-size: 11px;
+  color: var(--ng-text-secondary, #d1d5db);
+  width: 56px;
+  text-transform: capitalize;
+}
+
+.widget-bar-track {
+  flex: 1;
+  height: 4px;
+  background: var(--ng-charcoal-700, #1e1e1e);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.widget-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  opacity: 0.8;
+}
+
+.widget-bar-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ng-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+  width: 28px;
+  text-align: right;
+}
+
+/* Status rows */
+.widget-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.widget-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.widget-status-dot.status-ok {
+  background: var(--ng-success, #22c55e);
+  box-shadow: 0 0 4px var(--ng-success, #22c55e);
+}
+
+.widget-status-dot.status-error {
+  background: var(--ng-error, #ef4444);
+  box-shadow: 0 0 4px var(--ng-error, #ef4444);
+}
+
+.widget-status-dot.status-unknown {
+  background: var(--ng-text-muted, #6b7280);
+}
+
+.widget-status-label {
+  font-size: 12px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.widget-status-detail {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  margin-left: auto;
+}
+
+/* Progress bar */
+.widget-progress-section {
+  margin-top: var(--ng-space-3, 12px);
+}
+
+.widget-progress-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.widget-progress-label {
+  font-size: 11px;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.widget-progress-pct {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  font-variant-numeric: tabular-nums;
+}
+
+.widget-progress-track {
+  height: 6px;
+  background: var(--ng-charcoal-700, #1e1e1e);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.widget-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--ng-accent-ai, #818cf8);
+  transition: width 0.4s ease;
+}
+
+/* List items */
+.widget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.widget-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s;
+}
+
+.widget-list-item:hover {
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+}
+
+.widget-list-title {
+  font-size: 13px;
+  color: var(--ng-text-primary, #f9fafb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.widget-list-meta {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  flex-shrink: 0;
+}
+
+.widget-list-badge {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ng-text-muted, #6b7280);
+  background: var(--ng-charcoal-700, #1e1e1e);
+  padding: 2px 6px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+/* Tag pills */
+.widget-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.widget-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  padding: 3px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.widget-tag-pill:hover {
+  background: rgba(52, 211, 153, 0.2);
+  border-color: rgba(52, 211, 153, 0.35);
+}
+
+.widget-tag-count {
+  font-size: 10px;
+  color: var(--ng-text-muted, #6b7280);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty state */
+.widget-empty {
+  font-size: 12px;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 0;
+  text-align: center;
+  padding: var(--ng-space-3, 12px) 0;
+}
+
+/* Shimmer animation */
+@keyframes ng-shimmer {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.3; }
+}
+
+.ng-shimmer {
+  animation: ng-shimmer 1.5s infinite ease-in-out;
+}
+
+/* Light mode overrides */
+[data-theme="light"] .widget-bar-track,
+[data-theme="light"] .widget-progress-track {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .widget-list-badge {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="light"] .widget-tag-pill {
+  background: rgba(52, 211, 153, 0.08);
+}

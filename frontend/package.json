@@ -30,6 +30,7 @@
     "react-dom": "^18.2.0",
     "react-force-graph": "^1.48.1",
     "react-force-graph-2d": "^1.29.0",
+    "react-grid-layout": "^2.2.2",
     "react-hot-keys": "^2.7.3",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^10.0.0",

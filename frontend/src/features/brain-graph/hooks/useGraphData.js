@@ -7,8 +7,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_URL as API_BASE } from '../../../utils/api';
 
 /** Shared fetch helper with auth */
 async function graphFetch(path, signal) {

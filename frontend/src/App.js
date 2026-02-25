@@ -32,6 +32,7 @@ const AIChatLayout = lazy(() => import('./features/ai_chat').then(m => ({ defaul
 const JournalLayout = lazy(() => import('./features/journal').then(m => ({ default: m.JournalLayout })));
 const UploadLayout = lazy(() => import('./features/upload').then(m => ({ default: m.UploadLayout })));
 const DocumentLayout = lazy(() => import('./features/documents').then(m => ({ default: m.DocumentLayout })));
+const DashboardLayout = lazy(() => import('./features/dashboard').then(m => ({ default: m.DashboardLayout })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,6 +84,7 @@ function App() {
           isDarkMode={isDarkMode}
           onToggleDarkMode={toggleDarkMode}
           onOpenSearch={() => nav.setSearchOpen(true)}
+          onLogoClick={() => nav.handleTabChange('dashboard')}
         />
 
         <UnifiedSearch
@@ -95,7 +97,23 @@ function App() {
 
         {/* Main content area - hidden when Brain is active */}
         <main className="main-content" style={brainActive ? { display: 'none' } : undefined}>
-          {tab === 'journal' && flags.journalEnabled ? (
+          {tab === 'dashboard' ? (
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingSpinner size="large" message="Loading dashboard..." />}>
+                <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
+                  <DashboardLayout
+                    onNavigateToNote={nav.handleNavigateToNote}
+                    onNavigateToImage={nav.handleNavigateToImage}
+                    onNavigateToDocument={nav.handleNavigateToDocument}
+                    onNavigateToTag={nav.handleNavigateToTag}
+                    onNavigateToSearch={nav.handleNavigateToSearch}
+                    onTabChange={nav.handleTabChange}
+                    onUploadSuccess={nav.handleImageUploadSuccess}
+                  />
+                </div>
+              </Suspense>
+            </ErrorBoundary>
+          ) : tab === 'journal' && flags.journalEnabled ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading journal..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
@@ -141,6 +159,7 @@ function App() {
                     onNavigateToAI={nav.handleNavigateToAI}
                     onNavigateToDocument={nav.handleNavigateToDocument}
                     selectedNoteId={nav.selectedNoteId}
+                    initialSearchQuery={nav.searchQuery}
                   />
                 </div>
               </Suspense>

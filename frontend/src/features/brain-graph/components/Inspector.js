@@ -15,6 +15,7 @@ import { getNodeColor } from '../utils/nodeRendering';
 import { formatDate, getNodeId, getNodePath } from '../utils/nodeHelpers';
 import { EdgeDetails } from './EdgeDetails';
 import { BacklinksSection } from './BacklinksSection';
+import { API_URL as API_BASE } from '../../../utils/api';
 import './Inspector.css';
 
 // Icon mapping for node types
@@ -26,9 +27,6 @@ const NODE_ICONS = {
   document: FileScan,
   entity: Sparkles,
 };
-
-// API base for image thumbnails
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 // Edge type display config
 const EDGE_TYPE_CONFIG = {

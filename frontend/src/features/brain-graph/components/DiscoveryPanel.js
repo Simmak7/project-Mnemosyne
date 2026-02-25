@@ -8,8 +8,7 @@
 import React from 'react';
 import { Unlink, Star, FileText, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_URL as API_BASE } from '../../../utils/api';
 
 async function apiFetch(path, signal) {
   const token = localStorage.getItem('token');

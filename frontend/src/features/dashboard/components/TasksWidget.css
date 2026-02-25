@@ -1,0 +1,56 @@
+/**
+ * TasksWidget styles - Neural Glass design
+ */
+
+.tasks-progress-label {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tasks-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 6px;
+  border-radius: var(--ng-radius-sm, 4px);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.tasks-item:hover {
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+}
+
+.tasks-checkbox {
+  accent-color: var(--ng-accent-ai, #818cf8);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.tasks-text {
+  font-size: 13px;
+  color: var(--ng-text-primary, #f9fafb);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.tasks-all-done {
+  font-size: 12px;
+  color: var(--ng-success, #22c55e);
+  text-align: center;
+  padding: var(--ng-space-2, 8px) 0;
+  margin: 0;
+}

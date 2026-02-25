@@ -5,7 +5,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { API_URL } from '../utils/api';
 
 export function useAppNavigation() {
-  const [activeTab, setActiveTab] = useState('upload');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const [selectedImageId, setSelectedImageId] = useState(null);
@@ -97,7 +97,14 @@ export function useAppNavigation() {
 
   const handleNavigateToTag = useCallback((tagName) => {
     setActiveTab('notes');
-    setSearchQuery(tagName);
+    setSearchQuery(tagName.startsWith('#') ? tagName : `#${tagName}`);
+    setSelectedNoteId(null);
+    setSelectedImageId(null);
+  }, []);
+
+  const handleNavigateToSearch = useCallback((query) => {
+    setActiveTab('notes');
+    setSearchQuery(query);
     setSelectedNoteId(null);
     setSelectedImageId(null);
   }, []);
@@ -138,7 +145,7 @@ export function useAppNavigation() {
   }, []);
 
   const resetTabState = useCallback(() => {
-    setActiveTab('upload');
+    setActiveTab('dashboard');
   }, []);
 
   return {
@@ -163,6 +170,7 @@ export function useAppNavigation() {
     handleNavigateToImage,
     handleNavigateToDocument,
     handleNavigateToTag,
+    handleNavigateToSearch,
     handleNavigateToAI,
     clearAiChatContext,
     handleSearchResultClick,

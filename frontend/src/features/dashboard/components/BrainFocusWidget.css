@@ -1,0 +1,138 @@
+/**
+ * BrainFocusWidget styles
+ */
+
+.brain-focus-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-3, 12px);
+}
+
+.brain-focus-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 3px 10px;
+  border-radius: 10px;
+  width: fit-content;
+}
+
+.brain-focus-type--note {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+}
+
+.brain-focus-type--tag {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.brain-focus-type--image {
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.12);
+}
+
+.brain-focus-type--entity {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.brain-focus-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.brain-focus-excerpt {
+  font-size: 13px;
+  color: var(--ng-text-secondary, #d1d5db);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+.brain-focus-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.brain-focus-connections {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.brain-focus-tag {
+  font-size: 10px;
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.brain-focus-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.brain-focus-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--ng-radius-sm, 4px);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.brain-focus-btn--primary {
+  color: #000;
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+.brain-focus-btn--primary:hover {
+  background: #a5b4fc;
+}
+
+.brain-focus-btn--secondary {
+  color: var(--ng-text-secondary, #d1d5db);
+  background: var(--ng-glass-bg, rgba(255, 255, 255, 0.05));
+}
+
+.brain-focus-btn--secondary:hover {
+  color: var(--ng-text-primary, #f9fafb);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.brain-focus-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-3, 12px);
+  padding: var(--ng-space-4, 16px) 0;
+  text-align: center;
+}
+
+.brain-focus-empty-text {
+  font-size: 12px;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 0;
+}

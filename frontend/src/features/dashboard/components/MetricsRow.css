@@ -1,0 +1,59 @@
+/**
+ * MetricsRow styles
+ */
+
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ng-space-4, 16px);
+}
+
+@media (max-width: 900px) {
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* MetricCard styles */
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.metric-card__header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.metric-card__value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.metric-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ng-text-tertiary, #9ca3af);
+}
+
+.metric-card__subtitle {
+  font-size: 11px;
+  color: var(--ng-text-muted, #6b7280);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

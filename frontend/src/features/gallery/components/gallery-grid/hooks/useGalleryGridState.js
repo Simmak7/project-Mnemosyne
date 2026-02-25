@@ -2,8 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { useGalleryImages, useGalleryTags } from '../../../hooks/useGalleryImages';
 import { useAlbums } from '../../../hooks/useAlbums';
 import { preloadImageDimensions } from '../../../utils/justifiedLayout';
-
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+import { API_URL as API_BASE } from '../../../../../utils/api';
 
 /**
  * Hook for managing gallery grid state - image loading, dimensions, filtering

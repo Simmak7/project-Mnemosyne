@@ -1,0 +1,154 @@
+/**
+ * WidgetManager overlay styles
+ */
+
+.widget-manager-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: wm-fade-in 0.2s ease-out;
+}
+
+@keyframes wm-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.widget-manager-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  width: 360px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--ng-glass-bg-solid, #1a1a2e);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
+  border-radius: var(--ng-radius-lg, 12px);
+  padding: var(--ng-space-5, 20px);
+  animation: wm-slide-up 0.25s ease-out;
+}
+
+@keyframes wm-slide-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.widget-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ng-space-4, 16px);
+}
+
+.widget-manager-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ng-text-primary, #f9fafb);
+  margin: 0;
+}
+
+.widget-manager-close {
+  background: none;
+  border: none;
+  color: var(--ng-text-muted, #6b7280);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--ng-radius-sm, 4px);
+  line-height: 0;
+  transition: color 0.15s;
+}
+
+.widget-manager-close:hover {
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.widget-manager-section {
+  margin-bottom: var(--ng-space-4, 16px);
+}
+
+.widget-manager-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 0 0 8px;
+}
+
+.widget-manager-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: var(--ng-radius-sm, 4px);
+  transition: background 0.15s;
+}
+
+.widget-manager-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.widget-manager-checkbox {
+  accent-color: var(--ng-accent-ai, #818cf8);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.widget-manager-item-icon {
+  color: var(--ng-text-tertiary, #9ca3af);
+  flex-shrink: 0;
+}
+
+.widget-manager-item-label {
+  font-size: 13px;
+  color: var(--ng-text-secondary, #d1d5db);
+  flex: 1;
+}
+
+.widget-manager-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: var(--ng-space-3, 12px);
+  border-top: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
+}
+
+.widget-manager-btn {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: var(--ng-radius-sm, 4px);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.widget-manager-btn--reset {
+  color: var(--ng-text-muted, #6b7280);
+  background: none;
+  margin-right: auto;
+}
+
+.widget-manager-btn--reset:hover {
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.widget-manager-btn--done {
+  color: #000;
+  background: var(--ng-accent-ai, #818cf8);
+}
+
+.widget-manager-btn--done:hover {
+  background: #a5b4fc;
+}

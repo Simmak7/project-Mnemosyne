@@ -1,0 +1,78 @@
+/**
+ * FavoriteImagesWidget styles
+ */
+
+.fav-images-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.fav-image-thumb {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--ng-radius-sm, 4px);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.fav-image-thumb:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+.fav-image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fav-image-thumb img.loaded {
+  opacity: 1;
+}
+
+.fav-image-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 6px 4px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  font-size: 9px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.fav-image-thumb:hover .fav-image-name {
+  opacity: 1;
+}
+
+.fav-images-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ng-space-2, 8px);
+  padding: var(--ng-space-4, 16px) 0;
+  text-align: center;
+}
+
+.fav-images-empty-text {
+  font-size: 12px;
+  color: var(--ng-text-muted, #6b7280);
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .fav-images-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

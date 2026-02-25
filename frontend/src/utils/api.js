@@ -18,7 +18,10 @@
  */
 
 // API base URL from environment variable, fallback to localhost for development
-export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+// When REACT_APP_API_URL is explicitly set to empty string, use same-origin (for reverse proxy setups)
+export const API_URL = process.env.REACT_APP_API_URL !== undefined
+  ? process.env.REACT_APP_API_URL
+  : 'http://localhost:8000';
 
 // CSRF token storage (refreshed on each request that returns a new token)
 let csrfToken = null;

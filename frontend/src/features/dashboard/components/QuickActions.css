@@ -1,0 +1,28 @@
+/**
+ * QuickActions styles
+ */
+
+.quick-actions {
+  display: flex;
+  gap: var(--ng-space-3, 12px);
+  flex-wrap: wrap;
+}
+
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.quick-action-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ng-text-secondary, #d1d5db);
+}
+
+.quick-action-card:hover .quick-action-label {
+  color: var(--ng-text-primary, #f9fafb);
+}
