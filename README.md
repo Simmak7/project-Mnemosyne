@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.0--beta-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.2--beta-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/AI-100%25%20local-purple" alt="Local AI">
@@ -29,7 +29,7 @@
 
 ---
 
-> **Beta Release** — Mnemosyne v1.1.0-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
+> **Beta Release** — Mnemosyne v1.1.2-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
 
 ---
 
@@ -48,6 +48,7 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 | **Living Knowledge Graph** | Watch your ideas connect and evolve visually |
 | **Visual Intelligence** | Upload images and let AI extract text, describe content, and auto-tag |
 | **Document Management** | Upload PDFs for AI enrichment, review, and semantic search |
+| **Dashboard Home** | See your entire knowledge base at a glance — metrics, quick capture, calendar, and system health |
 | **Ask Your Brain** | Chat with your knowledge base in two modes — retrieval-augmented or brain AI companion |
 
 ---
@@ -55,6 +56,13 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 ## Screenshots
 
 <table>
+  <tr>
+    <td colspan="2" align="center">
+      <a href="docs/screenshots/dashboard.png"><img src="docs/screenshots/dashboard.png" alt="Dashboard"></a>
+      <br><strong>Dashboard — Your Knowledge Base at a Glance</strong>
+      <br><em>Metrics, Brain Focus, Quick Capture, Calendar, Favorite Images, Tasks, Knowledge Graph stats, and System Status — all in one view</em>
+    </td>
+  </tr>
   <tr>
     <td width="60%" align="center">
       <a href="docs/screenshots/gallery.png"><img src="docs/screenshots/gallery.png" alt="Smart Gallery"></a>
@@ -108,6 +116,15 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 ---
 
 ## Features
+
+### Dashboard
+- **Knowledge Base Overview** — See total notes, images, documents, and tags at a glance
+- **Brain Focus** — Visualize your current focus node from the Knowledge Graph
+- **Quick Capture** — Jot down thoughts instantly without leaving the dashboard
+- **Calendar Widget** — Navigate to journal entries with an interactive monthly calendar
+- **Favorite Images** — Browse your starred photos right from home
+- **Tasks & System Status** — Track your to-dos and monitor Ollama, database, Redis, and embedding health
+- **Customizable Layout** — Rearrange and toggle widgets to fit your workflow
 
 ### Smart Note-Taking
 - **Rich Text Editor** — Full-featured Tiptap editor with markdown support
@@ -236,13 +253,25 @@ Sit back, grab a coffee, and let the machines do the work.
 | **Database** | PostgreSQL + pgvector |
 | **Cache/Queue** | Redis |
 | **AI/ML** | Ollama (local) + Anthropic, OpenAI (optional cloud) |
-| **Infrastructure** | Docker Compose |
+| **Infrastructure** | Docker Compose, Nginx reverse proxy |
 
 ---
 
 ## Roadmap
 
-### v1.1.0-beta (Current Release)
+### v1.1.2-beta (Current Release)
+- **Dashboard Home Page** — Knowledge base overview with customizable widgets (metrics, Brain Focus, Quick Capture, Calendar, Favorite Images, Tasks, Knowledge Graph stats, System Status)
+- **Nginx Reverse Proxy** — Production-ready deployment with proper routing for 2FA, login, and API
+- **Self-Hosted Docker Setup** — Single `docker-compose up` deploys everything including Nginx on port 80
+
+### v1.1.1
+- **Cloud AI Providers** — Connect Claude, ChatGPT, or any OpenAI-compatible endpoint
+- **Encrypted API Key Management** — Fernet-encrypted per-user key storage
+- **Token Usage & Cost Tracking** — Monitor your cloud API spend
+- **Provider-Aware Model Registry** — Cloud models alongside local Ollama
+- **Auto-expanding Chat Input** — Textarea grows with your message
+
+### v1.1.0
 - Smart note-taking with wikilinks, hashtags, and backlinks
 - AI image analysis with Qwen 2.5 VL vision model
 - PDF document management with AI enrichment and review workflow
@@ -264,13 +293,6 @@ Sit back, grab a coffee, and let the machines do the work.
 - Mobile-responsive design improvements
 - Browser extension for web clipping
 - Audio note transcription
-
-### v1.1.1 (Experimental)
-- **Cloud AI Providers** — Connect Claude, ChatGPT, or any OpenAI-compatible endpoint
-- **Encrypted API Key Management** — Fernet-encrypted per-user key storage
-- **Token Usage & Cost Tracking** — Monitor your cloud API spend
-- **Provider-Aware Model Registry** — Cloud models alongside local Ollama
-- **Auto-expanding Chat Input** — Textarea grows with your message
 
 ### Future Vision
 - **Mobile App** — Your brain in your pocket
