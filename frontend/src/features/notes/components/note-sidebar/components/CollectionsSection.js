@@ -204,7 +204,12 @@ function CollectionItem({
           <FolderOpen size={16} className="collection-icon-placeholder" />
         )}
         <span className="collection-name">{collection.name}</span>
-        <span className="collection-count">{collection.note_count}</span>
+        <span className="collection-count">
+          {collection.note_count}
+          {collection.document_count > 0 && (
+            <span className="collection-doc-count-badge" title="Documents">+{collection.document_count}</span>
+          )}
+        </span>
         <button
           className="collection-menu-btn"
           onClick={(e) => onContextMenu(e, collection)}

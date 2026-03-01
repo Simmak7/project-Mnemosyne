@@ -4,6 +4,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { API_URL } from '../utils/api';
 
+const VALID_TABS = ['dashboard', 'upload', 'gallery', 'documents', 'notes', 'journal', 'graph', 'chat'];
+
 export function useAppNavigation() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -28,6 +30,52 @@ export function useAppNavigation() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Restore tab from URL hash on initial load
+  useEffect(() => {
+    const hash = window.location.hash.replace('#/', '');
+    if (!hash) return;
+
+    const parts = hash.split('/');
+    const tab = parts[0];
+    const itemId = parts[1] ? parseInt(parts[1], 10) : null;
+
+    if (VALID_TABS.includes(tab)) {
+      setActiveTab(tab);
+      if (tab === 'notes' && itemId) setSelectedNoteId(itemId);
+      else if (tab === 'gallery' && itemId) setSelectedImageId(itemId);
+      else if (tab === 'documents' && itemId) setSelectedDocumentId(itemId);
+
+      if (tab === 'gallery') fetchImages();
+      else if (tab === 'notes') fetchNotes();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Listen for browser back/forward navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#/', '');
+      if (!hash) {
+        setActiveTab('dashboard');
+        return;
+      }
+
+      const parts = hash.split('/');
+      const tab = parts[0];
+      const itemId = parts[1] ? parseInt(parts[1], 10) : null;
+
+      if (VALID_TABS.includes(tab)) {
+        setActiveTab(tab);
+        if (tab === 'notes' && itemId) setSelectedNoteId(itemId);
+        else if (tab === 'gallery' && itemId) setSelectedImageId(itemId);
+        else if (tab === 'documents' && itemId) setSelectedDocumentId(itemId);
+      }
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const fetchImages = useCallback(async () => {
@@ -64,6 +112,7 @@ export function useAppNavigation() {
 
   const handleTabChange = useCallback((tab) => {
     setActiveTab(tab);
+    window.location.hash = `#/${tab}`;
     if (tab === 'gallery') {
       fetchImages();
     } else if (tab === 'notes') {
@@ -79,6 +128,7 @@ export function useAppNavigation() {
   const handleNavigateToGraph = useCallback((noteId) => {
     setGraphFocusNodeId(noteId ? `note-${noteId}` : null);
     setActiveTab('graph');
+    window.location.hash = `#/graph`;
   }, []);
 
   const handleNavigateToNote = useCallback((noteId) => {
@@ -86,6 +136,7 @@ export function useAppNavigation() {
     setSelectedNoteId(noteId);
     setSelectedImageId(null);
     setSearchQuery('');
+    window.location.hash = `#/notes/${noteId}`;
   }, []);
 
   const handleNavigateToImage = useCallback((imageId) => {
@@ -93,6 +144,7 @@ export function useAppNavigation() {
     setSelectedImageId(imageId);
     setSelectedNoteId(null);
     setSearchQuery('');
+    window.location.hash = `#/gallery/${imageId}`;
   }, []);
 
   const handleNavigateToTag = useCallback((tagName) => {
@@ -114,11 +166,13 @@ export function useAppNavigation() {
     setSelectedDocumentId(docId);
     setSelectedNoteId(null);
     setSelectedImageId(null);
+    window.location.hash = `#/documents/${docId}`;
   }, []);
 
   const handleNavigateToAI = useCallback((context) => {
     setAiChatContext(context);
     setActiveTab('chat');
+    window.location.hash = `#/chat`;
   }, []);
 
   const clearAiChatContext = useCallback(() => {
@@ -146,6 +200,7 @@ export function useAppNavigation() {
 
   const resetTabState = useCallback(() => {
     setActiveTab('dashboard');
+    window.location.hash = '';
   }, []);
 
   return {

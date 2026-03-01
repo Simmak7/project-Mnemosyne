@@ -38,6 +38,17 @@ class NoteInCollection(BaseModel):
         from_attributes = True
 
 
+class DocumentInCollection(BaseModel):
+    """Brief document info for collection listing."""
+    id: int
+    display_name: Optional[str] = None
+    filename: Optional[str] = None
+    uploaded_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 class CollectionResponse(CollectionBase):
     """Schema for collection response."""
     id: int
@@ -45,6 +56,7 @@ class CollectionResponse(CollectionBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     note_count: int = 0
+    document_count: int = 0
 
     class Config:
         from_attributes = True
@@ -55,6 +67,17 @@ class CollectionWithNotes(CollectionResponse):
     notes: List[NoteInCollection] = []
 
 
+class CollectionWithItems(CollectionResponse):
+    """Collection with list of notes and documents."""
+    notes: List[NoteInCollection] = []
+    documents: List[DocumentInCollection] = []
+
+
 class AddNoteRequest(BaseModel):
     """Request to add a note to a collection."""
     note_id: int
+
+
+class AddDocumentRequest(BaseModel):
+    """Request to add a document to a collection."""
+    document_id: int

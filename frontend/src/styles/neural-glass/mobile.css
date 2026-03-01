@@ -1,0 +1,81 @@
+/* ============================================
+   Neural Glass - Mobile Tokens & Global Rules
+   ============================================ */
+
+:root {
+  /* Mobile layout tokens */
+  --ng-mobile-bottom-nav-height: 56px;
+  --ng-mobile-tab-bar-height: 44px;
+  --ng-mobile-touch-target: 44px;
+  --ng-mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Dynamic viewport height with fallback */
+  --ng-viewport-height: 100dvh;
+}
+
+/* Fallback for browsers without dvh support */
+@supports not (height: 100dvh) {
+  :root {
+    --ng-viewport-height: 100vh;
+  }
+}
+
+/* ============================================
+   Mobile Global Rules (max-width: 767px)
+   ============================================ */
+@media (max-width: 767px) {
+  /* Prevent iOS auto-zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="url"],
+  input[type="tel"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  /* Minimum touch targets for interactive elements */
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  .nav-item,
+  .btn {
+    min-height: var(--ng-mobile-touch-target);
+  }
+
+  /* Reduce heavy shadows on mobile for performance */
+  .ng-glass,
+  .ng-glass-elevated {
+    box-shadow: none;
+  }
+
+  /* Tighter scrollbars on mobile */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  /* Disable hover effects on touch */
+  @media (hover: none) {
+    *:hover {
+      transition: none !important;
+    }
+  }
+}
+
+/* ============================================
+   Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-bottom-nav,
+  .mobile-nav-drawer,
+  .mobile-panel-tabs,
+  .mobile-drawer-backdrop {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}

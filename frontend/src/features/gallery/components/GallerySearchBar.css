@@ -133,22 +133,27 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .gallery-search-bar {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    padding: 6px 10px;
+    gap: 8px;
   }
 
   .search-input-container {
-    flex: 1 1 100%;
-    order: 1;
+    min-width: 0;
+  }
+
+  .search-input {
+    font-size: 0.875rem;
   }
 
   .search-type-toggle {
-    order: 2;
+    display: none;
   }
 
   .search-result-count {
-    order: 3;
+    font-size: 0.75rem;
     border-left: none;
     padding-left: 0;
   }

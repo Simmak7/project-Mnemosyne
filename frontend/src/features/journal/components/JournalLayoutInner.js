@@ -1,26 +1,40 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Calendar, Edit3, BarChart2 } from 'lucide-react';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { useJournalContext } from '../hooks/JournalContext';
+import { useIsMobile } from '../../../hooks/useIsMobile';
+import { useSwipeNavigation } from '../../../hooks/useSwipeNavigation';
+import MobilePanelTabs from '../../../components/MobilePanelTabs';
 import { JournalSidebar } from './journal-sidebar';
 import { JournalDayView } from './journal-day';
 import { JournalInsights } from './journal-insights';
 import './JournalLayout.css';
+
+const MOBILE_PANELS = [
+  { id: 'calendar', label: 'Calendar', icon: Calendar },
+  { id: 'today', label: 'Today', icon: Edit3 },
+  { id: 'insights', label: 'Insights', icon: BarChart2 },
+];
+
+const PANEL_IDS = MOBILE_PANELS.map(p => p.id);
 
 /**
  * JournalLayoutInner - 3-pane resizable layout for Journal.
  * Keyboard: Left/Right arrows navigate days, T goes to today.
  */
 function JournalLayoutInner({ onNavigateToNote, onNavigateToImage }) {
+  const isMobile = useIsMobile();
+  const [mobilePanel, setMobilePanel] = useState('today');
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const sidebarPanelRef = useRef(null);
   const { selectedDate, selectDate, navigateToToday } = useJournalContext();
 
+  const swipeHandlers = useSwipeNavigation(PANEL_IDS, mobilePanel, setMobilePanel);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKey = (e) => {
-      // Skip if user is typing in an input/textarea/editor
       const tag = e.target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
 
@@ -49,6 +63,27 @@ function JournalLayoutInner({ onNavigateToNote, onNavigateToImage }) {
     sidebarPanelRef.current?.expand();
   }, []);
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="journal-layout ng-theme journal-layout--mobile">
+        <MobilePanelTabs panels={MOBILE_PANELS} activePanel={mobilePanel} onPanelChange={setMobilePanel} />
+        <div className="journal-mobile-content" {...swipeHandlers}>
+          {mobilePanel === 'calendar' && (
+            <JournalSidebar isCollapsed={false} onCollapse={() => {}} />
+          )}
+          {mobilePanel === 'today' && (
+            <JournalDayView onNavigateToNote={onNavigateToNote} />
+          )}
+          {mobilePanel === 'insights' && (
+            <JournalInsights onNavigateToNote={onNavigateToNote} />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="journal-layout ng-theme">
       <PanelGroup direction="horizontal" className="journal-panel-group">

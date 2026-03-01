@@ -5,6 +5,7 @@ import { useNoteContext } from '../../hooks/NoteContext';
 import { useCollections } from '../../hooks/useCollections';
 import { useCollectionActions } from './hooks';
 import { NavigationCategories, CollectionsSection, SmartTagsSection } from './components';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
 import { api } from '../../../../utils/api';
 import '../NoteSidebar.css';
 
@@ -26,9 +27,10 @@ function NoteSidebar({ isCollapsed, onCollapse }) {
     setSelectedCollectionId
   } = useNoteContext();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
 
-  const [tagsExpanded, setTagsExpanded] = useState(true);
-  const [collectionsExpanded, setCollectionsExpanded] = useState(true);
+  const [tagsExpanded, setTagsExpanded] = useState(!isMobile);
+  const [collectionsExpanded, setCollectionsExpanded] = useState(!isMobile);
 
   const {
     collections,

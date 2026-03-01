@@ -216,3 +216,50 @@
 [data-theme="light"] .calendar-day.calendar-day--selected .calendar-dot--amber {
   background: #ffffff;
 }
+
+/* Mobile: Compact calendar */
+@media (max-width: 767px) {
+  .mini-calendar {
+    padding: 8px;
+  }
+
+  .mini-calendar-header {
+    margin-bottom: 6px;
+  }
+
+  .mini-calendar-title {
+    font-size: 0.8125rem;
+    padding: 2px 6px;
+  }
+
+  .mini-calendar-nav {
+    width: 24px;
+    height: 24px;
+  }
+
+  .mini-calendar-grid {
+    gap: 1px;
+  }
+
+  .calendar-weekday {
+    font-size: 9px;
+    padding: 2px 0;
+  }
+
+  .calendar-day {
+    padding: 1px;
+  }
+
+  .calendar-day-number {
+    font-size: 10px;
+  }
+
+  .calendar-day-dots {
+    height: 4px;
+  }
+
+  .calendar-dot {
+    width: 3px;
+    height: 3px;
+  }
+}

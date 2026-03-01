@@ -30,6 +30,9 @@
 /* Utility Classes */
 @import './utilities.css';
 
+/* Mobile Responsive */
+@import './mobile.css';
+
 /* ============================================
    Global Neural Glass Styles
    Applied when .ng-theme class is present

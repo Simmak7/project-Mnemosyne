@@ -9,7 +9,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from models import NoteCollection, NoteCollectionNote, Note
+from models import NoteCollection, NoteCollectionNote, NoteCollectionDocument, Note, Document
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +26,10 @@ def get_collections(db: Session, owner_id: int) -> List[dict]:
             NoteCollectionNote.collection_id == collection.id
         ).scalar()
 
+        document_count = db.query(func.count(NoteCollectionDocument.document_id)).filter(
+            NoteCollectionDocument.collection_id == collection.id
+        ).scalar()
+
         result.append({
             "id": collection.id,
             "owner_id": collection.owner_id,
@@ -35,7 +39,8 @@ def get_collections(db: Session, owner_id: int) -> List[dict]:
             "color": collection.color,
             "created_at": collection.created_at,
             "updated_at": collection.updated_at,
-            "note_count": note_count or 0
+            "note_count": note_count or 0,
+            "document_count": document_count or 0
         })
 
     return result
@@ -60,6 +65,15 @@ def get_collection(db: Session, collection_id: int, owner_id: int) -> Optional[d
         Note.is_trashed == False
     ).order_by(NoteCollectionNote.position, Note.updated_at.desc()).all()
 
+    # Get documents in this collection
+    documents = db.query(Document).join(
+        NoteCollectionDocument,
+        Document.id == NoteCollectionDocument.document_id
+    ).filter(
+        NoteCollectionDocument.collection_id == collection_id,
+        Document.is_trashed == False
+    ).order_by(NoteCollectionDocument.position, Document.uploaded_at.desc()).all()
+
     return {
         "id": collection.id,
         "owner_id": collection.owner_id,
@@ -70,6 +84,7 @@ def get_collection(db: Session, collection_id: int, owner_id: int) -> Optional[d
         "created_at": collection.created_at,
         "updated_at": collection.updated_at,
         "note_count": len(notes),
+        "document_count": len(documents),
         "notes": [
             {
                 "id": note.id,
@@ -77,6 +92,15 @@ def get_collection(db: Session, collection_id: int, owner_id: int) -> Optional[d
                 "created_at": note.created_at
             }
             for note in notes
+        ],
+        "documents": [
+            {
+                "id": doc.id,
+                "display_name": doc.display_name,
+                "filename": doc.filename,
+                "uploaded_at": doc.uploaded_at
+            }
+            for doc in documents
         ]
     }
 
@@ -240,6 +264,99 @@ def get_note_collections(db: Session, note_id: int, owner_id: int) -> List[dict]
         NoteCollection.id == NoteCollectionNote.collection_id
     ).filter(
         NoteCollectionNote.note_id == note_id,
+        NoteCollection.owner_id == owner_id
+    ).all()
+
+    return [
+        {
+            "id": c.id,
+            "name": c.name,
+            "icon": c.icon,
+            "color": c.color
+        }
+        for c in collections
+    ]
+
+
+def add_document_to_collection(
+    db: Session,
+    collection_id: int,
+    document_id: int,
+    owner_id: int
+) -> bool:
+    """Add a document to a collection."""
+    collection = db.query(NoteCollection).filter(
+        NoteCollection.id == collection_id,
+        NoteCollection.owner_id == owner_id
+    ).first()
+
+    if not collection:
+        return False
+
+    doc = db.query(Document).filter(
+        Document.id == document_id,
+        Document.owner_id == owner_id
+    ).first()
+
+    if not doc:
+        return False
+
+    existing = db.query(NoteCollectionDocument).filter(
+        NoteCollectionDocument.collection_id == collection_id,
+        NoteCollectionDocument.document_id == document_id
+    ).first()
+
+    if existing:
+        return True
+
+    link = NoteCollectionDocument(
+        collection_id=collection_id,
+        document_id=document_id
+    )
+    db.add(link)
+    db.commit()
+
+    logger.info(f"Added document {document_id} to collection {collection_id}")
+    return True
+
+
+def remove_document_from_collection(
+    db: Session,
+    collection_id: int,
+    document_id: int,
+    owner_id: int
+) -> bool:
+    """Remove a document from a collection."""
+    collection = db.query(NoteCollection).filter(
+        NoteCollection.id == collection_id,
+        NoteCollection.owner_id == owner_id
+    ).first()
+
+    if not collection:
+        return False
+
+    link = db.query(NoteCollectionDocument).filter(
+        NoteCollectionDocument.collection_id == collection_id,
+        NoteCollectionDocument.document_id == document_id
+    ).first()
+
+    if not link:
+        return False
+
+    db.delete(link)
+    db.commit()
+
+    logger.info(f"Removed document {document_id} from collection {collection_id}")
+    return True
+
+
+def get_document_collections(db: Session, document_id: int, owner_id: int) -> List[dict]:
+    """Get all collections that contain a specific document."""
+    collections = db.query(NoteCollection).join(
+        NoteCollectionDocument,
+        NoteCollection.id == NoteCollectionDocument.collection_id
+    ).filter(
+        NoteCollectionDocument.document_id == document_id,
         NoteCollection.owner_id == owner_id
     ).all()
 

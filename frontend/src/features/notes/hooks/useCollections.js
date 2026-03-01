@@ -74,6 +74,30 @@ export function useCollections() {
     }
   });
 
+  // Add document to collection mutation
+  const addDocumentToCollection = useMutation({
+    mutationFn: async ({ collectionId, documentId }) => {
+      return api.post(`/collections/${collectionId}/documents`, { document_id: documentId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ['doc-collections'] });
+    }
+  });
+
+  // Remove document from collection mutation
+  const removeDocumentFromCollection = useMutation({
+    mutationFn: async ({ collectionId, documentId }) => {
+      return api.delete(`/collections/${collectionId}/documents/${documentId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['collections'] });
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+      queryClient.invalidateQueries({ queryKey: ['doc-collections'] });
+    }
+  });
+
   return {
     collections,
     isLoading,
@@ -85,6 +109,8 @@ export function useCollections() {
     deleteCollection: deleteCollection.mutate,
     addNoteToCollection: addNoteToCollection.mutate,
     removeNoteFromCollection: removeNoteFromCollection.mutate,
+    addDocumentToCollection: addDocumentToCollection.mutate,
+    removeDocumentFromCollection: removeDocumentFromCollection.mutate,
     isCreating: createCollection.isPending,
     isUpdating: updateCollection.isPending,
     isDeleting: deleteCollection.isPending
@@ -129,6 +155,25 @@ export function useNoteCollections(noteId) {
     queryKey: ['note-collections', noteId],
     queryFn: () => noteId ? api.get(`/collections/note/${noteId}`) : [],
     enabled: !!noteId,
+    staleTime: 30000
+  });
+
+  return { collections, isLoading, isError, error };
+}
+
+/**
+ * Hook for fetching collections that contain a specific document
+ */
+export function useDocumentCollectionsUnified(documentId) {
+  const {
+    data: collections = [],
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ['doc-collections', documentId],
+    queryFn: () => documentId ? api.get(`/collections/document/${documentId}`) : [],
+    enabled: !!documentId,
     staleTime: 30000
   });
 

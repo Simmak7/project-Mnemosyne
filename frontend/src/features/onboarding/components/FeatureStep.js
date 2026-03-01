@@ -1,9 +1,5 @@
 import React from 'react';
 
-/**
- * Feature step (steps 1-9) - Icon with glow, title, description, tips.
- * Accent color driven by step.accent ('ai'|'image'|'note'|'link').
- */
 function FeatureStep({ step }) {
   const Icon = step.icon;
   const accent = step.accent;
@@ -11,9 +7,22 @@ function FeatureStep({ step }) {
   return (
     <div className="onboarding-feature" data-accent={accent}>
       {/* Icon with colored glow background */}
-      <div className={`onboarding-feature-icon accent-${accent}`}>
-        <div className="onboarding-icon-glow" />
-        <Icon size={32} strokeWidth={1.5} />
+      <div className="onboarding-icon-row">
+        <div className={`onboarding-feature-icon accent-${accent}`}>
+          <div className="onboarding-icon-glow" />
+          <Icon size={32} strokeWidth={1.5} />
+        </div>
+
+        {/* Secondary icons */}
+        {step.secondaryIcons && step.secondaryIcons.length > 0 && (
+          <div className="onboarding-secondary-icons">
+            {step.secondaryIcons.map((SecIcon, i) => (
+              <div key={i} className={`onboarding-secondary-icon accent-${accent}`}>
+                <SecIcon size={20} strokeWidth={1.5} />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <h2 className="onboarding-feature-title">{step.title}</h2>

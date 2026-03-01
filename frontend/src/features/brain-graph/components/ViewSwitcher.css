@@ -121,23 +121,17 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .view-switcher {
-    padding: var(--ng-space-2, 8px);
-    flex-wrap: wrap;
-    gap: var(--ng-space-2, 8px);
+    padding: 4px 8px;
+    flex-wrap: nowrap;
+    gap: 4px;
   }
 
   .view-switcher__tabs {
-    order: 1;
-    width: 100%;
-    justify-content: center;
-  }
-
-  .view-switcher__controls {
-    order: 2;
-    width: 100%;
-    justify-content: center;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
   }
 
   .view-switcher__tab-label {
@@ -145,7 +139,33 @@
   }
 
   .view-switcher__tab {
-    padding: var(--ng-space-2, 8px);
+    padding: 6px;
+    border-radius: 6px;
+  }
+
+  .view-switcher__tab svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .view-switcher__controls {
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .view-switcher__control-group {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .view-switcher__control {
+    width: 26px;
+    height: 26px;
+  }
+
+  .view-switcher__zoom-level {
+    min-width: 32px;
+    font-size: 10px;
   }
 }
 

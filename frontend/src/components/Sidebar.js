@@ -1,28 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Brain, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan, Sun, Moon } from 'lucide-react';
+import { Brain, LayoutDashboard, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan, Sun, Moon, SlidersHorizontal } from 'lucide-react';
 import Settings from './Settings';
+import SidebarCustomizer from './SidebarCustomizer';
 import AIStatusIndicator from './toast/AIStatusIndicator';
+import { useSidebarConfig } from '../hooks/useSidebarConfig';
 import './Sidebar.css';
 
 function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onToggleDarkMode, onOpenSearch, onLogoClick }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const menuRef = useRef(null);
   const userSectionRef = useRef(null);
+  const { isTabVisible, toggleTab, resetDefaults } = useSidebarConfig();
 
   // Feature flags
   const journalEnabled = localStorage.getItem('ENABLE_JOURNAL') !== 'false';
   const documentsEnabled = localStorage.getItem('ENABLE_DOCUMENTS') !== 'false';
 
   const navItems = [
-    { id: 'upload', iconComponent: Upload, label: 'Studio' },
+    { id: 'dashboard', iconComponent: LayoutDashboard, label: 'Home' },
+    { id: 'upload', iconComponent: Upload, label: 'Upload' },
     { id: 'gallery', iconComponent: Image, label: 'Gallery' },
     ...(documentsEnabled ? [{ id: 'documents', iconComponent: FileScan, label: 'Documents' }] : []),
     { id: 'notes', iconComponent: FileText, label: 'Notes' },
     ...(journalEnabled ? [{ id: 'journal', iconComponent: BookOpen, label: 'Journal' }] : []),
-    { id: 'graph', iconComponent: Brain, label: 'Brain' },
+    { id: 'graph', iconComponent: Brain, label: 'Knowledge Graph' },
     { id: 'chat', iconComponent: Sparkles, label: 'Mnemos AIs' }
   ];
+
+  const visibleNavItems = navItems.filter(item => isTabVisible(item.id));
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -95,21 +102,23 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
           <kbd className="search-kbd">⌘K</kbd>
         </button>
 
-        {navItems.map(item => (
-          <button
-            key={item.id}
-            className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
-            onClick={() => onTabChange(item.id)}
-            aria-label={`Navigate to ${item.label}`}
-            aria-current={activeTab === item.id ? 'page' : undefined}
-          >
-            {item.iconComponent ? (
-              <item.iconComponent size={20} className="nav-icon-svg" />
-            ) : (
-              <span className="nav-icon">{item.icon}</span>
-            )}
-            <span className="nav-label">{item.label}</span>
-          </button>
+        {visibleNavItems.map(item => (
+          <React.Fragment key={item.id}>
+            <button
+              className={`nav-item ${activeTab === item.id ? 'active' : ''}`}
+              onClick={() => onTabChange(item.id)}
+              aria-label={`Navigate to ${item.label}`}
+              aria-current={activeTab === item.id ? 'page' : undefined}
+            >
+              {item.iconComponent ? (
+                <item.iconComponent size={20} className="nav-icon-svg" />
+              ) : (
+                <span className="nav-icon">{item.icon}</span>
+              )}
+              <span className="nav-label">{item.label}</span>
+            </button>
+            {item.id === 'dashboard' && <div className="nav-divider" />}
+          </React.Fragment>
         ))}
       </nav>
 
@@ -125,6 +134,27 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
           {isDarkMode ? <Sun size={18} className="theme-icon-svg" /> : <Moon size={18} className="theme-icon-svg" />}
           <span className="theme-label">{isDarkMode ? 'Light' : 'Dark'}</span>
         </button>
+
+        <div className="sidebar-customizer-container">
+          <button
+            className="theme-toggle"
+            onClick={() => setShowCustomizer(!showCustomizer)}
+            title="Customize Sidebar"
+            aria-label="Customize sidebar navigation"
+          >
+            <SlidersHorizontal size={18} className="theme-icon-svg" />
+            <span className="theme-label">Customize</span>
+          </button>
+          {showCustomizer && (
+            <SidebarCustomizer
+              allItems={navItems}
+              isTabVisible={isTabVisible}
+              onToggle={toggleTab}
+              onReset={resetDefaults}
+              onClose={() => setShowCustomizer(false)}
+            />
+          )}
+        </div>
 
         <div className="user-section-container">
           <div

@@ -9,6 +9,7 @@ import './styles/neural-glass/index.css';
 import { useAuth } from './hooks/useAuth';
 import { useTheme } from './hooks/useTheme';
 import { useAppNavigation } from './hooks/useAppNavigation';
+import { useIsMobile } from './hooks/useIsMobile';
 
 // Config
 import { getFeatureFlags } from './config/featureFlags';
@@ -18,6 +19,7 @@ import { Login, EmailVerification } from './features/auth';
 
 // Component imports
 import Sidebar from './components/Sidebar';
+import MobileBottomNav from './components/MobileBottomNav';
 import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -43,6 +45,7 @@ const queryClient = new QueryClient({
 function App() {
   const { isAuthenticated, username, handleLoginSuccess, handleLogout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
+  const isMobile = useIsMobile();
   const nav = useAppNavigation();
   // Mount Brain once on first visit, keep alive across tab switches
   const [brainMounted, setBrainMounted] = useState(false);
@@ -76,16 +79,28 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
       <div className="App">
-        <Sidebar
-          activeTab={tab}
-          onTabChange={nav.handleTabChange}
-          username={username}
-          onLogout={handleLogout}
-          isDarkMode={isDarkMode}
-          onToggleDarkMode={toggleDarkMode}
-          onOpenSearch={() => nav.setSearchOpen(true)}
-          onLogoClick={() => nav.handleTabChange('dashboard')}
-        />
+        {isMobile ? (
+          <MobileBottomNav
+            activeTab={tab}
+            onTabChange={nav.handleTabChange}
+            username={username}
+            onLogout={handleLogout}
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={toggleDarkMode}
+            onOpenSearch={() => nav.setSearchOpen(true)}
+          />
+        ) : (
+          <Sidebar
+            activeTab={tab}
+            onTabChange={nav.handleTabChange}
+            username={username}
+            onLogout={handleLogout}
+            isDarkMode={isDarkMode}
+            onToggleDarkMode={toggleDarkMode}
+            onOpenSearch={() => nav.setSearchOpen(true)}
+            onLogoClick={() => nav.handleTabChange('dashboard')}
+          />
+        )}
 
         <UnifiedSearch
           isOpen={nav.searchOpen}
@@ -126,7 +141,7 @@ function App() {
             </ErrorBoundary>
           ) : tab === 'upload' ? (
             <ErrorBoundary>
-              <Suspense fallback={<LoadingSpinner size="large" message="Loading Neural Studio..." />}>
+              <Suspense fallback={<LoadingSpinner size="large" message="Loading Upload..." />}>
                 <div className="ng-theme ng-ambient-bg" style={{ width: '100%', height: '100%' }}>
                   <UploadLayout
                     onUploadSuccess={nav.handleImageUploadSuccess}

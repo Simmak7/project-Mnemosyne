@@ -405,6 +405,34 @@
 }
 
 /* ============================================
+   Mobile Responsive
+   ============================================ */
+@media (max-width: 767px) {
+  .gallery-sidebar {
+    padding: var(--ng-space-3, 12px);
+  }
+
+  .gallery-sidebar .sidebar-header {
+    margin-bottom: var(--ng-space-3, 12px);
+  }
+
+  .albums-list {
+    max-height: 200px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gallery-sidebar .sidebar-nav-item {
+    min-height: 44px;
+    padding: var(--ng-space-2, 8px) var(--ng-space-3, 12px);
+  }
+
+  .album-item {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

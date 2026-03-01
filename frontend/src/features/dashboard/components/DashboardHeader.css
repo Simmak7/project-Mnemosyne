@@ -130,3 +130,47 @@
 .dashboard-toolbar-btn--primary:hover {
   background: #a5b4fc;
 }
+
+/* Mobile */
+@media (max-width: 767px) {
+  .dashboard-header {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dashboard-header__left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dashboard-header__greeting {
+    font-size: 18px;
+  }
+
+  .dashboard-header__subtitle {
+    font-size: 12px;
+    display: none;
+  }
+
+  .dashboard-header__right {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .dashboard-header__date {
+    display: none;
+  }
+
+  .dashboard-header__pulse .pulse-label {
+    display: none;
+  }
+
+  .dashboard-customize-btn {
+    width: 38px;
+    height: 38px;
+  }
+}

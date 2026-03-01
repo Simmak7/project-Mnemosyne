@@ -45,6 +45,30 @@
   background: var(--ng-glass-bg-light, rgba(0, 0, 0, 0.3));
 }
 
+/* Mobile layout */
+.journal-layout--mobile {
+  height: var(--ng-viewport-height, 100vh);
+}
+
+.journal-mobile-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  .journal-layout {
+    height: calc(var(--ng-viewport-height, 100vh) - var(--ng-mobile-bottom-nav-height, 56px) - var(--ng-mobile-tab-bar-height, 44px));
+  }
+
+  .journal-panel {
+    margin: 0;
+    border-radius: 0;
+    border: none;
+  }
+}
+
 /* Resize handles - Amber accent (journal) */
 .journal-resize-handle {
   position: relative;

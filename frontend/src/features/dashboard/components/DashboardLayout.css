@@ -104,3 +104,13 @@
     padding: var(--ng-space-4, 16px);
   }
 }
+
+@media (max-width: 767px) {
+  .dashboard-layout {
+    padding: 12px;
+  }
+
+  .dashboard-content {
+    gap: 16px;
+  }
+}

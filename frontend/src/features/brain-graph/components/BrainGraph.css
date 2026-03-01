@@ -71,6 +71,25 @@
   background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
 }
 
+/* Mobile: hide side panels, fullscreen canvas */
+@media (max-width: 767px) {
+  .brain-graph__left-panel {
+    display: none;
+  }
+
+  .brain-graph__right-panel {
+    display: none;
+  }
+
+  .brain-graph__canvas-container {
+    width: 100%;
+  }
+
+  .brain-graph {
+    border-radius: 0;
+  }
+}
+
 /* Panel entrance animations - staggered */
 @keyframes brain-graph-panel-left-in {
   from {

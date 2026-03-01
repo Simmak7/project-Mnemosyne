@@ -567,17 +567,53 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .note-sidebar {
-    padding: var(--ng-space-3, 12px);
+    padding: 10px;
+    gap: 0;
+  }
+
+  .note-sidebar .sidebar-header {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
   }
 
   .note-sidebar .sidebar-title {
     font-size: 1.125rem;
   }
 
+  .note-sidebar .sidebar-nav {
+    margin-bottom: 8px;
+    gap: 2px;
+  }
+
   .note-sidebar .sidebar-nav-item {
-    padding: var(--ng-space-2, 8px) var(--ng-space-2-5, 10px);
+    padding: 6px 10px;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    font-size: 0.8125rem;
+  }
+
+  .note-sidebar .sidebar-section {
+    margin-bottom: 8px;
+  }
+
+  .collections-list {
+    max-height: 120px;
+  }
+
+  .tags-list {
+    max-height: 120px;
+  }
+
+  .note-sidebar .sidebar-footer {
+    padding-top: 8px;
+  }
+
+  .new-note-btn {
+    padding: 8px;
+    font-size: 0.8125rem;
   }
 }
 

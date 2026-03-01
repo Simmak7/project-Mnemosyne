@@ -34,7 +34,7 @@ async def get_collections(
     return collections
 
 
-@router.get("/{collection_id}", response_model=schemas.CollectionWithNotes)
+@router.get("/{collection_id}", response_model=schemas.CollectionWithItems)
 async def get_collection(
     collection_id: int,
     current_user: models.User = Depends(get_current_active_user),
@@ -65,7 +65,8 @@ async def create_collection(
     )
     return {
         **collection.__dict__,
-        "note_count": 0
+        "note_count": 0,
+        "document_count": 0
     }
 
 
@@ -89,12 +90,13 @@ async def update_collection(
     if not collection:
         raise exceptions.ResourceNotFoundException("Collection", collection_id)
 
-    # Get note count
     note_count = len(collection.notes) if collection.notes else 0
+    document_count = len(collection.documents) if collection.documents else 0
 
     return {
         **collection.__dict__,
-        "note_count": note_count
+        "note_count": note_count,
+        "document_count": document_count
     }
 
 
@@ -151,3 +153,45 @@ async def get_note_collections(
 ):
     """Get all collections that contain a specific note."""
     return service.get_note_collections(db, note_id, current_user.id)
+
+
+@router.post("/{collection_id}/documents")
+async def add_document_to_collection(
+    collection_id: int,
+    data: schemas.AddDocumentRequest,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Add a document to a collection."""
+    success = service.add_document_to_collection(
+        db, collection_id, data.document_id, current_user.id
+    )
+    if not success:
+        raise exceptions.ResourceNotFoundException("Collection or Document", collection_id)
+    return {"status": "success", "message": "Document added to collection"}
+
+
+@router.delete("/{collection_id}/documents/{document_id}")
+async def remove_document_from_collection(
+    collection_id: int,
+    document_id: int,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Remove a document from a collection."""
+    success = service.remove_document_from_collection(
+        db, collection_id, document_id, current_user.id
+    )
+    if not success:
+        raise exceptions.ResourceNotFoundException("Collection or Document", collection_id)
+    return {"status": "success", "message": "Document removed from collection"}
+
+
+@router.get("/document/{document_id}", response_model=List[dict])
+async def get_document_collections(
+    document_id: int,
+    current_user: models.User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Get all collections that contain a specific document."""
+    return service.get_document_collections(db, document_id, current_user.id)

@@ -193,7 +193,7 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
       });
 
       // Poll for completion
-      await pollTaskStatus(id, data.task_id, signal, statusEndpoint);
+      await pollTaskStatus(id, data.task_id, signal, statusEndpoint, isDocument, data.document_id, data.image_id);
 
       return data;
 
@@ -218,7 +218,7 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
    * Poll task status until completion
    * Extended timeout (5 minutes) for AI analysis which can take 2-3+ minutes
    */
-  const pollTaskStatus = useCallback(async (fileId, taskId, signal, statusEndpoint = '/task-status/') => {
+  const pollTaskStatus = useCallback(async (fileId, taskId, signal, statusEndpoint = '/task-status/', isDocument = false, documentId = null, imageId = null) => {
     const maxAttempts = 300; // 5 minutes with 1s interval (AI can be slow)
     const slowWarningThreshold = 120; // Show "slow" indicator after 2 minutes
     let attempts = 0;
@@ -246,7 +246,7 @@ export function useUploadQueue({ onUploadSuccess, onUploadError } = {}) {
           });
 
           // Call success callback after state update
-          onUploadSuccess?.({ id: fileId }, status.result);
+          onUploadSuccess?.({ id: fileId, isDocument, documentId, imageId }, status.result);
 
           return status;
         }

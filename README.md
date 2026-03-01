@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.2--beta-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.3--beta-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/AI-100%25%20local-purple" alt="Local AI">
@@ -29,7 +29,7 @@
 
 ---
 
-> **Beta Release** — Mnemosyne v1.1.2-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
+> **Beta Release** — Mnemosyne v1.1.3-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
 
 ---
 
@@ -106,8 +106,8 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
       <br><em>NEXUS RAG retrieval and Brain AI companion with topic memory</em>
     </td>
     <td width="50%" align="center">
-      <a href="docs/screenshots/studio.png"><img src="docs/screenshots/studio.png" alt="Neural Studio"></a>
-      <br><strong>Neural Studio</strong>
+      <a href="docs/screenshots/studio.png"><img src="docs/screenshots/studio.png" alt="Upload"></a>
+      <br><strong>Upload</strong>
       <br><em>Multi-file upload with real-time AI analysis and customizable settings</em>
     </td>
   </tr>
@@ -141,7 +141,7 @@ Mnemosyne is an AI-powered personal knowledge management system that runs **100%
 ### PDF Document Management
 - **Upload & AI Enrichment** — Upload PDFs and let AI generate summaries, key points, and tags
 - **Review Workflow** — Approve, reject, or edit AI-generated metadata before publishing
-- **Document Collections** — Organize PDFs into thematic collections
+- **Unified Collections** — Organize PDFs and notes together in shared collections
 - **Full-Text Search** — Semantic search across all document content
 
 ### Daily Journal
@@ -263,7 +263,17 @@ Sit back, grab a coffee, and let the machines do the work.
 
 ## Roadmap
 
-### v1.1.2-beta (Current Release)
+### v1.1.3-beta (Current Release)
+- **Clearer Navigation** — Renamed confusing labels ("Studio" → "Upload", "Brain" → "Knowledge Graph"), added Home button to sidebar with visual divider
+- **Browser Back/Forward** — Hash-based URL routing (`/#/notes`, `/#/gallery`) enables browser history navigation and bookmarkable tabs
+- **Streamlined Onboarding** — Reduced from 11 steps to 5 focused steps that teach the core workflow
+- **Pipeline Visibility** — Toast notifications after uploads with direct navigation to the created note or document
+- **Customizable Sidebar** — Hide/show nav items via a Customize button; persists to localStorage; works on mobile too
+- **Unified Collections** — Notes and Documents now share one collection system; add both to the same collection with cross-counts
+- **Mobile Navigation** — Bottom tab bar with "More" drawer for secondary items, swipe navigation between panels
+- **Removed Daily Notes from Notes sidebar** — Journal is now the single entry point for daily notes
+
+### v1.1.2-beta
 - **Dashboard Home Page** — Knowledge base overview with customizable widgets (metrics, Brain Focus, Quick Capture, Calendar, Favorite Images, Tasks, Knowledge Graph stats, System Status)
 - **Custom Model Selection** — Pick your own Ollama models per capability (vision, RAG, Brain) from Settings
 - **Data Export** — Export your notes (Markdown), images, tags, and activity as a downloadable ZIP archive

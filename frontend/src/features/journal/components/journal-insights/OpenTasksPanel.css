@@ -112,3 +112,23 @@
 [data-theme="light"] .open-tasks-date-label:hover {
   color: #b45309;
 }
+
+/* Mobile: Compact open tasks */
+@media (max-width: 767px) {
+  .open-tasks-panel {
+    padding-top: 8px;
+  }
+
+  .open-tasks-body {
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .open-task-text {
+    font-size: 0.8125rem;
+  }
+
+  .open-task-item {
+    padding: 3px 6px;
+  }
+}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { FolderPlus, Check, X, Plus } from 'lucide-react';
-import { useDocCollections, useDocCollectionsForDocument } from '../hooks/useDocumentCollections';
+import { useCollections, useDocumentCollectionsUnified } from '../../notes/hooks/useCollections';
 import './DocCollectionPicker.css';
 
 /**
@@ -23,12 +23,12 @@ function DocCollectionPicker({ documentId, onClose }) {
     addDocumentToCollection,
     removeDocumentFromCollection,
     isCreating
-  } = useDocCollections();
+  } = useCollections();
 
   const {
     collections: docCollections,
     isLoading: isLoadingDocCollections
-  } = useDocCollectionsForDocument(documentId);
+  } = useDocumentCollectionsUnified(documentId);
 
   const docCollectionIds = new Set(docCollections.map(c => c.id));
 

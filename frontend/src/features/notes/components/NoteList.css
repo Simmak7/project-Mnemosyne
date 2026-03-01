@@ -208,7 +208,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .note-list-header {
     padding: var(--ng-space-3, 12px);
   }
@@ -219,10 +219,18 @@
 
   .note-list-content {
     padding: var(--ng-space-2, 8px);
+    padding-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
   }
 
   .note-list-content.grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  /* Disable card enter animation on mobile to prevent overlap */
+  .note-list-content .note-card {
+    animation: none;
   }
 }
 

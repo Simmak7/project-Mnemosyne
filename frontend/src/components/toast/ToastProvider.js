@@ -54,11 +54,11 @@ export function ToastProvider({ children }) {
     dispatch({ type: 'REMOVE_TOAST', payload: id });
   }, []);
 
-  const showToast = useCallback(({ type = 'info', message, description, duration = DEFAULT_DURATION }) => {
+  const showToast = useCallback(({ type = 'info', message, description, duration = DEFAULT_DURATION, action }) => {
     const id = generateId();
     dispatch({
       type: 'ADD_TOAST',
-      payload: { id, type, message, description, duration, createdAt: Date.now() },
+      payload: { id, type, message, description, duration, action, createdAt: Date.now() },
     });
     return id;
   }, []);

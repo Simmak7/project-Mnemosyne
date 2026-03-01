@@ -1,5 +1,5 @@
 /**
- * QuickUploadWidget - Drag-and-drop upload widget using existing Studio config
+ * QuickUploadWidget - Drag-and-drop upload widget using existing Upload config
  *
  * Reuses useAnalysisConfig + useUploadQueue from the upload feature.
  */
@@ -64,7 +64,7 @@ function QuickUploadWidget({ onTabChange, onUploadSuccess }) {
       icon={Upload}
       title="Quick Upload"
       action={() => onTabChange('upload')}
-      actionLabel="Open Studio"
+      actionLabel="Open Upload"
     >
       <div
         className={`quick-upload-zone ${isDragOver ? 'quick-upload-zone--active' : ''}`}

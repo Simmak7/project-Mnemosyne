@@ -268,6 +268,7 @@ class NoteCollection(Base):
 
     owner = relationship("User", backref="note_collections")
     notes = relationship("Note", secondary="note_collection_notes", back_populates="collections")
+    documents = relationship("Document", secondary="note_collection_documents", backref="unified_collections")
 
 
 class NoteCollectionNote(Base):
@@ -278,6 +279,16 @@ class NoteCollectionNote(Base):
     note_id = Column(Integer, ForeignKey("notes.id", ondelete="CASCADE"), primary_key=True)
     added_at = Column(DateTime(timezone=True), server_default=func.now())
     position = Column(Integer, default=0)  # For manual ordering within collection
+
+
+class NoteCollectionDocument(Base):
+    """Junction table for collection-to-document many-to-many relationship."""
+    __tablename__ = "note_collection_documents"
+
+    collection_id = Column(Integer, ForeignKey("note_collections.id", ondelete="CASCADE"), primary_key=True)
+    document_id = Column(Integer, ForeignKey("documents.id", ondelete="CASCADE"), primary_key=True)
+    added_at = Column(DateTime(timezone=True), server_default=func.now())
+    position = Column(Integer, default=0)
 
 
 # ============================================

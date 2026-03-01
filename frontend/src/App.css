@@ -89,7 +89,7 @@ body {
 }
 
 .App {
-  min-height: 100vh;
+  min-height: var(--ng-viewport-height, 100vh);
   background: var(--bg-primary);
   display: flex;
 }
@@ -97,8 +97,8 @@ body {
 .main-content {
   flex: 1;
   margin-left: 280px;
-  min-height: 100vh;
-  height: 100vh; /* Fixed height for full-viewport layouts */
+  min-height: var(--ng-viewport-height, 100vh);
+  height: var(--ng-viewport-height, 100vh); /* Fixed height for full-viewport layouts */
   overflow: hidden; /* Prevent content from expanding beyond viewport */
   background: var(--bg-secondary);
   transition: margin-left 0.3s ease, padding 0.3s ease;
@@ -315,18 +315,26 @@ textarea {
   background: var(--text-secondary);
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* Responsive - Mobile */
+@media (max-width: 767px) {
+  .sidebar {
+    display: none !important;
+  }
+
   .main-content {
-    margin-left: 0;
+    margin-left: 0 !important;
+    /* padding-bottom removed - handled by each feature layout */
+    height: var(--ng-viewport-height, 100vh);
+    min-height: var(--ng-viewport-height, 100vh);
   }
 
   .content-wrapper {
-    padding: 20px;
+    padding: 12px;
   }
 
   .component-container {
-    padding: 20px;
+    padding: 16px;
+    border-radius: 12px;
   }
 }
 

@@ -475,6 +475,101 @@
 }
 
 /* ============================================
+   Mobile Layout
+   ============================================ */
+.document-layout--mobile {
+  height: var(--ng-viewport-height, 100vh);
+}
+
+.document-mobile-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+@media (max-width: 767px) {
+  .document-layout {
+    height: calc(var(--ng-viewport-height, 100vh) - var(--ng-mobile-bottom-nav-height, 56px) - var(--ng-mobile-tab-bar-height, 44px));
+  }
+
+  .document-header {
+    padding: 8px 12px 6px;
+  }
+
+  .document-header-title h1 {
+    font-size: 1.1rem;
+  }
+
+  .document-list-panel {
+    padding: 0 8px;
+  }
+
+  .document-detail-panel {
+    padding: 0 8px 12px;
+  }
+
+  /* Compact filter tabs */
+  .document-filter-tabs {
+    padding: 4px 0;
+    gap: 4px;
+  }
+
+  .document-filter-tab {
+    padding: 5px 8px;
+    font-size: 0.7rem;
+    gap: 4px;
+  }
+
+  .document-filter-tab svg {
+    display: none;
+  }
+
+  .filter-tab-count {
+    font-size: 0.6rem;
+    padding: 1px 4px;
+  }
+
+  /* Compact collections */
+  .document-collections-section {
+    padding-bottom: 4px;
+    margin-bottom: 2px;
+  }
+
+  .collections-list {
+    max-height: 120px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .collection-item {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+
+  /* Compact toolbar */
+  .document-toolbar {
+    gap: 4px;
+    padding-bottom: 6px;
+  }
+
+  .document-search-input {
+    padding: 5px 8px;
+    font-size: 0.75rem;
+  }
+
+  .document-toolbar-controls {
+    gap: 3px;
+  }
+
+  .document-select {
+    padding: 3px 5px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

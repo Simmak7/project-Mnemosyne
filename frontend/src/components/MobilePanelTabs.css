@@ -1,0 +1,75 @@
+/* ============================================
+   Mobile Panel Tabs
+   Horizontal tab selector for panel switching.
+   Hidden on desktop.
+   ============================================ */
+
+.mobile-panel-tabs {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-panel-tabs {
+    display: flex;
+    flex-shrink: 0;
+    height: var(--ng-mobile-tab-bar-height, 40px);
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .mobile-panel-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-panel-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    padding: 0 12px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.4);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-panel-tab.active {
+    color: var(--ng-accent-ai, #818cf8);
+    border-bottom-color: var(--ng-accent-ai, #818cf8);
+  }
+
+  .mobile-panel-tab svg {
+    flex-shrink: 0;
+  }
+
+  /* Light theme */
+  [data-theme="light"] .mobile-panel-tabs,
+  :root:not([data-theme="dark"]) .mobile-panel-tabs {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+  }
+
+  [data-theme="light"] .mobile-panel-tab,
+  :root:not([data-theme="dark"]) .mobile-panel-tab {
+    color: rgba(0, 0, 0, 0.4);
+  }
+
+  [data-theme="light"] .mobile-panel-tab.active,
+  :root:not([data-theme="dark"]) .mobile-panel-tab.active {
+    color: var(--ng-accent-ai, #6366f1);
+    border-bottom-color: var(--ng-accent-ai, #6366f1);
+  }
+}

@@ -245,3 +245,60 @@
 [data-theme="light"] .linked-note-pill {
   background: rgba(96, 165, 250, 0.08);
 }
+
+/* Mobile: Compact insights */
+@media (max-width: 767px) {
+  .insights-header {
+    padding: 10px 12px;
+  }
+
+  .insights-header h3 {
+    font-size: 0.875rem;
+  }
+
+  .insights-body {
+    padding: 10px 12px;
+    gap: 12px;
+  }
+
+  .day-stat-card {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .day-stat-value {
+    font-size: 0.875rem;
+  }
+
+  .day-stat-label {
+    font-size: 9px;
+  }
+
+  .day-stat-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .insight-section-title {
+    font-size: 0.6875rem;
+  }
+
+  .task-item {
+    padding: 6px;
+    font-size: 0.8125rem;
+  }
+
+  .mood-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .mood-emoji {
+    font-size: 1rem;
+  }
+
+  .linked-note-pill {
+    font-size: 0.6875rem;
+    padding: 3px 8px;
+  }
+}

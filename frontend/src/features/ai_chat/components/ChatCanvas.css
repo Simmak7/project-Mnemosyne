@@ -556,6 +556,44 @@
 }
 
 /* ============================================
+   Mobile Responsive
+   ============================================ */
+@media (max-width: 767px) {
+  .chat-messages {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .message-bubble {
+    max-width: 92%;
+  }
+
+  .chat-input-area {
+    padding: 10px 12px 14px;
+  }
+
+  .chat-input-container {
+    padding: 10px 12px;
+  }
+
+  .chat-input-hint {
+    display: none;
+  }
+
+  .chat-empty-state {
+    padding: 24px 16px;
+  }
+
+  .chat-empty-state h3 {
+    font-size: 17px;
+  }
+
+  .chat-empty-state p {
+    font-size: 13px;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

@@ -39,7 +39,7 @@ function DocumentList({ documents, groupedDocs, isLoading, error, selectedDocId,
     return (
       <div className="document-list-empty">
         <p>No documents yet</p>
-        <p className="document-list-hint">Upload PDFs via Neural Studio</p>
+        <p className="document-list-hint">Upload PDFs via the Upload page</p>
       </div>
     );
   }

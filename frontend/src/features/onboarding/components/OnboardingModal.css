@@ -527,3 +527,49 @@
     gap: var(--ng-space-3);
   }
 }
+
+/* Secondary icon row for multi-feature steps */
+.onboarding-icon-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.onboarding-secondary-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.onboarding-secondary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.onboarding-secondary-icon.accent-ai {
+  background: rgba(129, 140, 248, 0.15);
+  color: var(--ng-accent-ai, #818cf8);
+}
+
+.onboarding-secondary-icon.accent-image {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--ng-accent-image, #22d3ee);
+}
+
+.onboarding-secondary-icon.accent-note {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--ng-accent-note, #fbbf24);
+}
+
+.onboarding-secondary-icon.accent-link {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--ng-accent-link, #34d399);
+}

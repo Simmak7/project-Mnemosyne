@@ -201,9 +201,14 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
+@media (max-width: 767px) {
   .search-controls {
     flex-wrap: wrap;
+  }
+
+  .search-controls select,
+  .search-controls button {
+    min-height: 44px;
   }
 
   .sort-select {

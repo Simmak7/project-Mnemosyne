@@ -845,21 +845,35 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .note-detail-header {
-    padding: var(--ng-space-3, 12px);
+    padding: 8px 12px;
   }
 
   .note-title {
-    font-size: 1.125rem;
+    font-size: 1rem;
+  }
+
+  .note-detail-editor {
+    padding: 4px;
+  }
+
+  .primary-image img {
+    max-height: 200px;
+  }
+
+  .note-detail-tab-btn {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
   }
 
   .note-actions {
     flex-wrap: wrap;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
   }
 }
 

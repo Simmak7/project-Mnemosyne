@@ -133,7 +133,7 @@ function Settings({ isOpen, onClose, username, userEmail }) {
         </div>
 
         <div className="settings-footer">
-          <p className="settings-version">Mnemosyne v1.1.0</p>
+          <p className="settings-version">Mnemosyne v1.1.3</p>
         </div>
       </div>
 

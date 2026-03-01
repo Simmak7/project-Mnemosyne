@@ -72,6 +72,18 @@ function Toast({ toast, onRemove }) {
       <div className="toast-body">
         <p className="toast-message">{message}</p>
         {description && <p className="toast-description">{description}</p>}
+        {toast.action && (
+          <button
+            className="toast-action"
+            onClick={(e) => {
+              e.stopPropagation();
+              toast.action.onClick();
+              dismiss();
+            }}
+          >
+            {toast.action.label}
+          </button>
+        )}
       </div>
 
       <button

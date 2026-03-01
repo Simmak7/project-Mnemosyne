@@ -489,6 +489,46 @@
 }
 
 /* ============================================
+   Mobile Responsive
+   ============================================ */
+@media (max-width: 767px) {
+  .ng-block-editor-toolbar {
+    padding: 8px 12px;
+  }
+  .ng-block-editor-title {
+    font-size: 1.125rem;
+    padding: 4px 8px;
+  }
+  .ng-block-editor-actions {
+    gap: 4px;
+  }
+  .ng-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+  .ng-block-editor-format {
+    padding: 6px 8px;
+    gap: 2px;
+  }
+  .ng-format-btn {
+    min-width: 36px;
+    height: 36px;
+  }
+  .ng-block-editor-body {
+    padding: 16px 12px;
+  }
+  .ng-block-editor-content {
+    min-height: 200px;
+  }
+  .ng-block-editor-footer {
+    padding: 8px 12px;
+  }
+  .ng-block-editor-hint {
+    display: none;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

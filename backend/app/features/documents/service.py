@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from core import config
-from models import Document, DocumentCollectionDocument
+from models import Document, DocumentCollectionDocument, NoteCollectionDocument
 
 logger = logging.getLogger(__name__)
 
@@ -121,9 +121,9 @@ class DocumentService:
 
         if collection_id:
             query = query.join(
-                DocumentCollectionDocument,
-                Document.id == DocumentCollectionDocument.document_id
-            ).filter(DocumentCollectionDocument.collection_id == collection_id)
+                NoteCollectionDocument,
+                Document.id == NoteCollectionDocument.document_id
+            ).filter(NoteCollectionDocument.collection_id == collection_id)
 
         total = query.count()
 

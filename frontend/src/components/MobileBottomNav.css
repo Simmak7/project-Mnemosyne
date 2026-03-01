@@ -1,0 +1,94 @@
+/* ============================================
+   Mobile Bottom Navigation Bar
+   Fixed bottom bar with glassmorphism,
+   visible only on mobile (max-width: 767px).
+   ============================================ */
+
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    height: var(--ng-mobile-bottom-nav-height, 56px);
+    padding-bottom: var(--ng-mobile-safe-area-bottom, 0px);
+    background: rgba(10, 10, 10, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  /* Individual tab button */
+  .mobile-nav-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 2px;
+    padding: 6px 0;
+    min-height: var(--ng-mobile-touch-target, 44px);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.45);
+    transition: color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+  }
+
+  .mobile-nav-tab.active {
+    color: var(--ng-accent-ai, #818cf8);
+  }
+
+  .mobile-nav-tab.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 2px;
+    background: var(--ng-accent-ai, #818cf8);
+    border-radius: 1px;
+  }
+
+  /* Icon */
+  .mobile-nav-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* Label */
+  .mobile-nav-label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+
+  /* Light theme */
+  [data-theme="light"] .mobile-bottom-nav,
+  :root:not([data-theme="dark"]) .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.92);
+    border-top-color: rgba(0, 0, 0, 0.08);
+  }
+
+  [data-theme="light"] .mobile-nav-tab,
+  :root:not([data-theme="dark"]) .mobile-nav-tab {
+    color: rgba(0, 0, 0, 0.4);
+  }
+
+  [data-theme="light"] .mobile-nav-tab.active,
+  :root:not([data-theme="dark"]) .mobile-nav-tab.active {
+    color: var(--ng-accent-ai, #6366f1);
+  }
+}

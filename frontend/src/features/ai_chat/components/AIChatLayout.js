@@ -13,19 +13,33 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, MessageSquare, MessageCircle, Settings } from 'lucide-react';
 import { AIChatProvider, useAIChatActions } from '../hooks/AIChatContext';
 import { useAIChatKeyboardShortcuts } from '../hooks/useAIChatKeyboardShortcuts';
+import { useIsMobile } from '../../../hooks/useIsMobile';
+import { useSwipeNavigation } from '../../../hooks/useSwipeNavigation';
+import MobilePanelTabs from '../../../components/MobilePanelTabs';
 import ConversationPane from './ConversationPane';
 import ChatCanvas from './ChatCanvas';
 import ContextRadar from './ContextRadar';
 import './AIChatLayout.css';
+
+const MOBILE_PANELS = [
+  { id: 'chats', label: 'Chats', icon: MessageSquare },
+  { id: 'chat', label: 'Chat', icon: MessageCircle },
+  { id: 'context', label: 'Context', icon: Settings },
+];
+
+const PANEL_IDS = MOBILE_PANELS.map(p => p.id);
 
 /**
  * Inner layout component that uses keyboard shortcuts
  * Must be inside AIChatProvider to access actions
  */
 function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext, onClearContext }) {
+  const isMobile = useIsMobile();
+  const [mobilePanel, setMobilePanel] = useState('chat');
+
   // Panel collapse state
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [rightCollapsed, setRightCollapsed] = useState(false);
@@ -44,57 +58,42 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
   // Get actions from context
   const { clearMessages, clearPreview, setPreview } = useAIChatActions();
 
+  const swipeHandlers = useSwipeNavigation(PANEL_IDS, mobilePanel, setMobilePanel);
+
   // Handle initial context from deep linking (e.g., "Ask AI about this note")
   useEffect(() => {
     if (initialContext && onClearContext) {
-      // Start a fresh conversation
       clearMessages();
-
-      // Set the preview item
       setPreview({ type: initialContext.type, id: initialContext.id });
-
-      // Create a query about this item
       const queryPrefix = initialContext.type === 'note'
         ? 'What can you tell me about my note titled'
         : 'What can you tell me about this image';
       const query = `${queryPrefix} "${initialContext.title}"?`;
-
-      // Set pending query and focus input
       setPendingQuery(query);
-
-      // Clear the context after consuming it
       onClearContext();
-
-      // Expand right panel to show preview
-      if (rightCollapsed && rightPanelRef.current) {
+      if (isMobile) {
+        setMobilePanel('chat');
+      } else if (rightCollapsed && rightPanelRef.current) {
         rightPanelRef.current.expand();
       }
     }
-  }, [initialContext, onClearContext, setPreview, rightCollapsed, clearMessages]);
+  }, [initialContext, onClearContext, setPreview, rightCollapsed, clearMessages, isMobile]);
 
   // Collapse/expand handlers
   const handleCollapseLeft = useCallback(() => {
-    if (leftPanelRef.current) {
-      leftPanelRef.current.collapse();
-    }
+    leftPanelRef.current?.collapse();
   }, []);
 
   const handleExpandLeft = useCallback(() => {
-    if (leftPanelRef.current) {
-      leftPanelRef.current.expand();
-    }
+    leftPanelRef.current?.expand();
   }, []);
 
   const handleCollapseRight = useCallback(() => {
-    if (rightPanelRef.current) {
-      rightPanelRef.current.collapse();
-    }
+    rightPanelRef.current?.collapse();
   }, []);
 
   const handleExpandRight = useCallback(() => {
-    if (rightPanelRef.current) {
-      rightPanelRef.current.expand();
-    }
+    rightPanelRef.current?.expand();
   }, []);
 
   // Keyboard shortcut handlers
@@ -103,27 +102,24 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
   }, [clearMessages]);
 
   const handleFocusInput = useCallback(() => {
-    if (chatCanvasRef.current) {
-      chatCanvasRef.current.focusInput();
-    }
+    chatCanvasRef.current?.focusInput();
   }, []);
 
   const handleFocusSearch = useCallback(() => {
-    // Expand left panel if collapsed
-    if (leftCollapsed && leftPanelRef.current) {
-      leftPanelRef.current.expand();
+    if (isMobile) {
+      setMobilePanel('chats');
+    } else {
+      if (leftCollapsed && leftPanelRef.current) {
+        leftPanelRef.current.expand();
+      }
+      searchInputRef.current?.focus();
     }
-    // Focus search input
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [leftCollapsed]);
+  }, [leftCollapsed, isMobile]);
 
   const handleClearPreview = useCallback(() => {
     clearPreview();
   }, [clearPreview]);
 
-  // Register keyboard shortcuts
   useAIChatKeyboardShortcuts({
     onNewChat: handleNewChat,
     onFocusInput: handleFocusInput,
@@ -132,10 +128,41 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
     enabled: true,
   });
 
+  // Mobile layout
+  if (isMobile) {
+    return (
+      <div className="ai-chat-layout ng-theme ai-chat-layout--mobile">
+        <MobilePanelTabs panels={MOBILE_PANELS} activePanel={mobilePanel} onPanelChange={setMobilePanel} />
+        <div className="ai-chat-mobile-content" {...swipeHandlers}>
+          {mobilePanel === 'chats' && (
+            <ConversationPane isCollapsed={false} onCollapse={() => {}} searchInputRef={searchInputRef} />
+          )}
+          {mobilePanel === 'chat' && (
+            <ChatCanvas
+              ref={chatCanvasRef}
+              onNavigateToNote={onNavigateToNote}
+              onNavigateToImage={onNavigateToImage}
+              initialQuery={pendingQuery}
+              onClearInitialQuery={() => setPendingQuery(null)}
+            />
+          )}
+          {mobilePanel === 'context' && (
+            <ContextRadar
+              isCollapsed={false}
+              onCollapse={() => {}}
+              onNavigateToNote={onNavigateToNote}
+              onNavigateToImage={onNavigateToImage}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout (unchanged)
   return (
     <div className="ai-chat-layout ng-theme">
       <PanelGroup direction="horizontal" className="ai-chat-panel-group">
-        {/* Left Panel - Conversation History */}
         <Panel
           ref={leftPanelRef}
           defaultSize={leftCollapsed ? 0 : 20}
@@ -155,7 +182,6 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
           />
         </Panel>
 
-        {/* Floating expand button when left sidebar is collapsed */}
         {leftCollapsed && (
           <button
             className="ai-chat-expand-floating left"
@@ -168,7 +194,6 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
 
         <PanelResizeHandle className="ai-chat-resize-handle" />
 
-        {/* Center Panel - Chat Canvas */}
         <Panel
           defaultSize={50}
           minSize={35}
@@ -186,7 +211,6 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
 
         <PanelResizeHandle className="ai-chat-resize-handle" />
 
-        {/* Right Panel - Context Radar (Preview + Settings) */}
         <Panel
           ref={rightPanelRef}
           defaultSize={rightCollapsed ? 0 : 30}
@@ -207,7 +231,6 @@ function AIChatLayoutInner({ onNavigateToNote, onNavigateToImage, initialContext
           />
         </Panel>
 
-        {/* Floating expand button when right panel is collapsed */}
         {rightCollapsed && (
           <button
             className="ai-chat-expand-floating right"

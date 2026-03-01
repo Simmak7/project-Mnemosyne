@@ -8,8 +8,10 @@ import {
 import { useNotes } from '../hooks/useNotes';
 import { useNoteContext } from '../hooks/NoteContext';
 import { useValidateNoteSelection } from '../hooks/useValidateNoteSelection';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import SortableNoteCard from './SortableNoteCard';
 import DraggableNoteCard from './DraggableNoteCard';
+import NoteCard from './NoteCard';
 import NoteSearchBar from './NoteSearchBar';
 import './NoteList.css';
 
@@ -18,6 +20,7 @@ import './NoteList.css';
  * Renders SortableContext when in custom sort mode, DraggableNoteCard otherwise.
  */
 function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustomSort }) {
+  const isMobile = useIsMobile();
   const {
     currentCategory,
     selectedNoteId,
@@ -135,24 +138,35 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
     </div>
   );
 
-  const CardComponent = isCustomSort ? SortableNoteCard : DraggableNoteCard;
+  const CardComponent = isMobile ? NoteCard : (isCustomSort ? SortableNoteCard : DraggableNoteCard);
   const strategy = viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy;
 
   const renderNotes = () => {
     const cards = notes.map((note, index) => (
-      <CardComponent
-        key={note.id}
-        note={note}
-        isSelected={selectedNoteId === note.id}
-        onClick={() => handleNoteClick(note)}
-        onDoubleClick={() => handleNoteDoubleClick(note)}
-        searchQuery={searchQuery}
-        style={{ animationDelay: `${index * 30}ms` }}
-      />
+      isMobile ? (
+        <NoteCard
+          key={note.id}
+          note={note}
+          isSelected={selectedNoteId === note.id}
+          onClick={() => handleNoteClick(note)}
+          onDoubleClick={() => handleNoteDoubleClick(note)}
+          searchQuery={searchQuery}
+        />
+      ) : (
+        <CardComponent
+          key={note.id}
+          note={note}
+          isSelected={selectedNoteId === note.id}
+          onClick={() => handleNoteClick(note)}
+          onDoubleClick={() => handleNoteDoubleClick(note)}
+          searchQuery={searchQuery}
+          style={{ animationDelay: `${index * 30}ms` }}
+        />
+      )
     ));
 
-    // Wrap in SortableContext when custom sort is active
-    if (isCustomSort && orderedIds) {
+    // Wrap in SortableContext when custom sort is active (desktop only)
+    if (!isMobile && isCustomSort && orderedIds) {
       return (
         <SortableContext items={orderedIds} strategy={strategy}>
           <div className={`note-list-content ${viewMode}`} ref={listRef}>

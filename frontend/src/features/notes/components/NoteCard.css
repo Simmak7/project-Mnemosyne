@@ -219,6 +219,70 @@
   animation: cardEnter 0.2s ease-out backwards;
 }
 
+/* Mobile */
+@media (max-width: 767px) {
+  .note-card {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .note-card-badge .badge-label {
+    display: none;
+  }
+
+  .note-card-title {
+    font-size: 0.8125rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .note-card-excerpt {
+    font-size: 0.75rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .note-card-images {
+    font-size: 0.6875rem;
+    padding: 1px 6px;
+  }
+
+  .note-card-tags {
+    gap: 3px;
+  }
+
+  .note-tag {
+    font-size: 0.625rem;
+    padding: 1px 4px;
+  }
+
+  .note-tag .lucide,
+  .note-tag svg {
+    display: none;
+  }
+
+  .note-card-footer {
+    padding-top: 4px;
+  }
+
+  .note-card-dates {
+    font-size: 0.625rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .note-card-created {
+    flex-shrink: 0;
+  }
+
+  .note-card-modified {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .note-card-links {
+    font-size: 0.625rem;
+  }
+}
+
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .note-card {

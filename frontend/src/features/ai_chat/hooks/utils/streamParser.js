@@ -11,13 +11,18 @@ export async function parseSSEStream(reader, handlers) {
   let citations = [];
   let usedIndices = [];
   let confidence = null;
+  let lineBuffer = '';
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
 
-    const chunk = decoder.decode(value);
-    const lines = chunk.split('\n');
+    const chunk = decoder.decode(value, { stream: true });
+    lineBuffer += chunk;
+    const lines = lineBuffer.split('\n');
+
+    // Keep the last (potentially incomplete) line in the buffer
+    lineBuffer = lines.pop() || '';
 
     for (const line of lines) {
       if (line.startsWith('data: ')) {
@@ -57,13 +62,26 @@ export async function parseSSEStream(reader, handlers) {
               break;
           }
         } catch (parseError) {
-          if (parseError.message && !parseError.message.includes('parse')) {
+          if (parseError.message && !parseError.message.toLowerCase().includes('parse')) {
             throw parseError;
           }
           console.warn('Failed to parse SSE data:', parseError);
         }
       }
     }
+  }
+
+  // Process any remaining buffered line
+  if (lineBuffer.startsWith('data: ')) {
+    try {
+      const data = JSON.parse(lineBuffer.slice(6));
+      if (data.type === 'token') {
+        accumulatedContent += data.content;
+        handlers.onToken?.(accumulatedContent);
+      } else if (data.type === 'done') {
+        handlers.onDone?.({ content: accumulatedContent, citations, usedIndices, confidence });
+      }
+    } catch (_) { /* ignore trailing incomplete data */ }
   }
 
   return { content: accumulatedContent, citations, usedIndices, confidence };

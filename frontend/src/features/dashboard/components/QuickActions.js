@@ -7,12 +7,12 @@ import GlassPanel from '../../../components/layout/GlassPanel';
 import './QuickActions.css';
 
 const ACTIONS = [
-  { id: 'upload', icon: Upload, label: 'Studio', color: '#94a3b8' },
+  { id: 'upload', icon: Upload, label: 'Upload', color: '#94a3b8' },
   { id: 'gallery', icon: Image, label: 'Gallery', color: '#22d3ee' },
   { id: 'documents', icon: FileScan, label: 'Documents', color: '#818cf8' },
   { id: 'notes', icon: FileText, label: 'Notes', color: '#fbbf24' },
   { id: 'journal', icon: BookOpen, label: 'Journal', color: '#fb923c' },
-  { id: 'graph', icon: Brain, label: 'Brain', color: '#f472b6' },
+  { id: 'graph', icon: Brain, label: 'Knowledge Graph', color: '#f472b6' },
   { id: 'chat', icon: Sparkles, label: 'Mnemos AIs', color: '#a78bfa' },
 ];
 

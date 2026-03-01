@@ -3,7 +3,6 @@ import {
   Inbox,
   Sparkles,
   FileText,
-  Calendar,
   Heart,
   Clock,
   Trash2,
@@ -16,7 +15,6 @@ export const categories = [
   { id: 'inbox', label: 'Inbox', icon: Inbox, description: 'New & recent notes' },
   { id: 'smart', label: 'Smart Notes', icon: Sparkles, description: 'AI-generated notes' },
   { id: 'manual', label: 'Manual Notes', icon: FileText, description: 'User-created notes' },
-  { id: 'daily', label: 'Daily Notes', icon: Calendar, description: 'Journal entries' },
   { id: 'favorites', label: 'Favorites', icon: Heart, description: 'Starred notes' },
   { id: 'review', label: 'Review Queue', icon: Clock, description: 'Needs attention', badge: true },
   { id: 'trash', label: 'Trash', icon: Trash2, description: 'Deleted notes (15 days)', isDanger: true }
