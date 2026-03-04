@@ -209,9 +209,6 @@ def get_all_models_with_status(user_cloud_providers: Set[str] = None) -> List[di
     for model_name in available:
         if model_name in registry_ids or model_name.endswith(":latest"):
             continue
-        base = model_name.split(":")[0] if ":" in model_name else model_name
-        if any(base == rid.split(":")[0] for rid in registry_ids):
-            continue
         if _is_embedding_model(model_name):
             continue
         cat, use_cases = _detect_custom_model_category(model_name)

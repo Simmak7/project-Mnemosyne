@@ -126,7 +126,7 @@ export function LeftPanel({ filters, layout, currentView }) {
             <input
               type="range"
               min={1}
-              max={5}
+              max={3}
               value={filterState.depth}
               onChange={(e) => setDepth(parseInt(e.target.value, 10))}
               className="left-panel__slider"

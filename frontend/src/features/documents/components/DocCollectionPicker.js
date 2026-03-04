@@ -42,7 +42,7 @@ function DocCollectionPicker({ documentId, onClose }) {
       let top = rect.bottom + 8;
 
       if (left < 8) left = 8;
-      if (top + dropdownHeight > window.innerHeight - 8) {
+      if (top + dropdownHeight > (window.visualViewport?.height ?? window.innerHeight) - 8) {
         top = rect.top - dropdownHeight - 8;
       }
 

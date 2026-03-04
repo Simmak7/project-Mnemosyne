@@ -66,6 +66,19 @@ const ChatCanvas = React.forwardRef(function ChatCanvas(
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
+  // Scroll to bottom when keyboard opens (viewport resizes)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const handleResize = () => {
+      if (messagesContainerRef.current && shouldAutoScroll.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      }
+    };
+    vv.addEventListener('resize', handleResize);
+    return () => vv.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     if (initialQuery && onClearInitialQuery) {
       setInputValue(initialQuery);

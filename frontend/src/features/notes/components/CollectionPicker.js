@@ -50,7 +50,7 @@ function CollectionPicker({ noteId, onClose }) {
       }
 
       // Make sure it doesn't go off-screen to the bottom
-      if (top + dropdownHeight > window.innerHeight - 8) {
+      if (top + dropdownHeight > (window.visualViewport?.height ?? window.innerHeight) - 8) {
         // Position above the button instead
         top = rect.top - dropdownHeight - 8;
       }

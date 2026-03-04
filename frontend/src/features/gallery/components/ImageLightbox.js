@@ -17,6 +17,9 @@ import {
   MessageSquare
 } from 'lucide-react';
 import AlbumPicker from './AlbumPicker';
+import { usePinchZoom } from '../hooks/usePinchZoom';
+import { useLightboxTouch } from '../hooks/useLightboxTouch';
+import { useIsMobile } from '../../../hooks/useIsMobile';
 import { API_URL } from '../../../utils/api';
 import './ImageLightbox.css';
 
@@ -47,8 +50,19 @@ function ImageLightbox({
   const [editName, setEditName] = useState(image.display_name || '');
   const editInputRef = useRef(null);
 
+  const isMobile = useIsMobile();
   const isFailed = image.ai_analysis_status === 'failed';
   const isProcessing = image.ai_analysis_status === 'processing';
+
+  // Touch gestures (mobile only)
+  const pinch = usePinchZoom();
+  const touch = useLightboxTouch({
+    onNavigate, onClose, isZoomed: pinch.isZoomed,
+    onDoubleTap: pinch.toggleZoom,
+  });
+
+  // Reset zoom on image change
+  useEffect(() => { pinch.reset(); }, [image.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync local favorite state with prop changes (e.g., when navigating between images)
   useEffect(() => {
@@ -327,12 +341,27 @@ function ImageLightbox({
         </div>
 
         {/* Main area: image + sidebar */}
-        <div className="lightbox-main">
-          <div className="lightbox-image-container">
+        <div
+          className="lightbox-main"
+          style={isMobile && touch.dismissProgress > 0 ? {
+            opacity: 1 - touch.dismissProgress * 0.5,
+            transform: `translateY(${touch.dismissProgress * 80}px)`,
+          } : undefined}
+        >
+          <div
+            className={`lightbox-image-container${isMobile ? ' touch-enabled' : ''}`}
+            onTouchStart={(e) => { touch.onTouchStart(e); pinch.handlers.onTouchStart(e); }}
+            onTouchMove={(e) => { touch.onTouchMove(e); pinch.handlers.onTouchMove(e); }}
+            onTouchEnd={(e) => { touch.onTouchEnd(e); pinch.handlers.onTouchEnd(e); }}
+          >
             <img
               src={`${API_URL}/image/${image.id}`}
               alt={image.filename}
               className="lightbox-image"
+              style={isMobile && pinch.scale > 1 ? {
+                transform: `scale(${pinch.scale}) translate(${pinch.translate.x / pinch.scale}px, ${pinch.translate.y / pinch.scale}px)`,
+              } : undefined}
+              draggable={false}
             />
           </div>
 

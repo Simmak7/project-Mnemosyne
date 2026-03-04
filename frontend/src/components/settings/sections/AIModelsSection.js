@@ -105,6 +105,7 @@ function AIModelsSection({ availableModels, modelConfig, preferences, onPreferen
         onDelete={deleteModel}
         onCancelPull={cancelPull}
         onPullCustom={pullModel}
+        onClearProgress={clearProgress}
         updateStatus={updateStatus}
         checkingUpdates={checkingUpdates}
         onUpdate={handleUpdate}

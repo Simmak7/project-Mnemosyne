@@ -1,14 +1,14 @@
 /* ============================================
    Mobile Bottom Navigation Bar
    Fixed bottom bar with glassmorphism,
-   visible only on mobile (max-width: 767px).
+   visible only on mobile (max-width: 768px).
    ============================================ */
 
 .mobile-bottom-nav {
   display: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .mobile-bottom-nav {
     display: flex;
     position: fixed;
@@ -17,10 +17,12 @@
     right: 0;
     z-index: 900;
     height: var(--ng-mobile-bottom-nav-height, 56px);
-    padding-bottom: var(--ng-mobile-safe-area-bottom, 0px);
+    padding-bottom: var(--ng-safe-area-bottom, 0px);
+    padding-left: var(--ng-safe-area-left, 0px);
+    padding-right: var(--ng-safe-area-right, 0px);
     background: rgba(10, 10, 10, 0.92);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(var(--ng-blur-lg, 20px));
+    -webkit-backdrop-filter: blur(var(--ng-blur-lg, 20px));
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     align-items: center;
     justify-content: space-around;
@@ -46,7 +48,8 @@
   }
 
   .mobile-nav-tab.active {
-    color: var(--ng-accent-ai, #818cf8);
+    color: var(--tab-color, #818cf8);
+    transition: color 0.25s ease;
   }
 
   .mobile-nav-tab.active::before {
@@ -57,8 +60,9 @@
     transform: translateX(-50%);
     width: 24px;
     height: 2px;
-    background: var(--ng-accent-ai, #818cf8);
+    background: var(--tab-color, #818cf8);
     border-radius: 1px;
+    transition: background 0.25s ease;
   }
 
   /* Icon */
@@ -75,6 +79,39 @@
     letter-spacing: 0.02em;
   }
 
+  /* Active tab glow (dark mode only) */
+  .mobile-nav-glow {
+    position: absolute;
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px;
+    height: 16px;
+    background: radial-gradient(ellipse, var(--tab-color, #818cf8) 0%, transparent 70%);
+    opacity: 0.4;
+    pointer-events: none;
+    filter: blur(4px);
+    animation: nav-glow-breathe 2.5s ease-in-out infinite;
+  }
+
+  @keyframes nav-glow-breathe {
+    0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(1); }
+    50% { opacity: 0.55; transform: translateX(-50%) scale(1.15); }
+  }
+
+  /* Hide when keyboard is open */
+  .mobile-bottom-nav.keyboard-open {
+    transform: translateY(100%);
+    transition: transform 0.15s ease-out;
+    pointer-events: none;
+  }
+
+  /* Press feedback */
+  .mobile-nav-tab:active {
+    transform: scale(0.92);
+    transition: transform 0.1s;
+  }
+
   /* Light theme */
   [data-theme="light"] .mobile-bottom-nav,
   :root:not([data-theme="dark"]) .mobile-bottom-nav {
@@ -89,6 +126,12 @@
 
   [data-theme="light"] .mobile-nav-tab.active,
   :root:not([data-theme="dark"]) .mobile-nav-tab.active {
-    color: var(--ng-accent-ai, #6366f1);
+    color: var(--tab-color, #6366f1);
+  }
+
+  /* Hide glow in light mode */
+  [data-theme="light"] .mobile-nav-glow,
+  :root:not([data-theme="dark"]) .mobile-nav-glow {
+    display: none;
   }
 }

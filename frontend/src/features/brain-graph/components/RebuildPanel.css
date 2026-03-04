@@ -51,6 +51,12 @@
   border: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.06));
 }
 
+/* Featured card (Full Analysis) */
+.rebuild-panel__card--featured {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.05));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.2));
+}
+
 .rebuild-panel__card-header {
   display: flex;
   align-items: center;
@@ -154,6 +160,19 @@
 
 .rebuild-panel__btn--full:hover:not(:disabled) {
   background: rgba(129, 140, 248, 0.15);
+}
+
+/* Primary variant (accent color) */
+.rebuild-panel__btn--primary {
+  background: var(--ng-accent-ai-bg, rgba(129, 140, 248, 0.12));
+  border-color: var(--ng-accent-ai-border, rgba(129, 140, 248, 0.3));
+  color: var(--ng-accent-ai, #818cf8);
+  width: 100%;
+}
+
+.rebuild-panel__btn--primary:hover:not(:disabled) {
+  background: rgba(129, 140, 248, 0.2);
+  border-color: rgba(129, 140, 248, 0.5);
 }
 
 /* Secondary variant (outline-style) */

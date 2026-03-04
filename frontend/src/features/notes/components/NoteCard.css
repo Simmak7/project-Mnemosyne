@@ -219,10 +219,34 @@
   animation: cardEnter 0.2s ease-out backwards;
 }
 
-/* Mobile */
-@media (max-width: 767px) {
+/* Mobile - touch-friendly card layout */
+@media (max-width: 768px) {
   .note-card {
-    padding: 10px;
+    padding: 14px 14px 12px;
+    gap: 6px;
+    min-height: 64px;
+    border-radius: var(--ng-radius-lg, 12px);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 3px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+
+  .note-card:hover {
+    transform: none;
+  }
+
+  .note-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+
+  .note-card.selected {
+    border-left-color: var(--ng-accent-note, #fbbf24);
+  }
+
+  .note-card-header {
     gap: 6px;
   }
 
@@ -231,27 +255,31 @@
   }
 
   .note-card-title {
-    font-size: 0.8125rem;
-    -webkit-line-clamp: 1;
+    font-size: 0.9rem;
+    font-weight: 600;
+    -webkit-line-clamp: 2;
   }
 
   .note-card-excerpt {
-    font-size: 0.75rem;
-    -webkit-line-clamp: 1;
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+    line-height: 1.45;
+    color: var(--ng-text-secondary, rgba(255, 255, 255, 0.6));
   }
 
   .note-card-images {
-    font-size: 0.6875rem;
-    padding: 1px 6px;
+    font-size: 0.7rem;
+    padding: 2px 8px;
   }
 
   .note-card-tags {
-    gap: 3px;
+    gap: 4px;
   }
 
   .note-tag {
-    font-size: 0.625rem;
-    padding: 1px 4px;
+    font-size: 0.6875rem;
+    padding: 2px 6px;
+    border-radius: var(--ng-radius-full, 9999px);
   }
 
   .note-tag .lucide,
@@ -260,11 +288,11 @@
   }
 
   .note-card-footer {
-    padding-top: 4px;
+    padding-top: 6px;
   }
 
   .note-card-dates {
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     flex: 1;
     min-width: 0;
   }
@@ -279,7 +307,7 @@
   }
 
   .note-card-links {
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
   }
 }
 
@@ -323,4 +351,12 @@
 [data-theme="light"] .note-card-badge.badge-photo-ai {
   background: rgba(6, 182, 212, 0.12);
   color: #0891b2;
+}
+
+@media (max-width: 768px) {
+  [data-theme="light"] .note-card,
+  :root:not([data-theme="dark"]) .note-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
 }

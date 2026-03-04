@@ -3,7 +3,7 @@
 
 .workspace-layout {
   width: 100%;
-  height: 100vh;
+  height: var(--ng-viewport-height, 100vh);
   overflow: hidden;
   /* Fallback for non-Neural Glass mode */
   background: var(--bg-primary);

@@ -7,7 +7,15 @@
   --ng-mobile-bottom-nav-height: 56px;
   --ng-mobile-tab-bar-height: 44px;
   --ng-mobile-touch-target: 44px;
-  --ng-mobile-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+
+  /* Safe area tokens for notched/Dynamic Island devices */
+  --ng-safe-area-top: env(safe-area-inset-top, 0px);
+  --ng-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --ng-safe-area-left: env(safe-area-inset-left, 0px);
+  --ng-safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Legacy alias */
+  --ng-mobile-safe-area-bottom: var(--ng-safe-area-bottom);
 
   /* Dynamic viewport height with fallback */
   --ng-viewport-height: 100dvh;
@@ -21,9 +29,9 @@
 }
 
 /* ============================================
-   Mobile Global Rules (max-width: 767px)
+   Mobile Global Rules (max-width: 768px)
    ============================================ */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   /* Prevent iOS auto-zoom on input focus */
   input[type="text"],
   input[type="email"],
@@ -64,6 +72,60 @@
     *:hover {
       transition: none !important;
     }
+  }
+
+  /* Safe area padding for full-screen layouts */
+  .main-content {
+    padding-left: var(--ng-safe-area-left);
+    padding-right: var(--ng-safe-area-right);
+  }
+
+  /* Full-screen overlays: respect all safe areas */
+  .lightbox-content,
+  .doc-preview-content,
+  .virtualized-gallery-lightbox {
+    padding-top: var(--ng-safe-area-top);
+    padding-bottom: var(--ng-safe-area-bottom);
+    padding-left: var(--ng-safe-area-left);
+    padding-right: var(--ng-safe-area-right);
+  }
+
+  /* Top bars in full-screen modals */
+  .lightbox-topbar,
+  .doc-preview-topbar {
+    padding-top: max(6px, var(--ng-safe-area-top));
+  }
+}
+
+/* ============================================
+   Mobile Performance: Reduced Blur
+   Halves backdrop-filter intensity on mobile
+   to prevent GPU jank during scrolling.
+   ============================================ */
+@media (max-width: 768px) {
+  :root {
+    --ng-blur-sm: 4px;
+    --ng-blur-md: 6px;
+    --ng-blur-lg: 10px;
+    --ng-blur-xl: 16px;
+  }
+
+  [data-theme="light"],
+  :root:not([data-theme="dark"]) {
+    --ng-blur-sm: 3px;
+    --ng-blur-md: 5px;
+    --ng-blur-lg: 8px;
+    --ng-blur-xl: 12px;
+  }
+}
+
+/* Respect user preference for reduced transparency */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --ng-blur-sm: 0px;
+    --ng-blur-md: 0px;
+    --ng-blur-lg: 0px;
+    --ng-blur-xl: 0px;
   }
 }
 

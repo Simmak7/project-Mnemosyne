@@ -88,9 +88,9 @@ export function useGraphFilters(initialFilters = {}) {
     setFilters((prev) => ({ ...prev, communityId: id }));
   }, []);
 
-  // Set depth for local graph (persisted)
+  // Set depth for local graph (persisted, capped at 3 — backend max)
   const setDepth = useCallback((depth) => {
-    const clamped = Math.max(1, Math.min(5, depth));
+    const clamped = Math.max(1, Math.min(3, depth));
     setFilters((prev) => ({ ...prev, depth: clamped }));
     setPersistedDepth(clamped);
   }, [setPersistedDepth]);

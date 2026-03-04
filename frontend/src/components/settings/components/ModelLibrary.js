@@ -2,7 +2,7 @@
  * ModelLibrary - Grid of ModelCards with filter tabs
  */
 import React, { useState } from 'react';
-import { Download, RefreshCw } from 'lucide-react';
+import { Download, RefreshCw, X } from 'lucide-react';
 import ModelCard from './ModelCard';
 
 const TABS = [
@@ -14,7 +14,7 @@ const TABS = [
 ];
 
 function ModelLibrary({
-  models, pullProgress, onPull, onDelete, onCancelPull, onPullCustom,
+  models, pullProgress, onPull, onDelete, onCancelPull, onPullCustom, onClearProgress,
   updateStatus, checkingUpdates, onUpdate, onCheckUpdates,
 }) {
   const [activeTab, setActiveTab] = useState('all');
@@ -119,14 +119,41 @@ function ModelLibrary({
         {Object.entries(pullProgress)
           .filter(([id]) => !models?.some(m => m.id === id))
           .map(([id, prog]) => (
-            <div key={id} className="model-custom-progress">
-              <span>{id}</span>
-              {prog.status !== 'error' && prog.status !== 'success' && (
-                <div className="model-progress-bar">
-                  <div className="model-progress-fill" style={{ width: `${prog.percent}%` }} />
-                </div>
+            <div key={id} className={`model-custom-progress ${prog.status === 'error' ? 'model-custom-progress--error' : ''}`}>
+              <div className="model-custom-progress-header">
+                <span className="model-custom-progress-name">{id}</span>
+                {(prog.status === 'error' || prog.status === 'success') && (
+                  <button
+                    className="model-custom-progress-dismiss"
+                    onClick={() => onClearProgress?.(id)}
+                    title="Dismiss"
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+              {prog.status === 'error' ? (
+                <>
+                  <div className="model-custom-progress-error">
+                    {prog.error || 'Unknown error'}
+                  </div>
+                  <button
+                    className="model-btn model-btn-download model-custom-retry"
+                    onClick={() => { onClearProgress?.(id); onPullCustom(id); }}
+                  >
+                    <Download size={12} /> Retry
+                  </button>
+                </>
+              ) : (
+                <>
+                  {prog.status !== 'success' && (
+                    <div className="model-progress-bar">
+                      <div className="model-progress-fill" style={{ width: `${prog.percent}%` }} />
+                    </div>
+                  )}
+                  <span>{prog.status} {prog.percent > 0 ? `${Math.round(prog.percent)}%` : ''}</span>
+                </>
               )}
-              <span>{prog.status} {prog.percent > 0 ? `${Math.round(prog.percent)}%` : ''}</span>
             </div>
           ))
         }

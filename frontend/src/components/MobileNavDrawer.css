@@ -22,26 +22,33 @@
   max-height: 75vh;
   overflow-y: auto;
   background: rgba(18, 18, 18, 0.97);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(var(--ng-blur-xl, 24px));
+  -webkit-backdrop-filter: blur(var(--ng-blur-xl, 24px));
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0 16px calc(16px + var(--ng-mobile-safe-area-bottom, 0px));
+  padding: 0 calc(16px + var(--ng-safe-area-right, 0px)) calc(16px + var(--ng-safe-area-bottom, 0px)) calc(16px + var(--ng-safe-area-left, 0px));
 }
 
-/* Handle bar at top */
+/* Handle bar at top — drag affordance */
 .drawer-handle-bar {
   display: flex;
   justify-content: center;
-  padding: 10px 0 6px;
+  padding: 12px 0 8px;
+  cursor: grab;
+  touch-action: none;
 }
 
 .drawer-handle {
-  width: 36px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
+  width: 40px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.drawer-handle-bar:active .drawer-handle {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 /* Close button */

@@ -160,6 +160,56 @@
 }
 
 /* ============================================
+   Mobile: enable native d3-zoom pinch gestures
+   ============================================ */
+
+@media (max-width: 768px) {
+  .graph-canvas,
+  .graph-canvas canvas {
+    touch-action: none;
+  }
+
+  /* Hide minimap on mobile */
+  .graph-canvas__minimap {
+    display: none;
+  }
+
+  /* Floating zoom controls */
+  .graph-mobile-zoom {
+    position: absolute;
+    bottom: 80px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 20;
+  }
+
+  .graph-mobile-zoom button {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.15));
+    background: var(--ng-glass-bg-heavy, rgba(0, 0, 0, 0.7));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--ng-text-primary, #f9fafb);
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .graph-mobile-zoom button:active {
+    transform: scale(0.92);
+    background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

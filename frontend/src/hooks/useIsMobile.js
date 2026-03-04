@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const MOBILE_BREAKPOINT = 767;
+const MOBILE_BREAKPOINT = 768;
 const mediaQuery = `(max-width: ${MOBILE_BREAKPOINT}px)`;
 
 /**
  * useIsMobile - Reactive mobile detection hook.
  * Uses matchMedia for efficient boundary-crossing detection.
- * Returns true when viewport <= 767px.
+ * Returns true when viewport <= 768px.
  */
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() => {

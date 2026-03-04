@@ -4,7 +4,7 @@
  * Stores layouts + hidden widgets in localStorage (v2 key).
  * isCustomizing state is transient (resets on refresh).
  */
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { usePersistedState } from '../../../hooks/usePersistedState';
 import { DEFAULT_LAYOUTS } from '../utils/defaultLayouts';
 import { getAllWidgetIds } from '../utils/widgetRegistry';
@@ -19,6 +19,7 @@ const DEFAULT_CONFIG = {
 export function useDashboardConfig() {
   const [config, setConfig] = usePersistedState(STORAGE_KEY, DEFAULT_CONFIG);
   const [isCustomizing, setIsCustomizing] = useState(false);
+  const hasUserInteracted = useRef(false);
 
   const layouts = useMemo(() => {
     const saved = config.layouts || DEFAULT_LAYOUTS;
@@ -55,6 +56,7 @@ export function useDashboardConfig() {
   }, [setConfig]);
 
   const onLayoutChange = useCallback((_layout, allLayouts) => {
+    if (!hasUserInteracted.current) return;
     setConfig(prev => ({ ...prev, layouts: allLayouts }));
   }, [setConfig]);
 
@@ -70,7 +72,10 @@ export function useDashboardConfig() {
     onLayoutChange,
     resetToDefaults,
     isCustomizing,
-    setIsCustomizing,
+    setIsCustomizing: useCallback((val) => {
+      if (val) hasUserInteracted.current = true;
+      setIsCustomizing(val);
+    }, []),
   };
 }
 

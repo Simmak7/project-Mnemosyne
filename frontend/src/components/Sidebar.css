@@ -1,6 +1,6 @@
 .sidebar {
   width: 280px;
-  height: 100vh;
+  height: var(--ng-viewport-height, 100vh);
   background: var(--sidebar-bg);
   border-right: 1px solid var(--border-color);
   display: flex;

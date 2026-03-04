@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-1.1.3--beta-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-1.1.4--beta-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0-blue" alt="License">
   <img src="https://img.shields.io/badge/docker-ready-blue?logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/AI-100%25%20local-purple" alt="Local AI">
@@ -29,7 +29,7 @@
 
 ---
 
-> **Beta Release** — Mnemosyne v1.1.3-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
+> **Beta Release** — Mnemosyne v1.1.4-beta is feature-rich and actively developed. Perfect for early adopters who want a private, AI-powered knowledge management system. [See Roadmap](#roadmap)
 
 ---
 
@@ -263,7 +263,16 @@ Sit back, grab a coffee, and let the machines do the work.
 
 ## Roadmap
 
-### v1.1.3-beta (Current Release)
+### v1.1.4-beta (Current Release)
+- **Performance Optimization** — Multi-stage Docker build serves production React via nginx; gzip compression and immutable cache headers for static assets
+- **Backend Workers** — Uvicorn multi-worker mode (2 workers), removed dev `--reload` flag
+- **Graph Query Optimization** — Batch wikilink/backlink resolution eliminates N+1 queries (~1,100 → 5 queries for full graph)
+- **Bundle Cleanup** — Removed unused three.js, d3, react-force-graph (~290 KB gzipped saved); direct-path lazy imports for all routes
+- **Brain Graph Fixes** — Depth filter now works correctly in Explore view; improved node spacing and smaller labels prevent overlapping when zoomed in
+- **Image Caching** — ETag + Cache-Control headers on gallery images (24h browser cache)
+- **Celery Throughput** — Worker concurrency increased from 2 to 4
+
+### v1.1.3-beta
 - **Clearer Navigation** — Renamed confusing labels ("Studio" → "Upload", "Brain" → "Knowledge Graph"), added Home button to sidebar with visual divider
 - **Browser Back/Forward** — Hash-based URL routing (`/#/notes`, `/#/gallery`) enables browser history navigation and bookmarkable tabs
 - **Streamlined Onboarding** — Reduced from 11 steps to 5 focused steps that teach the core workflow

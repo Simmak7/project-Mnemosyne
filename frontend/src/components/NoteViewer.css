@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: 350px 1fr;
   gap: 2rem;
-  height: calc(100vh - 250px);
+  height: calc(var(--ng-viewport-height, 100vh) - 250px);
 }
 
 /* Notes List */

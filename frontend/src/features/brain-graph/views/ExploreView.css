@@ -8,42 +8,49 @@
   height: 100%;
 }
 
-/* Search Bar */
+/* Search Bar - outer anchor */
 .explore-view__search {
   position: absolute;
   top: var(--ng-space-4, 16px);
   left: var(--ng-space-4, 16px);
   right: var(--ng-space-4, 16px);
-  display: flex;
-  gap: var(--ng-space-2, 8px);
   z-index: 10;
-  max-width: 400px;
+  max-width: 420px;
 }
 
-.explore-view__search-form {
-  flex: 1;
+/* Single unified pill: [🔍 input ×] [↺] */
+.explore-view__search-bar {
   display: flex;
   align-items: center;
-  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  height: 40px;
+  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.45));
   backdrop-filter: blur(12px);
-  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.08));
   border-radius: var(--ng-radius-lg, 8px);
-  padding: 0 var(--ng-space-3, 12px);
+  overflow: hidden;
 }
 
 .explore-view__search-icon {
   color: var(--ng-text-muted, #6b7280);
   flex-shrink: 0;
+  margin-left: var(--ng-space-3, 12px);
+  margin-right: var(--ng-space-1-5, 6px);
+  pointer-events: none;
 }
 
 .explore-view__search-input {
   flex: 1;
   background: transparent;
   border: none;
-  padding: var(--ng-space-2, 8px);
+  outline: none;
+  box-shadow: none;
+  padding: 0 var(--ng-space-1-5, 6px);
   color: var(--ng-text-primary, #f9fafb);
   font-size: 13px;
-  outline: none;
+  height: 100%;
+  min-width: 0;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .explore-view__search-input::placeholder {
@@ -54,33 +61,44 @@
   background: transparent;
   border: none;
   color: var(--ng-text-tertiary, #9ca3af);
-  font-size: 11px;
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
-  padding: var(--ng-space-1, 4px);
+  padding: 0 var(--ng-space-2, 8px);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s ease;
 }
 
 .explore-view__search-clear:hover {
   color: var(--ng-text-primary, #f9fafb);
 }
 
+/* Refresh button integrated into right edge of pill */
 .explore-view__refresh {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
-  border-radius: var(--ng-radius-lg, 8px);
+  width: 40px;
+  height: 100%;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--ng-divider, rgba(255, 255, 255, 0.08));
   color: var(--ng-text-tertiary, #9ca3af);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 
-.explore-view__refresh:hover {
-  background: var(--ng-glass-bg-hover, rgba(255, 255, 255, 0.03));
+.explore-view__refresh:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.04);
   color: var(--ng-text-primary, #f9fafb);
+}
+
+.explore-view__refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .explore-view__refresh .is-spinning {
@@ -312,19 +330,45 @@
 }
 
 /* ============================================
+   Mobile Overrides
+   ============================================ */
+
+@media (max-width: 768px) {
+  .explore-view__focus-info {
+    bottom: 80px;
+    left: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+    gap: 4px;
+    max-width: calc(100vw - 70px);
+  }
+
+  .explore-view__focus-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .explore-view__center-btn {
+    padding: 2px 6px;
+    font-size: 9px;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 
-[data-theme="light"] .explore-view__search-form {
+[data-theme="light"] .explore-view__search-bar {
   background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 [data-theme="light"] .explore-view__refresh {
-  background: rgba(255, 255, 255, 0.9);
+  border-left-color: rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="light"] .explore-view__refresh:hover {
-  background: rgba(255, 255, 255, 0.95);
+[data-theme="light"] .explore-view__refresh:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
 }
 
 [data-theme="light"] .explore-view__focus-info {

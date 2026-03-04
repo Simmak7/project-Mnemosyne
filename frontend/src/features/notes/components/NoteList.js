@@ -1,14 +1,19 @@
 import React, { useCallback, useMemo, useEffect, useRef } from 'react';
-import { FileText, Sparkles, Inbox, AlertCircle } from 'lucide-react';
+import { FileText, Sparkles, Inbox, AlertCircle, Trash2, Star } from 'lucide-react';
 import {
   SortableContext,
   verticalListSortingStrategy,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNotes } from '../hooks/useNotes';
 import { useNoteContext } from '../hooks/NoteContext';
 import { useValidateNoteSelection } from '../hooks/useValidateNoteSelection';
 import { useIsMobile } from '../../../hooks/useIsMobile';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../../../components/PullToRefreshIndicator';
+import SwipeableCard from '../../../components/SwipeableCard';
+import { api } from '../../../utils/api';
 import SortableNoteCard from './SortableNoteCard';
 import DraggableNoteCard from './DraggableNoteCard';
 import NoteCard from './NoteCard';
@@ -34,8 +39,33 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
     isLoading,
     isError,
     error,
+    refetch,
     filteredCount
   } = useNotes();
+
+  const queryClient = useQueryClient();
+
+  const { pullDistance, isRefreshing, progress, handlers: ptrHandlers } =
+    usePullToRefresh(refetch, { enabled: isMobile });
+
+  // Swipe action: trash a note
+  const handleSwipeTrash = useCallback(async (noteId) => {
+    queryClient.setQueryData(['notes-enhanced'], (old) =>
+      old ? old.filter(n => n.id !== noteId) : old
+    );
+    try {
+      await api.post(`/notes/${noteId}/trash`);
+      queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] });
+    } catch { queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] }); }
+  }, [queryClient]);
+
+  // Swipe action: toggle favorite
+  const handleSwipeFavorite = useCallback(async (noteId) => {
+    try {
+      await api.post(`/notes/${noteId}/favorite`);
+      queryClient.invalidateQueries({ queryKey: ['notes-enhanced'] });
+    } catch { /* ignore */ }
+  }, [queryClient]);
 
   // Use DnD-ordered notes if provided, otherwise raw
   const notes = orderedNotes || rawNotes;
@@ -59,7 +89,8 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
   const handleNoteClick = useCallback((note) => {
     selectNote(note.id);
     onNoteSelect?.(note);
-  }, [selectNote, onNoteSelect]);
+    if (isMobile) onNoteOpen?.(note);
+  }, [selectNote, onNoteSelect, isMobile, onNoteOpen]);
 
   const handleNoteDoubleClick = useCallback((note) => {
     onNoteOpen?.(note);
@@ -144,14 +175,29 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
   const renderNotes = () => {
     const cards = notes.map((note, index) => (
       isMobile ? (
-        <NoteCard
+        <SwipeableCard
           key={note.id}
-          note={note}
-          isSelected={selectedNoteId === note.id}
-          onClick={() => handleNoteClick(note)}
-          onDoubleClick={() => handleNoteDoubleClick(note)}
-          searchQuery={searchQuery}
-        />
+          leftAction={{
+            icon: <Star size={20} />,
+            label: note.is_favorite ? 'Unfav' : 'Fav',
+            color: '#d97706',
+            onAction: () => handleSwipeFavorite(note.id),
+          }}
+          rightAction={{
+            icon: <Trash2 size={20} />,
+            label: 'Trash',
+            color: '#dc2626',
+            onAction: () => handleSwipeTrash(note.id),
+          }}
+        >
+          <NoteCard
+            note={note}
+            isSelected={selectedNoteId === note.id}
+            onClick={() => handleNoteClick(note)}
+            onDoubleClick={() => handleNoteDoubleClick(note)}
+            searchQuery={searchQuery}
+          />
+        </SwipeableCard>
       ) : (
         <CardComponent
           key={note.id}
@@ -160,7 +206,6 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
           onClick={() => handleNoteClick(note)}
           onDoubleClick={() => handleNoteDoubleClick(note)}
           searchQuery={searchQuery}
-          style={{ animationDelay: `${index * 30}ms` }}
         />
       )
     ));
@@ -197,7 +242,7 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
   }
 
   return (
-    <div className="note-list">
+    <div className="note-list" {...(isMobile ? ptrHandlers : {})}>
       <div className="note-list-header">
         <CategoryIcon size={20} className="category-icon" />
         <div className="category-info">
@@ -207,6 +252,8 @@ function NoteList({ onNoteSelect, onNoteOpen, orderedNotes, orderedIds, isCustom
       </div>
 
       <NoteSearchBar resultCount={filteredCount} isLoading={isLoading} />
+
+      <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} progress={progress} />
 
       {isLoading ? renderSkeleton() : notes.length === 0 ? renderEmptyState() : renderNotes()}
     </div>

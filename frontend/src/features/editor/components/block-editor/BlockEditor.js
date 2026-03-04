@@ -14,7 +14,8 @@ import { hashtagSuggestion } from '../../../../components/editor/HashtagSuggesti
 import 'tippy.js/dist/tippy.css';
 import '../BlockEditor.css';
 
-import { EditorToolbar, FormatToolbar, EditorFooter, LoadingState } from './components';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
+import { EditorToolbar, FormatToolbar, FloatingFormatToolbar, EditorFooter, LoadingState } from './components';
 import {
   convertWikilinks,
   convertHashtags,
@@ -38,6 +39,7 @@ function BlockEditor({
   onHashtagClick,
   onEditorReady,
 }) {
+  const isMobile = useIsMobile();
   const [title, setTitle] = useState(note?.title || '');
   const [hasChanges, setHasChanges] = useState(false);
   const [isPreview, setIsPreview] = useState(false);
@@ -177,6 +179,7 @@ function BlockEditor({
       />
 
       <FormatToolbar editor={editor} />
+      {isMobile && <FloatingFormatToolbar editor={editor} />}
 
       <div className="ng-block-editor-body">
         <EditorContent editor={editor} className="ng-block-editor-wrapper" />

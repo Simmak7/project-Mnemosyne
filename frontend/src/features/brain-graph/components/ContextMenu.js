@@ -35,8 +35,10 @@ export function ContextMenu({ menu, graphState, onViewChange }) {
     if (!menu) return {};
     const pad = 8;
     const w = 180, h = 200;
-    const x = Math.min(menu.x, window.innerWidth - w - pad);
-    const y = Math.min(menu.y, window.innerHeight - h - pad);
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const x = Math.min(menu.x, vw - w - pad);
+    const y = Math.min(menu.y, vh - h - pad);
     return { left: `${Math.max(pad, x)}px`, top: `${Math.max(pad, y)}px` };
   }, [menu]);
 

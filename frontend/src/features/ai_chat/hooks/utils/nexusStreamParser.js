@@ -12,13 +12,16 @@ export async function parseNexusSSEStream(reader, handlers) {
   let connections = [];
   let suggestions = [];
   let confidence = null;
+  let lineBuffer = '';
 
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
 
-    const chunk = decoder.decode(value);
-    const lines = chunk.split('\n');
+    const chunk = decoder.decode(value, { stream: true });
+    lineBuffer += chunk;
+    const lines = lineBuffer.split('\n');
+    lineBuffer = lines.pop() || '';
 
     for (const line of lines) {
       if (line.startsWith('data: ')) {
@@ -78,6 +81,19 @@ export async function parseNexusSSEStream(reader, handlers) {
         }
       }
     }
+  }
+
+  // Process any remaining buffered line
+  if (lineBuffer.startsWith('data: ')) {
+    try {
+      const data = JSON.parse(lineBuffer.slice(6));
+      if (data.type === 'token') {
+        accumulatedContent += data.content;
+        handlers.onToken?.(accumulatedContent);
+      } else if (data.type === 'done') {
+        handlers.onDone?.({ content: accumulatedContent, citations, usedIndices, connections, suggestions, confidence });
+      }
+    } catch (_) { /* ignore trailing incomplete data */ }
   }
 
   return { content: accumulatedContent, citations, usedIndices, connections, suggestions, confidence };

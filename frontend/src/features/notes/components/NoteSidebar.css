@@ -567,7 +567,7 @@
 }
 
 /* Responsive */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .note-sidebar {
     padding: 10px;
     gap: 0;

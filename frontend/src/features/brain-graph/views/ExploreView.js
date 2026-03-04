@@ -22,7 +22,18 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   const focusNodeId = graphState.focusNodeId;
-  const effectiveDepth = Math.min((filters.filters.depth || 2) + (graphState.expandedDepth || 0), 3);
+  const filterDepth = filters.filters.depth || 2;
+
+  // Reset expandedDepth when user changes depth slider so slider is always respected
+  const prevFilterDepth = useRef(filterDepth);
+  useEffect(() => {
+    if (prevFilterDepth.current !== filterDepth) {
+      prevFilterDepth.current = filterDepth;
+      graphState.resetExpandedDepth();
+    }
+  }, [filterDepth]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const effectiveDepth = Math.min(filterDepth + (graphState.expandedDepth || 0), 3);
 
   const { data, isLoading, error, refetch } = useLocalGraph(
     focusNodeId,
@@ -61,6 +72,7 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
       connectionCounts[edge.target] = (connectionCounts[edge.target] || 0) + 1;
     });
 
+    // BFS depth from focus node
     const depths = {};
     if (focusNodeId) {
       const adj = {};
@@ -84,21 +96,40 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
       }
     }
 
+    // Pre-compute evenly-spaced positions per depth ring so nodes start near
+    // their equilibrium — eliminates orbital spinning during simulation warmup.
+    const byDepth = {};
+    data.nodes.forEach((node) => {
+      if (node.id === focusNodeId) return;
+      const d = depths[node.id] ?? 1;
+      (byDepth[d] ??= []).push(node.id);
+    });
+    const initPos = {};
+    Object.entries(byDepth).forEach(([d, ids]) => {
+      const radius = parseInt(d, 10) * 140;
+      ids.forEach((id, i) => {
+        const angle = (i / ids.length) * 2 * Math.PI - Math.PI / 2;
+        initPos[id] = { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+      });
+    });
+
     return {
       nodes: data.nodes.map((node) => {
+        const isFocus = node.id === focusNodeId;
         const connections = connectionCounts[node.id] || 0;
+        const pos = initPos[node.id];
         return {
           ...node,
           id: node.id,
           title: node.title,
           metadata: node.metadata,
-          connections, // Computed from edges
-          val: connections || 1, // Size based on connections
+          connections,
+          val: connections || 1,
           isHub: hubNodeIds.has(node.id),
-          isFocus: node.id === focusNodeId,
+          isFocus,
           depth: depths[node.id] ?? 99,
-          // Pin focus node at center to anchor the simulation (prevents spinning)
-          ...(node.id === focusNodeId ? { fx: 0, fy: 0, x: 0, y: 0 } : {}),
+          // Focus node pinned at center; others start at ring positions
+          ...(isFocus ? { fx: 0, fy: 0, x: 0, y: 0 } : pos ? { x: pos.x, y: pos.y } : {}),
         };
       }),
       links: data.edges.map((edge) => ({
@@ -129,10 +160,14 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
     graphState.setEdgeBreakdown(Object.keys(counts).length > 0 ? counts : null);
   }, [selectedNodeId, graphData]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Stable refs to layout callbacks so the effect doesn't re-fire on every render
+  const layoutRef = useRef(layout);
+  useEffect(() => { layoutRef.current = layout; });
+
   // Center on focus node when data loads + unpin previous focus
   useEffect(() => {
-    if (graphData && focusNodeId && layout.graphRef?.current) {
-      const fg = layout.graphRef.current;
+    if (graphData && focusNodeId && layoutRef.current.graphRef?.current) {
+      const fg = layoutRef.current.graphRef.current;
 
       // Unpin previous auto-pinned focus node (pinned at 0,0 by us)
       if (prevFocusRef.current && prevFocusRef.current !== focusNodeId) {
@@ -147,11 +182,11 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
 
       // Small delay to let graph settle, then center
       const timer = setTimeout(() => {
-        layout.centerOnNode(focusNodeId);
+        layoutRef.current.centerOnNode(focusNodeId);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [focusNodeId, graphData, layout]);
+  }, [focusNodeId, graphData]); // layout intentionally excluded — use layoutRef instead
 
   // Proper refresh: refetch + reheat simulation + fit to view
   const handleRefresh = useCallback(() => {
@@ -222,9 +257,13 @@ export function ExploreView({ graphState, filters, layout, onViewChange }) {
         </div>
       )}
 
-      {/* Graph Canvas */}
+      {/* Graph Canvas — key forces fresh mount on focus change so D3 doesn't
+          reuse stale node positions from cached data (staleTime: 60s). warmupTicks=0
+          avoids spinning from default D3 forces before our custom forces are applied. */}
       {graphData && !isLoading && (
         <GraphCanvas
+          key={`${focusNodeId || 'no-focus'}-d${effectiveDepth}`}
+          warmupTicks={0}
           graphData={graphData}
           graphState={graphState}
           layout={layout}

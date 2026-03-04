@@ -72,7 +72,7 @@
 }
 
 /* Mobile: hide side panels, fullscreen canvas */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .brain-graph__left-panel {
     display: none;
   }

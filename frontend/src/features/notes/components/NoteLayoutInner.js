@@ -38,19 +38,18 @@ function NoteLayoutInner({ onNavigateToGraph, onNavigateToImage, onNavigateToAI,
   const sidebarPanelRef = useRef(null);
 
   const { notes } = useNotes();
-  const { selectedNoteId } = useNoteContext();
+  const { selectedNoteId, selectNote } = useNoteContext();
   const { addNoteToCollection, collections } = useCollections();
   const { orderedNotes, orderedIds, handleReorder, initializeOrder, isCustomSort } =
     useCustomNoteOrder(notes);
 
   const swipeHandlers = useSwipeNavigation(PANEL_IDS, mobilePanel, setMobilePanel);
 
-  // Auto-switch to detail when a note is selected on mobile
-  const prevSelectedRef = useRef(selectedNoteId);
-  if (isMobile && selectedNoteId && selectedNoteId !== prevSelectedRef.current && mobilePanel === 'notes') {
+  // Mobile: single-tap opens note detail panel
+  const handleNoteOpen = useCallback((note) => {
+    selectNote(note.id);
     setMobilePanel('detail');
-  }
-  prevSelectedRef.current = selectedNoteId;
+  }, [selectNote]);
 
   // Toast helper for collection drops
   const showDropToast = useCallback((noteId, collectionId) => {
@@ -99,7 +98,7 @@ function NoteLayoutInner({ onNavigateToGraph, onNavigateToImage, onNavigateToAI,
           <div className="note-mobile-content" {...swipeHandlers}>
             {mobilePanel === 'nav' && <NoteSidebar isCollapsed={false} onCollapse={() => {}} />}
             {mobilePanel === 'notes' && (
-              <NoteList orderedNotes={orderedNotes} orderedIds={orderedIds} isCustomSort={isCustomSort} />
+              <NoteList orderedNotes={orderedNotes} orderedIds={orderedIds} isCustomSort={isCustomSort} onNoteOpen={handleNoteOpen} />
             )}
             {mobilePanel === 'detail' && (
               <NoteDetail

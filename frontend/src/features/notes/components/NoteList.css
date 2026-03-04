@@ -208,20 +208,29 @@
 }
 
 /* Responsive */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .note-list-header {
-    padding: var(--ng-space-3, 12px);
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   .category-title {
-    font-size: 1rem;
+    font-size: 0.9375rem;
+  }
+
+  .category-description {
+    display: none;
   }
 
   .note-list-content {
-    padding: var(--ng-space-2, 8px);
+    padding: 8px 10px;
     padding-bottom: 16px;
     -webkit-overflow-scrolling: touch;
     touch-action: pan-y;
+  }
+
+  .note-list-content.list {
+    gap: 10px;
   }
 
   .note-list-content.grid {

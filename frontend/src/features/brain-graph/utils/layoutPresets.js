@@ -38,11 +38,11 @@ export const LAYOUT_PRESETS = {
     description: 'Balanced layout for navigation',
     icon: 'compass',
     physics: {
-      chargeStrength: -60,        // Gentle repulsion — readable spacing
-      linkDistance: 60,           // Medium links
-      linkStrength: 0.5,          // Moderate links
-      centerStrength: 0.03,       // Very gentle — prevents orbiting
-      velocityDecay: 0.7,        // High friction — kills rotation fast
+      chargeStrength: -120,       // Stronger repulsion — prevents overlapping when zoomed in
+      linkDistance: 100,          // Longer links — more breathing room between nodes
+      linkStrength: 0.35,         // Softer links allow spreading
+      centerStrength: 0.0,        // No center spring — focus node pin provides anchor, springs cause orbital spin
+      velocityDecay: 0.85,       // Very high friction — kills rotation quickly
       alphaDecay: 0.05,          // Fast cooling — settles quickly
       alphaMin: 0.001,
     },

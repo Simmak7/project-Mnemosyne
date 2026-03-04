@@ -201,19 +201,26 @@
 }
 
 /* Responsive */
-@media (max-width: 767px) {
-  .search-controls {
-    flex-wrap: wrap;
+@media (max-width: 768px) {
+  .note-search-bar {
+    padding: 8px 10px;
+    gap: 8px;
   }
 
-  .search-controls select,
-  .search-controls button {
-    min-height: 44px;
+  .search-input {
+    padding: 8px 12px;
+    padding-right: 36px;
+    font-size: 0.8125rem;
   }
 
   .sort-select {
     font-size: 0.6875rem;
     padding-right: var(--ng-space-5, 20px);
+  }
+
+  /* Hide view mode toggle on mobile - list view only */
+  .view-mode-btn {
+    display: none;
   }
 }
 

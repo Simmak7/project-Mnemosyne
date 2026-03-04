@@ -31,7 +31,7 @@
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  max-height: calc(100vh - 160px);
+  max-height: calc(var(--ng-viewport-height, 100vh) - 160px);
   display: flex;
   flex-direction: column;
   animation: slideDown 0.2s ease-out;
@@ -375,7 +375,7 @@
 }
 
 /* Responsive - Mobile full-screen search */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .unified-search-overlay {
     padding: 0;
     align-items: stretch;

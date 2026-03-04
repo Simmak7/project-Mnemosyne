@@ -144,7 +144,9 @@
 .settings-footer {
   padding: 16px 28px;
   border-top: 1px solid var(--border-color);
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .settings-version {
@@ -152,6 +154,27 @@
   font-size: 13px;
   color: var(--text-secondary);
   opacity: 0.7;
+}
+
+.settings-footer-links {
+  display: flex;
+  gap: 16px;
+}
+
+.settings-footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.settings-footer-link:hover {
+  color: var(--accent-color);
+  opacity: 1;
 }
 
 /* Scrollbar styling for settings content */

@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
 
@@ -10,6 +11,8 @@ import { useAuth } from './hooks/useAuth';
 import { useTheme } from './hooks/useTheme';
 import { useAppNavigation } from './hooks/useAppNavigation';
 import { useIsMobile } from './hooks/useIsMobile';
+import { useViewportHeight } from './hooks/useViewportHeight';
+import { useTabSwipe } from './hooks/useTabSwipe';
 
 // Config
 import { getFeatureFlags } from './config/featureFlags';
@@ -23,18 +26,18 @@ import MobileBottomNav from './components/MobileBottomNav';
 import UnifiedSearch from './components/search/UnifiedSearch';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorBoundary from './components/ErrorBoundary';
-import OnboardingModal from './features/onboarding';
 import { ToastProvider } from './components/toast';
 
-// Lazy load heavy components
-const GalleryLayout = lazy(() => import('./features/gallery').then(m => ({ default: m.GalleryLayout })));
-const NoteLayout = lazy(() => import('./features/notes').then(m => ({ default: m.NoteLayout })));
-const BrainGraph = lazy(() => import('./features/brain-graph').then(m => ({ default: m.BrainGraph })));
-const AIChatLayout = lazy(() => import('./features/ai_chat').then(m => ({ default: m.AIChatLayout })));
-const JournalLayout = lazy(() => import('./features/journal').then(m => ({ default: m.JournalLayout })));
-const UploadLayout = lazy(() => import('./features/upload').then(m => ({ default: m.UploadLayout })));
-const DocumentLayout = lazy(() => import('./features/documents').then(m => ({ default: m.DocumentLayout })));
-const DashboardLayout = lazy(() => import('./features/dashboard').then(m => ({ default: m.DashboardLayout })));
+// Lazy load heavy components — direct file imports avoid pulling entire barrel exports
+const OnboardingModal = lazy(() => import('./features/onboarding/components/OnboardingModal'));
+const GalleryLayout = lazy(() => import('./features/gallery/components/GalleryLayout'));
+const NoteLayout = lazy(() => import('./features/notes/components/NoteLayout'));
+const BrainGraph = lazy(() => import('./features/brain-graph/components/BrainGraph').then(m => ({ default: m.BrainGraph })));
+const AIChatLayout = lazy(() => import('./features/ai_chat/components/AIChatLayout'));
+const JournalLayout = lazy(() => import('./features/journal/components/JournalLayout'));
+const UploadLayout = lazy(() => import('./features/upload/components/UploadLayout'));
+const DocumentLayout = lazy(() => import('./features/documents/components/DocumentLayout'));
+const DashboardLayout = lazy(() => import('./features/dashboard/components/DashboardLayout'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,9 +49,11 @@ function App() {
   const { isAuthenticated, username, handleLoginSuccess, handleLogout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
   const isMobile = useIsMobile();
+  const { isKeyboardOpen } = useViewportHeight();
   const nav = useAppNavigation();
-  // Mount Brain once on first visit, keep alive across tab switches
   const [brainMounted, setBrainMounted] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const { touchHandlers, navDirection, directionTabChange } = useTabSwipe({ activeTab: nav.activeTab, onTabChange: nav.handleTabChange, onOpenDrawer: () => setDrawerOpen(true), enabled: isMobile });
 
   if (window.location.pathname === '/verify-email-change') {
     return <EmailVerification onComplete={() => window.location.href = '/'} />;
@@ -62,17 +67,11 @@ function App() {
   const brainActive = tab === 'graph';
   if (brainActive && !brainMounted) setBrainMounted(true);
 
-  const brainNavigate = (path) => {
-    if (path.startsWith('/notes/')) {
-      nav.handleNavigateToNote(parseInt(path.split('/')[2]));
-    } else if (path.startsWith('/gallery')) {
-      const id = new URLSearchParams(path.split('?')[1]).get('image');
-      if (id) nav.handleNavigateToImage(parseInt(id));
-    } else if (path.startsWith('/tags/')) {
-      nav.handleNavigateToTag(path.split('/')[2]);
-    } else if (path.startsWith('/documents/')) {
-      nav.handleNavigateToDocument(parseInt(path.split('/')[2]));
-    }
+  const brainNavigate = (p) => {
+    if (p.startsWith('/notes/')) nav.handleNavigateToNote(parseInt(p.split('/')[2]));
+    else if (p.startsWith('/gallery')) { const id = new URLSearchParams(p.split('?')[1]).get('image'); if (id) nav.handleNavigateToImage(parseInt(id)); }
+    else if (p.startsWith('/tags/')) nav.handleNavigateToTag(p.split('/')[2]);
+    else if (p.startsWith('/documents/')) nav.handleNavigateToDocument(parseInt(p.split('/')[2]));
   };
 
   return (
@@ -82,12 +81,16 @@ function App() {
         {isMobile ? (
           <MobileBottomNav
             activeTab={tab}
-            onTabChange={nav.handleTabChange}
+            onTabChange={directionTabChange}
             username={username}
             onLogout={handleLogout}
             isDarkMode={isDarkMode}
             onToggleDarkMode={toggleDarkMode}
             onOpenSearch={() => nav.setSearchOpen(true)}
+            isKeyboardOpen={isKeyboardOpen}
+            isDrawerOpen={drawerOpen}
+            onOpenDrawer={() => setDrawerOpen(true)}
+            onCloseDrawer={() => setDrawerOpen(false)}
           />
         ) : (
           <Sidebar
@@ -108,10 +111,21 @@ function App() {
           onResultClick={nav.handleSearchResultClick}
         />
 
-        <OnboardingModal />
+        <Suspense fallback={null}>
+          <OnboardingModal />
+        </Suspense>
 
         {/* Main content area - hidden when Brain is active */}
-        <main className="main-content" style={brainActive ? { display: 'none' } : undefined}>
+        <main className="main-content" style={brainActive ? { display: 'none' } : undefined} {...touchHandlers}>
+          <AnimatePresence mode="wait">
+          <motion.div
+            key={tab}
+            initial={isMobile ? { opacity: 0, x: navDirection.current * 60 } : { opacity: 0 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={isMobile ? { opacity: 0, x: navDirection.current * -60 } : { opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            style={{ width: '100%', height: '100%' }}
+          >
           {tab === 'dashboard' ? (
             <ErrorBoundary>
               <Suspense fallback={<LoadingSpinner size="large" message="Loading dashboard..." />}>
@@ -205,6 +219,8 @@ function App() {
               </Suspense>
             </ErrorBoundary>
           ) : null}
+          </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* BrainGraph: mounted once on first visit, kept alive across tab switches.

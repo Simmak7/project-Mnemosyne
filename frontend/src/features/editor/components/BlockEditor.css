@@ -491,7 +491,7 @@
 /* ============================================
    Mobile Responsive
    ============================================ */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .ng-block-editor-toolbar {
     padding: 8px 12px;
   }
@@ -507,12 +507,7 @@
     font-size: 0.8rem;
   }
   .ng-block-editor-format {
-    padding: 6px 8px;
-    gap: 2px;
-  }
-  .ng-format-btn {
-    min-width: 36px;
-    height: 36px;
+    display: none;
   }
   .ng-block-editor-body {
     padding: 16px 12px;
@@ -597,4 +592,76 @@
 
 [data-theme="light"] .ng-block-editor-body::-webkit-scrollbar-thumb:hover {
   background: var(--ng-charcoal-500);
+}
+
+/* ============================================
+   Floating Format Toolbar (Mobile)
+   ============================================ */
+
+.ng-floating-format-toolbar {
+  position: fixed;
+  z-index: 1600;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: rgba(24, 24, 27, 0.95);
+  backdrop-filter: blur(var(--ng-blur-md, 8px));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  pointer-events: auto;
+}
+
+.ng-float-fmt-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ng-float-fmt-btn:active {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ng-float-fmt-btn.active {
+  color: var(--ng-accent-ai, #818cf8);
+  background: rgba(129, 140, 248, 0.15);
+}
+
+.ng-float-fmt-divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Light mode */
+[data-theme="light"] .ng-floating-format-toolbar {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .ng-float-fmt-btn {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] .ng-float-fmt-btn.active {
+  color: var(--ng-accent-ai, #6366f1);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+[data-theme="light"] .ng-float-fmt-divider {
+  background: rgba(0, 0, 0, 0.08);
 }

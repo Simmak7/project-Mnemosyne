@@ -86,7 +86,7 @@ def get_effective_rag_model(
 
     if prefs and prefs.rag_model:
         info = get_model_info(prefs.rag_model)
-        if info:
+        if info or is_model_available(prefs.rag_model):
             logger.debug(f"Using user RAG model preference: {prefs.rag_model}")
             model_id = prefs.rag_model
         else:
@@ -126,7 +126,7 @@ def get_effective_brain_model(
 
     if prefs and prefs.brain_model:
         info = get_model_info(prefs.brain_model)
-        if info:
+        if info or is_model_available(prefs.brain_model):
             logger.debug(f"Using user Brain model preference: {prefs.brain_model}")
             model_id = prefs.brain_model
         else:
@@ -167,7 +167,7 @@ def get_effective_nexus_model(
 
     if prefs and getattr(prefs, 'nexus_model', None):
         info = get_model_info(prefs.nexus_model)
-        if info:
+        if info or is_model_available(prefs.nexus_model):
             logger.debug(f"Using user NEXUS model preference: {prefs.nexus_model}")
             model_id = prefs.nexus_model
             if check_available:
@@ -264,8 +264,8 @@ def get_user_model_config(db: Session, user_id: int) -> dict:
 
 
 def validate_model_id(model_id: str) -> bool:
-    """Check if a model ID is valid (exists in registry)."""
-    return get_model_info(model_id) is not None
+    """Check if a model ID is valid (exists in registry or is installed in Ollama)."""
+    return get_model_info(model_id) is not None or is_model_available(model_id)
 
 
 def get_available_model_ids() -> list[str]:

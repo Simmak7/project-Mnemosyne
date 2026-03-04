@@ -3,10 +3,40 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { RefreshCw, Layers, Info, ChevronDown } from 'lucide-react';
 import { GraphCanvas } from '../components/GraphCanvas';
-import { ClusterOverlay } from '../components/ClusterOverlay';
 import { StatsBreakdown } from '../components/StatsBreakdown';
 import { useMapGraph, useGraphStats } from '../hooks/useGraphData';
 import './MapView.css';
+
+// Common words that don't describe a cluster meaningfully
+const COMMUNITY_STOP_WORDS = new Set([
+  'a', 'an', 'the', 'is', 'in', 'of', 'to', 'and', 'or', 'for',
+  'with', 'that', 'this', 'my', 'i', 'it', 'its', 'note', 'notes',
+  'daily', 'journal', 'entry', 'untitled', 'test', 'new', 'how',
+  'why', 'what', 'when', 'where', 'who', 'was', 'are', 'be', 'at',
+  'by', 'from', 'as', 'on', 'up', 'out', 'if', 'so', 'do', 'all',
+  'can', 'had', 'but', 'not', 'one', 'have', 'more', 'about', 'get',
+  'like', 'time', 'just', 'make', 'your', 'use', 'into', 'after',
+  'work', 'some', 'want', 'also', 'than', 'only', 'other',
+]);
+
+function buildCommunityLabel(community) {
+  if (!community.top_terms?.length) {
+    return community.label && community.label !== 'Unclustered'
+      ? community.label
+      : `Cluster ${community.id + 1}`;
+  }
+  const unique = [...new Set(community.top_terms.map((t) => t.toLowerCase()))]
+    .filter((t) => t.length > 2 && !COMMUNITY_STOP_WORDS.has(t));
+  if (unique.length === 0) {
+    return community.label && community.label !== 'Unclustered'
+      ? community.label
+      : `Cluster ${community.id + 1}`;
+  }
+  return unique
+    .slice(0, 3)
+    .map((t) => t.charAt(0).toUpperCase() + t.slice(1))
+    .join(' · ');
+}
 
 const COMMUNITY_COLORS = [
   '#818cf8', '#34d399', '#fbbf24', '#22d3ee',
@@ -17,7 +47,7 @@ export function MapView({ graphState, filters, layout, onExploreNode, onViewChan
   const containerRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [showStats, setShowStats] = useState(false);
-  const [legendOpen, setLegendOpen] = useState(true);
+  const [legendOpen, setLegendOpen] = useState(false);
 
   const { data, isLoading, error, refetch } = useMapGraph('all');
   const { data: stats } = useGraphStats();
@@ -76,9 +106,7 @@ export function MapView({ graphState, filters, layout, onExploreNode, onViewChan
           id: c.id,
           count: c.node_count,
           color: COMMUNITY_COLORS[c.id % COMMUNITY_COLORS.length],
-          label: c.top_terms?.length > 0
-            ? c.top_terms.slice(0, 3).join(', ')
-            : c.label || `Cluster ${c.id + 1}`,
+          label: buildCommunityLabel(c),
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 8);
@@ -101,19 +129,6 @@ export function MapView({ graphState, filters, layout, onExploreNode, onViewChan
       .slice(0, 8);
   }, [data]);
 
-  const clusterCentroids = useMemo(() => {
-    if (!graphData?.nodes || !communitySummary.length) return [];
-    return communitySummary.map((c) => {
-      const nodes = graphData.nodes.filter((n) => n.metadata?.communityId === c.id);
-      // Only compute centroid if nodes have actual positions (not all at 0,0)
-      const positioned = nodes.filter((n) => (n.fx ?? n.x) != null && ((n.fx ?? n.x) !== 0 || (n.fy ?? n.y) !== 0));
-      if (positioned.length < 2) return null;
-      const avgX = positioned.reduce((s, n) => s + (n.fx ?? n.x), 0) / positioned.length;
-      const avgY = positioned.reduce((s, n) => s + (n.fy ?? n.y), 0) / positioned.length;
-      return { ...c, x: avgX, y: avgY };
-    }).filter(Boolean);
-  }, [graphData, communitySummary]);
-
   const handleRefresh = useCallback(() => {
     refetch().then(() => {
       // After fresh data arrives, clear user-dragged positions and restart layout
@@ -126,13 +141,13 @@ export function MapView({ graphState, filters, layout, onExploreNode, onViewChan
     });
   }, [refetch, layout]);
 
-  // Auto-fit to view after initial data load
+  // Auto-fit to view after initial data load (only when data changes, not on re-renders)
   useEffect(() => {
     if (graphData && layout.graphRef?.current) {
       const timer = setTimeout(() => layout.fitToView(40), 800);
       return () => clearTimeout(timer);
     }
-  }, [graphData, layout]);
+  }, [graphData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleNodeDoubleClick = useCallback((node) => {
     if (onExploreNode && node) onExploreNode(node.id);
@@ -202,18 +217,15 @@ export function MapView({ graphState, filters, layout, onExploreNode, onViewChan
       )}
 
       {graphData && !isLoading && (
-        <>
-          <GraphCanvas
-            graphData={graphData}
-            graphState={mapGraphState}
-            layout={layout}
-            filters={filters}
-            width={dimensions.width}
-            height={dimensions.height}
-            onViewChange={onViewChange}
-          />
-          <ClusterOverlay centroids={clusterCentroids} graphRef={layout.graphRef} />
-        </>
+        <GraphCanvas
+          graphData={graphData}
+          graphState={mapGraphState}
+          layout={layout}
+          filters={filters}
+          width={dimensions.width}
+          height={dimensions.height}
+          onViewChange={onViewChange}
+        />
       )}
     </div>
   );

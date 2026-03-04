@@ -247,7 +247,7 @@
 }
 
 /* Mobile: Compact insights */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .insights-header {
     padding: 10px 12px;
   }

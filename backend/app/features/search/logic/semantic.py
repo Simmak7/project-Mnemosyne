@@ -35,7 +35,8 @@ def semantic_search(
     query: str,
     owner_id: int,
     limit: int = 10,
-    threshold: float = 0.5
+    threshold: float = 0.5,
+    query_embedding: list = None
 ) -> List[Dict[str, Any]]:
     """
     Search notes by semantic similarity to a text query.
@@ -58,8 +59,9 @@ def semantic_search(
     """
     logger.info(f"Semantic search: owner={owner_id}, query='{query[:50]}...', threshold={threshold}")
 
-    # Generate embedding for query
-    query_embedding = generate_embedding(query)
+    # Generate embedding for query (use pre-generated if provided)
+    if query_embedding is None:
+        query_embedding = generate_embedding(query)
 
     if not query_embedding:
         logger.error("Failed to generate query embedding")
@@ -324,7 +326,8 @@ def semantic_search_document_chunks(
     query: str,
     owner_id: int,
     limit: int = 10,
-    threshold: float = 0.5
+    threshold: float = 0.5,
+    query_embedding: list = None
 ) -> List[Dict[str, Any]]:
     """
     Search document chunks by semantic similarity to a query.
@@ -344,7 +347,8 @@ def semantic_search_document_chunks(
     """
     logger.info(f"Document chunk search: owner={owner_id}, query='{query[:50]}...'")
 
-    query_embedding = generate_embedding(query)
+    if query_embedding is None:
+        query_embedding = generate_embedding(query)
     if not query_embedding:
         logger.error("Failed to generate query embedding for document search")
         return []

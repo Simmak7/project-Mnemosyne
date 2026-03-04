@@ -133,7 +133,7 @@
 }
 
 /* Responsive */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .gallery-search-bar {
     flex-wrap: nowrap;
     padding: 6px 10px;

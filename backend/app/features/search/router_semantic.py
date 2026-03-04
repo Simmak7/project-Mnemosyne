@@ -15,6 +15,7 @@ from features.search.logic.semantic import (
     find_similar_notes,
     find_unlinked_mentions,
 )
+from features.search.logic.embeddings import generate_embedding
 
 logger = logging.getLogger(__name__)
 
@@ -36,21 +37,28 @@ async def semantic_search_endpoint(
     )
 
     try:
+        # Generate embedding once for both searches
+        query_embedding = generate_embedding(query)
+        if not query_embedding:
+            raise ValueError("Failed to generate query embedding. Ollama service may be unavailable.")
+
         results = semantic_search(
             db=db,
             query=query,
             owner_id=current_user.id,
             limit=limit,
-            threshold=threshold
+            threshold=threshold,
+            query_embedding=query_embedding
         )
 
-        # Also search document chunks
+        # Also search document chunks (reuse same embedding)
         doc_results = semantic_search_document_chunks(
             db=db,
             query=query,
             owner_id=current_user.id,
             limit=max(5, limit // 2),
-            threshold=threshold
+            threshold=threshold,
+            query_embedding=query_embedding
         )
 
         # Convert note results

@@ -1,10 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { Brain, LayoutDashboard, LogOut, Settings as SettingsIcon, ChevronUp, Search, Sparkles, Upload, Image, FileText, BookOpen, FileScan, Sun, Moon, SlidersHorizontal } from 'lucide-react';
-import Settings from './Settings';
 import SidebarCustomizer from './SidebarCustomizer';
 import AIStatusIndicator from './toast/AIStatusIndicator';
 import { useSidebarConfig } from '../hooks/useSidebarConfig';
 import './Sidebar.css';
+
+const Settings = lazy(() => import('./Settings'));
 
 function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onToggleDarkMode, onOpenSearch, onLogoClick }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -208,11 +209,15 @@ function Sidebar({ activeTab, onTabChange, username, onLogout, isDarkMode, onTog
         </div>
       </div>
 
-      <Settings
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        username={username}
-      />
+      {showSettings && (
+        <Suspense fallback={null}>
+          <Settings
+            isOpen={showSettings}
+            onClose={() => setShowSettings(false)}
+            username={username}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

@@ -242,6 +242,47 @@
 }
 
 /* ============================================
+   Mobile Overrides
+   ============================================ */
+
+@media (max-width: 768px) {
+  .map-view__legend {
+    max-width: 140px;
+    padding: var(--ng-space-2, 8px);
+    font-size: 10px;
+  }
+
+  .map-view__legend-hint {
+    font-size: 9px;
+    max-width: 130px;
+  }
+
+  .map-view__legend-items {
+    max-width: 130px;
+    max-height: 160px;
+    overflow-y: auto;
+  }
+
+  .map-view__legend-item {
+    padding: 2px 6px;
+    gap: 3px;
+  }
+
+  .map-view__legend-dot {
+    width: 6px;
+    height: 6px;
+  }
+
+  .map-view__legend-label {
+    font-size: 10px;
+  }
+
+  .map-view__legend-count {
+    font-size: 9px;
+  }
+}
+
+/* ============================================
    Light Mode Overrides
    ============================================ */
 

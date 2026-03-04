@@ -1,0 +1,103 @@
+/* ============================================
+   Mobile Floating Action Button
+   Quick-create FAB above bottom nav.
+   ============================================ */
+
+.mobile-fab-container {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-fab-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    position: fixed;
+    bottom: calc(var(--ng-mobile-bottom-nav-height, 56px) + var(--ng-safe-area-bottom, 0px) + 16px);
+    right: calc(16px + var(--ng-safe-area-right, 0px));
+    z-index: 890;
+  }
+
+  /* Backdrop when FAB menu is open */
+  .fab-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+  }
+
+  /* Main FAB button */
+  .fab-main {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--ng-accent-ai, #818cf8), #a78bfa);
+    color: white;
+    box-shadow:
+      0 4px 16px rgba(129, 140, 248, 0.35),
+      0 1px 3px rgba(0, 0, 0, 0.2);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fab-main:active {
+    transform: scale(0.95);
+  }
+
+  /* Action items (fan out upward) */
+  .fab-action {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fab-action-label {
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(var(--ng-blur-md, 8px));
+    -webkit-backdrop-filter: blur(var(--ng-blur-md, 8px));
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .fab-action-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+  }
+
+  .fab-action:active .fab-action-icon {
+    transform: scale(0.92);
+  }
+
+  /* Hide when keyboard is open */
+  .mobile-fab-container.keyboard-open {
+    display: none;
+  }
+
+  /* Light theme */
+  [data-theme="light"] .fab-action-label,
+  :root:not([data-theme="dark"]) .fab-action-label {
+    background: rgba(255, 255, 255, 0.92);
+    color: rgba(0, 0, 0, 0.8);
+  }
+}

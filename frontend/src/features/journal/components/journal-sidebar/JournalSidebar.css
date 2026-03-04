@@ -270,7 +270,7 @@
 }
 
 /* Mobile: Compact sidebar */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .journal-sidebar-header {
     padding: 10px 12px;
   }

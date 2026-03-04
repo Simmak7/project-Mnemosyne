@@ -109,7 +109,13 @@ async def get_image_file(
             raise exceptions.FileNotFoundException("Image file not found on disk")
 
         logger.debug(f"Serving image {image_id} to user {current_user.username}")
-        return FileResponse(image.filepath)
+        from hashlib import md5
+        etag = md5(f"{image.id}".encode()).hexdigest()
+        headers = {
+            "Cache-Control": "private, max-age=86400",
+            "ETag": f'"{etag}"',
+        }
+        return FileResponse(image.filepath, headers=headers)
 
     except exceptions.AppException:
         raise

@@ -2,7 +2,7 @@
 .markdown-editor-container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 120px);
+  height: calc(var(--ng-viewport-height, 100vh) - 120px);
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -201,7 +201,7 @@
 /* Responsive */
 @media (max-width: 768px) {
   .markdown-editor-container {
-    height: calc(100vh - 100px);
+    height: calc(var(--ng-viewport-height, 100vh) - 100px);
   }
 
   .editor-header {

@@ -32,7 +32,7 @@ function AlbumPicker({ imageIds, onClose, anchorRect }) {
     const pickerWidth = 240; // approximate width
     const padding = 8;
 
-    const viewportHeight = window.innerHeight;
+    const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
     const viewportWidth = window.innerWidth;
 
     // Check if there's enough space below

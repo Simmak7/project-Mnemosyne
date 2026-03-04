@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { X, Globe, Github } from 'lucide-react';
 import { useSettingsData } from './hooks/useSettingsData';
 
 // Modals
@@ -133,7 +133,15 @@ function Settings({ isOpen, onClose, username, userEmail }) {
         </div>
 
         <div className="settings-footer">
-          <p className="settings-version">Mnemosyne v1.1.3</p>
+          <p className="settings-version">Mnemosyne v1.1.4</p>
+          <div className="settings-footer-links">
+            <a href="https://zumfi.net" target="_blank" rel="noopener noreferrer" className="settings-footer-link">
+              <Globe size={14} /> Website
+            </a>
+            <a href="https://github.com/Simmak7/project-Mnemosyne" target="_blank" rel="noopener noreferrer" className="settings-footer-link">
+              <Github size={14} /> GitHub
+            </a>
+          </div>
         </div>
       </div>
 

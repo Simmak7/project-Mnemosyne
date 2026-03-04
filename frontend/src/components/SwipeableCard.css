@@ -1,0 +1,64 @@
+/* SwipeableCard - Swipe-to-reveal action wrapper */
+
+.swipeable-card-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ng-radius-lg, 12px);
+  flex-shrink: 0;
+}
+
+.swipeable-card-content {
+  position: relative;
+  z-index: 2;
+  will-change: transform;
+}
+
+.swipeable-card-content.animating {
+  transition: transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Action buttons behind the card */
+.swipe-action {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.swipe-action-left {
+  left: 0;
+  border-radius: var(--ng-radius-lg, 12px) 0 0 var(--ng-radius-lg, 12px);
+  opacity: 0;
+}
+
+.swipe-action-right {
+  right: 0;
+  border-radius: 0 var(--ng-radius-lg, 12px) var(--ng-radius-lg, 12px) 0;
+  opacity: 0;
+}
+
+.swipeable-card-container.swiping .swipe-action-left,
+.swipeable-card-container.swiping .swipe-action-right {
+  opacity: 1;
+}
+
+.swipe-action-label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.swipe-action:active {
+  opacity: 0.85;
+}

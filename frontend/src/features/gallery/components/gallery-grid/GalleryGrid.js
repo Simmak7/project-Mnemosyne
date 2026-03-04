@@ -5,6 +5,9 @@ import ImageLightbox from '../ImageLightbox';
 import { useGalleryGridState, useContainerWidth, useScrollTimeline, useLightbox } from './hooks';
 import { EmptyState, GridHeader, LoadingState, VirtualizedRow } from './components';
 import { calculateLayoutRows, getDateGroups, getTimelineMarkers } from './utils';
+import { useIsMobile } from '../../../../hooks/useIsMobile';
+import { usePullToRefresh } from '../../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../../../../components/PullToRefreshIndicator';
 import '../GalleryGrid.css';
 
 /**
@@ -30,6 +33,7 @@ function GalleryGrid({
 }) {
   const containerRef = useRef(null);
   const containerWidth = useContainerWidth(containerRef);
+  const isMobile = useIsMobile();
 
   // Gallery state hook
   const {
@@ -40,6 +44,7 @@ function GalleryGrid({
     isTrashView,
     isAlbumView,
     currentAlbum,
+    refetch,
     toggleFavorite,
     moveToTrash,
     restoreFromTrash,
@@ -70,6 +75,10 @@ function GalleryGrid({
     onClearImageSelection,
     renameImage,
   });
+
+  // Pull-to-refresh (mobile only)
+  const { pullDistance, isRefreshing, progress, handlers: ptrHandlers } =
+    usePullToRefresh(refetch, { enabled: isMobile });
 
   // Calculate layout
   const dateGroups = useMemo(
@@ -142,7 +151,9 @@ function GalleryGrid({
           ref={containerRef}
           className="gallery-scroll-container"
           onScroll={handleScroll}
+          {...(isMobile ? ptrHandlers : {})}
         >
+          <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} progress={progress} />
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,

@@ -488,9 +488,9 @@
   overflow-x: hidden;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .document-layout {
-    height: calc(var(--ng-viewport-height, 100vh) - var(--ng-mobile-bottom-nav-height, 56px) - var(--ng-mobile-tab-bar-height, 44px));
+    height: calc(var(--ng-viewport-height, 100vh) - var(--ng-mobile-bottom-nav-height, 56px));
   }
 
   .document-header {

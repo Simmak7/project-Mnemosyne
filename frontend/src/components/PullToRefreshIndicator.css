@@ -1,0 +1,40 @@
+/* Pull-to-Refresh Indicator */
+.ptr-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: height 0.2s ease;
+}
+
+.ptr-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(129, 140, 248, 0.1);
+  border: 2px solid rgba(129, 140, 248, 0.3);
+  color: var(--ng-accent-ai, #818cf8);
+  transition: transform 0.1s ease;
+}
+
+.ptr-spinner.spinning {
+  animation: ptr-spin 0.8s linear infinite;
+  border-color: var(--ng-accent-ai, #818cf8);
+  box-shadow: 0 0 12px rgba(129, 140, 248, 0.3);
+}
+
+@keyframes ptr-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Light theme */
+[data-theme="light"] .ptr-spinner,
+:root:not([data-theme="dark"]) .ptr-spinner {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.2);
+  color: var(--ng-accent-ai, #6366f1);
+}

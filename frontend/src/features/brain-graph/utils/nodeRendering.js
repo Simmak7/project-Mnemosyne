@@ -141,8 +141,8 @@ export function renderNodeLabel(ctx, node, globalScale, state = {}) {
   if (!shouldShow) return;
 
   const size = getNodeSize(node);
-  const fontSize = Math.max(10, 12 / globalScale);
-  const label = truncateLabel(node.title || node.id, 20);
+  const fontSize = Math.max(7, 9 / globalScale);
+  const label = truncateLabel(node.title || node.id, 18);
 
   ctx.save();
 

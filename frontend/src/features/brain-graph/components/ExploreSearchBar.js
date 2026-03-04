@@ -1,8 +1,8 @@
 /**
- * ExploreSearchBar - Search bar with node autocomplete for ExploreView
+ * ExploreSearchBar - Combined search + refresh bar for ExploreView
  *
- * Uses useNodeSearch to search the graph API and show a dropdown
- * of matching nodes. Selecting a result focuses on that node.
+ * Single unified pill with search icon, text input, optional clear,
+ * and an integrated refresh button on the right.
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
@@ -51,15 +51,16 @@ export function ExploreSearchBar({ onFocusNode, onRefresh, isRefreshing, onSearc
 
   return (
     <div className="explore-view__search" ref={containerRef}>
-      <div className="explore-view__search-form">
-        <Search size={16} className="explore-view__search-icon" />
+      {/* Single combined pill: search + refresh */}
+      <div className="explore-view__search-bar">
+        <Search size={15} className="explore-view__search-icon" />
         <input
           type="text"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setShowDropdown(true); }}
           onFocus={() => query.length >= 2 && setShowDropdown(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search all nodes..."
+          placeholder="Search nodes..."
           className="explore-view__search-input"
         />
         {query && (
@@ -67,20 +68,21 @@ export function ExploreSearchBar({ onFocusNode, onRefresh, isRefreshing, onSearc
             type="button"
             onClick={() => { setQuery(''); setShowDropdown(false); }}
             className="explore-view__search-clear"
+            title="Clear"
           >
-            Clear
+            ×
           </button>
         )}
+        <button
+          type="button"
+          onClick={onRefresh}
+          className="explore-view__refresh"
+          title="Refresh graph"
+          disabled={isRefreshing}
+        >
+          <RefreshCw size={15} className={isRefreshing ? 'is-spinning' : ''} />
+        </button>
       </div>
-
-      <button
-        onClick={onRefresh}
-        className="explore-view__refresh"
-        title="Refresh graph"
-        disabled={isRefreshing}
-      >
-        <RefreshCw size={16} className={isRefreshing ? 'is-spinning' : ''} />
-      </button>
 
       {/* Search Results Dropdown */}
       {showDropdown && query.length >= 2 && (

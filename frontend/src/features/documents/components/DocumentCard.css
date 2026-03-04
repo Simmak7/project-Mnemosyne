@@ -88,3 +88,74 @@
   gap: 3px;
   font-weight: 500;
 }
+
+/* Mobile - touch-friendly document card */
+@media (max-width: 768px) {
+  .document-card {
+    padding: 12px;
+    gap: 12px;
+    border-radius: 12px;
+    min-height: 64px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+
+  .document-card:hover {
+    transform: none;
+  }
+
+  .document-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+
+  .document-card.selected {
+    border-left: 3px solid rgba(251, 113, 133, 0.6);
+  }
+
+  .document-card-thumb {
+    width: 48px;
+    height: 60px;
+    border-radius: 6px;
+  }
+
+  .document-card-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    white-space: normal;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .document-card-meta {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+    font-size: 0.72rem;
+  }
+
+  .document-card-status {
+    gap: 4px;
+  }
+}
+
+/* Light mode */
+[data-theme="light"] .document-card {
+  box-shadow: var(--ng-shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+[data-theme="light"] .document-card:hover {
+  box-shadow: var(--ng-shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+@media (max-width: 768px) {
+  [data-theme="light"] .document-card,
+  :root:not([data-theme="dark"]) .document-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+}

@@ -845,7 +845,7 @@
 }
 
 /* Responsive */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .note-detail-header {
     padding: 8px 12px;
   }

@@ -217,14 +217,15 @@
   background: #ffffff;
 }
 
-/* Mobile: Compact calendar */
-@media (max-width: 767px) {
+/* Mobile: Compact calendar — remove aspect-ratio to save vertical space */
+@media (max-width: 768px) {
   .mini-calendar {
-    padding: 8px;
+    padding: 6px 8px;
+    flex-shrink: 0;
   }
 
   .mini-calendar-header {
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
 
   .mini-calendar-title {
@@ -243,11 +244,12 @@
 
   .calendar-weekday {
     font-size: 9px;
-    padding: 2px 0;
+    padding: 1px 0;
   }
 
   .calendar-day {
     padding: 1px;
+    aspect-ratio: auto;
   }
 
   .calendar-day-number {
@@ -255,7 +257,7 @@
   }
 
   .calendar-day-dots {
-    height: 4px;
+    height: 3px;
   }
 
   .calendar-dot {

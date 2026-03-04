@@ -407,7 +407,7 @@
 /* ============================================
    Mobile Responsive
    ============================================ */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .gallery-sidebar {
     padding: var(--ng-space-3, 12px);
   }

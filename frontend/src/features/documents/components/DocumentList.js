@@ -2,9 +2,12 @@
  * DocumentList - Filterable list of document cards with grouping support
  */
 
-import React from 'react';
-import { Loader2 } from 'lucide-react';
+import React, { useCallback } from 'react';
+import { Loader2, Trash2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import DocumentCard from './DocumentCard';
+import SwipeableCard from '../../../components/SwipeableCard';
+import { api } from '../../../utils/api';
 
 import './DocumentList.css';
 
@@ -18,6 +21,22 @@ const GROUP_LABELS = {
 };
 
 function DocumentList({ documents, groupedDocs, isLoading, error, selectedDocId, onSelect }) {
+  const queryClient = useQueryClient();
+
+  const handleSwipeDelete = useCallback(async (docId) => {
+    try {
+      await api.delete(`/documents/${docId}`);
+      queryClient.invalidateQueries({ queryKey: ['documents'] });
+    } catch { /* ignore */ }
+  }, [queryClient]);
+
+  const deleteAction = useCallback((docId) => ({
+    icon: <Trash2 size={20} />,
+    label: 'Delete',
+    color: '#dc2626',
+    onAction: () => handleSwipeDelete(docId),
+  }), [handleSwipeDelete]);
+
   if (isLoading) {
     return (
       <div className="document-list-loading">
@@ -60,12 +79,13 @@ function DocumentList({ documents, groupedDocs, isLoading, error, selectedDocId,
               </span>
             </div>
             {groupedDocs[group].map(doc => (
-              <DocumentCard
-                key={doc.id}
-                document={doc}
-                isSelected={doc.id === selectedDocId}
-                onClick={() => onSelect(doc.id)}
-              />
+              <SwipeableCard key={doc.id} rightAction={deleteAction(doc.id)}>
+                <DocumentCard
+                  document={doc}
+                  isSelected={doc.id === selectedDocId}
+                  onClick={() => onSelect(doc.id)}
+                />
+              </SwipeableCard>
             ))}
           </div>
         ))}
@@ -77,12 +97,13 @@ function DocumentList({ documents, groupedDocs, isLoading, error, selectedDocId,
   return (
     <div className="document-list">
       {documents.map(doc => (
-        <DocumentCard
-          key={doc.id}
-          document={doc}
-          isSelected={doc.id === selectedDocId}
-          onClick={() => onSelect(doc.id)}
-        />
+        <SwipeableCard key={doc.id} rightAction={deleteAction(doc.id)}>
+          <DocumentCard
+            document={doc}
+            isSelected={doc.id === selectedDocId}
+            onClick={() => onSelect(doc.id)}
+          />
+        </SwipeableCard>
       ))}
     </div>
   );

@@ -82,13 +82,12 @@ export function useGraphLayout(initialPreset = 'explore') {
     }
   }, []);
 
-  // Center on a specific node
+  // Center on a specific node without changing zoom level
   const centerOnNode = useCallback((nodeId) => {
     if (graphRef.current) {
       const node = graphRef.current.graphData?.().nodes.find((n) => n.id === nodeId);
       if (node) {
         graphRef.current.centerAt?.(node.x, node.y, 500);
-        graphRef.current.zoom?.(2, 500);
       }
     }
   }, []);

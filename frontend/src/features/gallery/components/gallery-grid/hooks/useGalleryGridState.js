@@ -25,6 +25,7 @@ export function useGalleryGridState({
   const {
     images,
     isLoading,
+    refetch,
     toggleFavorite,
     moveToTrash,
     restoreFromTrash,
@@ -147,6 +148,7 @@ export function useGalleryGridState({
     isTrashView,
     isAlbumView,
     currentAlbum,
+    refetch,
     toggleFavorite,
     moveToTrash,
     restoreFromTrash,

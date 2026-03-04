@@ -14,6 +14,8 @@ import {
 
 import { useIsMobile } from '../../../hooks/useIsMobile';
 import { useSwipeNavigation } from '../../../hooks/useSwipeNavigation';
+import { usePullToRefresh } from '../../../hooks/usePullToRefresh';
+import PullToRefreshIndicator from '../../../components/PullToRefreshIndicator';
 import MobilePanelTabs from '../../../components/MobilePanelTabs';
 import DocumentList from './DocumentList';
 import ReviewPanel from './ReviewPanel';
@@ -64,8 +66,11 @@ function DocumentLayout({ onNavigateToNote, selectedDocumentId, onClearSelection
   const [selectedCollectionId, setSelectedCollectionId] = useState(null);
   const [collectionsExpanded, setCollectionsExpanded] = useState(!isMobile);
 
-  const { data, isLoading, error } = useDocuments(statusFilter, sortBy, sortOrder, selectedCollectionId);
+  const { data, isLoading, error, refetch } = useDocuments(statusFilter, sortBy, sortOrder, selectedCollectionId);
   const documents = useMemo(() => data?.documents || [], [data]);
+
+  const { pullDistance, isRefreshing, progress, handlers: ptrHandlers } =
+    usePullToRefresh(refetch, { enabled: isMobile && mobilePanel === 'list' });
 
   const { collections, deleteCollection, createCollection, isCreating } = useCollections();
 
@@ -245,7 +250,10 @@ function DocumentLayout({ onNavigateToNote, selectedDocumentId, onClearSelection
           </div>
         </div>
         <MobilePanelTabs panels={MOBILE_PANELS} activePanel={mobilePanel} onPanelChange={setMobilePanel} />
-        <div className="document-mobile-content" {...swipeHandlers}>
+        <div className="document-mobile-content" {...swipeHandlers} {...(mobilePanel === 'list' ? ptrHandlers : {})}>
+          {mobilePanel === 'list' && (
+            <PullToRefreshIndicator pullDistance={pullDistance} isRefreshing={isRefreshing} progress={progress} />
+          )}
           {mobilePanel === 'list' && listPanel}
           {mobilePanel === 'review' && detailPanel}
         </div>

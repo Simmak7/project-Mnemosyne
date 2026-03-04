@@ -132,7 +132,7 @@
 }
 
 /* Mobile */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .dashboard-header {
     flex-direction: row;
     flex-wrap: nowrap;

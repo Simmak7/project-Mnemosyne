@@ -285,15 +285,64 @@
 
 .model-custom-progress {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.35rem;
   margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
   font-size: 0.78rem;
   color: var(--text-secondary, #94a3b8);
 }
 
+.model-custom-progress--error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.model-custom-progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.model-custom-progress-name {
+  font-weight: 500;
+  color: var(--text-primary, #e2e8f0);
+  word-break: break-all;
+}
+
+.model-custom-progress-dismiss {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted, #64748b);
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.model-custom-progress-dismiss:hover {
+  color: var(--text-secondary, #94a3b8);
+}
+
+.model-custom-progress-error {
+  color: var(--color-error, #ef4444);
+  font-size: 0.75rem;
+  word-break: break-word;
+}
+
+.model-custom-retry {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+}
+
 .model-custom-progress .model-progress-bar {
-  flex: 1;
+  width: 100%;
 }
 
 /* Header layout for tabs + check updates button */
