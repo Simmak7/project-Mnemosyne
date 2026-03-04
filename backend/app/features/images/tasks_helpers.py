@@ -156,13 +156,17 @@ def extract_summary_from_analysis(ai_analysis: str) -> str:
     """
     Extract just the summary section from AI analysis.
 
+    Strips structural STEP headers and prompt artifacts,
+    keeping only descriptive content.
+
     Args:
         ai_analysis: Full AI analysis text
 
     Returns:
         Cleaned summary text
     """
-    return ai_analysis.strip()
+    from features.images.tasks_cleanup import clean_analysis_text
+    return clean_analysis_text(ai_analysis)
 
 
 def format_note_content(ai_analysis: str, tags: List[str], wikilinks: List[str] = None) -> str:

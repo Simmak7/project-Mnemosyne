@@ -391,6 +391,8 @@ class UserPreferences(Base):
     vision_model = Column(String(100), nullable=True)  # User's preferred vision model
     # Phase 4: Pinned brain topics for topic selection UI
     pinned_brain_topics = Column(JSONB, default=list)  # ["cooking", "travel", ...]
+    # Custom vision analysis prompt (overrides system default)
+    custom_vision_prompt = Column(Text, nullable=True)
     # Cloud AI preferences
     cloud_ai_enabled = Column(Boolean, default=False)
     cloud_ai_provider = Column(String(20), nullable=True)

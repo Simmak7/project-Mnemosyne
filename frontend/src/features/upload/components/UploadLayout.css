@@ -120,6 +120,7 @@
   padding: var(--ng-space-4, 1rem);
   border-top: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
   background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
+  flex-shrink: 0;
 }
 
 .upload-action-btn {

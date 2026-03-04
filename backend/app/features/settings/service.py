@@ -78,6 +78,7 @@ def update_user_preferences(
     brain_model: Optional[str] = None,
     nexus_model: Optional[str] = None,
     vision_model: Optional[str] = None,
+    custom_vision_prompt: Optional[str] = None,
     cloud_ai_enabled: Optional[bool] = None,
     cloud_ai_provider: Optional[str] = None,
     cloud_rag_model: Optional[str] = None,
@@ -158,6 +159,10 @@ def update_user_preferences(
         else:
             return None, f"Invalid vision model: {vision_model}"
 
+    # Custom vision prompt (empty string = reset to default)
+    if custom_vision_prompt is not None:
+        preferences.custom_vision_prompt = custom_vision_prompt.strip() or None
+
     # Cloud AI preferences
     if cloud_ai_enabled is not None:
         preferences.cloud_ai_enabled = cloud_ai_enabled
@@ -213,6 +218,7 @@ def reset_user_preferences(db: Session, user: models.User) -> models.UserPrefere
         preferences.default_view = "notes"
         preferences.rag_model = None  # Reset to system default
         preferences.brain_model = None  # Reset to system default
+        preferences.custom_vision_prompt = None  # Reset to default prompt
         preferences.updated_at = datetime.now(timezone.utc)
 
         db.commit()

@@ -6,7 +6,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { DEFAULT_MODEL, isValidModelKey } from '../utils/modelMapper';
 import { UPLOAD_FLAGS } from '../utils/featureFlags';
-import { API_URL } from '../../../utils/api';
+import api, { API_URL } from '../../../utils/api';
 
 const STORAGE_KEY = 'mnemosyne_upload_config';
 
@@ -67,16 +67,22 @@ function saveConfig(config) {
 export function useAnalysisConfig() {
   const [config, setConfig] = useState(loadConfig);
   const [visionModel, setVisionModel] = useState(null);
+  const [systemPromptData, setSystemPromptData] = useState({
+    defaultPrompt: '',
+    customPrompt: null,
+    isCustom: false,
+  });
+  const [isSavingPrompt, setIsSavingPrompt] = useState(false);
   const fetchedRef = useRef(false);
 
-  // Fetch active vision model from /models endpoint
+  // Fetch active vision model and system prompt on mount
   useEffect(() => {
     if (fetchedRef.current) return;
     fetchedRef.current = true;
-    fetch(`${API_URL}/models`, { credentials: 'include' })
-      .then(res => res.ok ? res.json() : null)
+
+    // Fetch vision model info
+    api.get('/models')
       .then(data => {
-        if (!data) return;
         const modelId = data.current_vision_model;
         const modelInfo = data.models?.find(m => m.id === modelId);
         setVisionModel({
@@ -84,6 +90,17 @@ export function useAnalysisConfig() {
           name: modelInfo?.name || modelId,
           parameters: modelInfo?.parameters || '',
           is_available: modelInfo?.is_available ?? true,
+        });
+      })
+      .catch(() => {});
+
+    // Fetch system prompt
+    api.get('/settings/analysis-prompt')
+      .then(data => {
+        setSystemPromptData({
+          defaultPrompt: data.default_prompt || '',
+          customPrompt: data.custom_prompt || null,
+          isCustom: data.is_custom || false,
         });
       })
       .catch(() => {});
@@ -175,6 +192,44 @@ export function useAnalysisConfig() {
   }, [updateConfig]);
 
   /**
+   * Save custom system prompt
+   */
+  const saveSystemPrompt = useCallback(async (promptText) => {
+    setIsSavingPrompt(true);
+    try {
+      await api.patch('/settings/preferences', { custom_vision_prompt: promptText });
+      setSystemPromptData(prev => ({
+        ...prev,
+        customPrompt: promptText,
+        isCustom: true,
+      }));
+    } catch (e) {
+      console.error('Failed to save system prompt:', e);
+    } finally {
+      setIsSavingPrompt(false);
+    }
+  }, []);
+
+  /**
+   * Reset system prompt to default
+   */
+  const resetSystemPrompt = useCallback(async () => {
+    setIsSavingPrompt(true);
+    try {
+      await api.patch('/settings/preferences', { custom_vision_prompt: '' });
+      setSystemPromptData(prev => ({
+        ...prev,
+        customPrompt: null,
+        isCustom: false,
+      }));
+    } catch (e) {
+      console.error('Failed to reset system prompt:', e);
+    } finally {
+      setIsSavingPrompt(false);
+    }
+  }, []);
+
+  /**
    * Reset to defaults
    */
   const resetConfig = useCallback(() => {
@@ -229,6 +284,8 @@ export function useAnalysisConfig() {
     // State
     config,
     visionModel,
+    systemPromptData,
+    isSavingPrompt,
 
     // Individual setters
     setModel,
@@ -240,6 +297,10 @@ export function useAnalysisConfig() {
     setMaxTags,
     setTargetAlbum,
     setAutoCreateNote,
+
+    // System prompt
+    saveSystemPrompt,
+    resetSystemPrompt,
 
     // Bulk operations
     updateConfig,

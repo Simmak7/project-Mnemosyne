@@ -36,6 +36,7 @@ from features.images.tasks_enrichment import (
     create_and_link_note,
     add_to_album,
 )
+from features.images.tasks_cleanup import clean_analysis_text
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,7 @@ def analyze_image_task(
     max_tags: int = 10,
     auto_create_note: bool = True,
     vision_model: str = None,
+    system_prompt_override: str = None,
 ) -> dict:
     """
     Celery task to analyze an image with Ollama AI in the background.
@@ -92,14 +94,21 @@ def analyze_image_task(
         crud.update_image_analysis_result(db=self.db, image_id=image_id, status="processing")
 
         # Call AI model via ModelRouter (with optional user-selected vision model)
-        router = ModelRouter(ollama_host=config.OLLAMA_HOST, vision_model=vision_model)
+        router = ModelRouter(
+            ollama_host=config.OLLAMA_HOST,
+            vision_model=vision_model,
+            system_prompt_override=system_prompt_override,
+        )
         result = _call_model_router(router, image_path, prompt)
 
         if result.get("status") != "success":
             return _handle_router_error(self, image_id, result)
 
-        analysis_text = result.get("response", "No response from AI")
+        raw_analysis = result.get("response", "No response from AI")
         logger.info(f"[Task {self.request.id}] AI analysis successful for image {image_id}")
+
+        # Clean structural headers from the analysis text
+        analysis_text = clean_analysis_text(raw_analysis)
 
         # ── Phase 1: Commit core analysis (must succeed) ──
         # Image analysis data is committed BEFORE any tag/note operations

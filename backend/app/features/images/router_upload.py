@@ -98,16 +98,20 @@ async def upload_image(
         )
         logger.info(f"Image saved: {unique_filename} (ID: {image_data.id}) for user {current_user.username}")
 
-        # Resolve user's vision model preference
+        # Resolve user's vision model and custom prompt preferences
         user_vision_model = None
+        user_system_prompt = None
         try:
             prefs = db.query(models.UserPreferences).filter(
                 models.UserPreferences.user_id == current_user.id
             ).first()
-            if prefs and getattr(prefs, "vision_model", None):
-                user_vision_model = prefs.vision_model
+            if prefs:
+                if getattr(prefs, "vision_model", None):
+                    user_vision_model = prefs.vision_model
+                if getattr(prefs, "custom_vision_prompt", None):
+                    user_system_prompt = prefs.custom_vision_prompt
         except Exception:
-            pass  # Fall back to default if preference lookup fails
+            pass  # Fall back to defaults if preference lookup fails
 
         task_id = None
         try:
@@ -120,6 +124,7 @@ async def upload_image(
                 max_tags=max_tags,
                 auto_create_note=auto_create_note,
                 vision_model=user_vision_model,
+                system_prompt_override=user_system_prompt,
             )
             logger.info(f"AI analysis task queued for image {image_data.id}, task_id: {task.id}, album_id: {album_id}")
             task_id = task.id
@@ -188,14 +193,18 @@ async def retry_image_analysis(
             result=None
         )
 
-        # Resolve user's vision model preference for retry
+        # Resolve user's vision model and custom prompt for retry
         retry_vision_model = None
+        retry_system_prompt = None
         try:
             prefs = db.query(models.UserPreferences).filter(
                 models.UserPreferences.user_id == current_user.id
             ).first()
-            if prefs and getattr(prefs, "vision_model", None):
-                retry_vision_model = prefs.vision_model
+            if prefs:
+                if getattr(prefs, "vision_model", None):
+                    retry_vision_model = prefs.vision_model
+                if getattr(prefs, "custom_vision_prompt", None):
+                    retry_system_prompt = prefs.custom_vision_prompt
         except Exception:
             pass
 
@@ -204,6 +213,7 @@ async def retry_image_analysis(
             image_path=image.filepath,
             prompt=image.prompt or "Analyze this image",
             vision_model=retry_vision_model,
+            system_prompt_override=retry_system_prompt,
         )
 
         logger.info(f"Retry: AI analysis task queued for image {image_id}, task_id: {task.id}")

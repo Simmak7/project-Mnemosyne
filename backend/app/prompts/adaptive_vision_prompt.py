@@ -294,9 +294,8 @@ class AdaptiveVisionPrompt:
         """
         Suggest wiki-links based on content analysis.
 
-        Unlike the Hybrid prompt, this doesn't expect the model to generate
-        [[wikilinks]] directly. Instead, we analyze the content and suggest
-        potential connections.
+        Extracts noun phrases from STEP 3 (Key Observations) and STEP 2
+        (description) sections to suggest potential wiki-link connections.
 
         Args:
             response: AI model response text
@@ -307,32 +306,60 @@ class AdaptiveVisionPrompt:
         if not response:
             return []
 
-        # Look for "Key Observations" section
-        observations_match = re.search(
-            r'(?:key observations|step 3)[:\s]+(.*?)(?=\n\n|step 4|searchable|$)',
+        # Try to find STEP 3 section content (between STEP 3 header and STEP 4)
+        observations = ""
+        step3_match = re.search(
+            r'STEP\s+3[:\s].*?\n(.*?)(?=STEP\s+4|SEARCHABLE\s+ELEMENTS|$)',
             response,
-            re.DOTALL | re.IGNORECASE
+            re.DOTALL | re.IGNORECASE,
         )
+        if step3_match:
+            observations = step3_match.group(1).strip()
 
-        if not observations_match:
+        # Also look in STEP 2 description for additional subjects
+        step2_match = re.search(
+            r'STEP\s+2[:\s].*?\n(.*?)(?=STEP\s+3|KEY\s+OBSERVATIONS|$)',
+            response,
+            re.DOTALL | re.IGNORECASE,
+        )
+        description = step2_match.group(1).strip() if step2_match else ""
+
+        source_text = f"{observations}\n{description}"
+        if not source_text.strip():
             return []
 
-        observations = observations_match.group(1)
+        # Extract capitalized noun phrases (including multi-word)
+        potential_links = re.findall(
+            r'\b([A-Z\u00C0-\u024F][a-z\u00C0-\u024F]+(?:\s+[A-Z\u00C0-\u024F][a-z\u00C0-\u024F]+)*)\b',
+            source_text,
+        )
 
-        # Extract noun phrases that could be wiki-links (capitalized words/phrases)
-        # This is a simple heuristic - could be improved with NLP
-        potential_links = re.findall(r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\b', observations)
+        # Also extract all-caps brand names (e.g. ŠKODA)
+        brand_matches = re.findall(
+            r'\b([A-Z\u00C0-\u024F]{2,}(?:\s+[A-Z\u00C0-\u024F]{2,})*)\b',
+            source_text,
+        )
+        potential_links.extend(brand_matches)
 
-        # Filter and deduplicate
+        # Filter common words, deduplicate
+        stop_words = {
+            'the', 'this', 'that', 'these', 'those', 'with', 'from',
+            'have', 'been', 'will', 'also', 'note', 'here', 'there',
+            'what', 'which', 'where', 'when', 'some', 'each', 'they',
+            'make', 'model', 'type', 'content', 'image', 'photo',
+        }
         unique_links = []
         seen = set()
         for link in potential_links:
-            link_lower = link.lower()
-            if link_lower not in seen and len(link) > 3:
-                unique_links.append(link)
+            link_clean = link.strip()
+            link_lower = link_clean.lower()
+            if (link_lower not in seen
+                    and link_lower not in stop_words
+                    and len(link_clean) > 3):
+                unique_links.append(link_clean)
                 seen.add(link_lower)
 
-        return unique_links[:5]  # Return top 5 suggestions
+        return unique_links[:5]
 
     @staticmethod
     def extract_metadata(response: str) -> Dict[str, any]:

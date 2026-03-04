@@ -59,7 +59,8 @@ function UploadLayout({ onUploadSuccess, onNavigateToDocument, onNavigateToImage
   const {
     config, setUserPrompt, setModel, setPreset, toggleAdvanced,
     setAnalysisDepth, setAutoTagging, setMaxTags, setTargetAlbum,
-    setAutoCreateNote, resetConfig, isModified, getConfigSummary, visionModel
+    setAutoCreateNote, resetConfig, isModified, getConfigSummary, visionModel,
+    systemPromptData, saveSystemPrompt, resetSystemPrompt, isSavingPrompt,
   } = useAnalysisConfig();
 
   const hasPdfs = useMemo(() => files.some(f => f.file?.type === 'application/pdf'), [files]);
@@ -110,6 +111,10 @@ function UploadLayout({ onUploadSuccess, onNavigateToDocument, onNavigateToImage
         onAutoCreateNoteChange={setAutoCreateNote} onReset={resetConfig}
         isModified={isModified()} configSummary={getConfigSummary()}
         albumPicker={<AlbumSelector selectedAlbumId={config.targetAlbumId} onAlbumChange={setTargetAlbum} />}
+        systemPromptData={systemPromptData}
+        onSaveSystemPrompt={saveSystemPrompt}
+        onResetSystemPrompt={resetSystemPrompt}
+        isSavingPrompt={isSavingPrompt}
       />
       <div className="upload-actions">
         {isProcessing ? (

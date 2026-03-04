@@ -165,7 +165,7 @@ def find_available_fallback(
 
 
 _EMBED_KEYWORDS = ["embed", "nomic-embed", "bge-", "e5-", "gte-"]
-_VISION_KEYWORDS = ["vision", "-vl", "vl:", "llava", "minicpm-v"]
+_VISION_KEYWORDS = ["vision", "-vl", "vl:", "llava", "minicpm-v", "qwen3.5", "gemma3"]
 
 
 def _is_embedding_model(model_name: str) -> bool:

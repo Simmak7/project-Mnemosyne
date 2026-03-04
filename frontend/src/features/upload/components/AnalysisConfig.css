@@ -6,7 +6,8 @@
 .analysis-config {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   background: var(--ng-glass-bg, rgba(0, 0, 0, 0.4));
 }
 
@@ -654,6 +655,134 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* ----------------------------------------
+   System Prompt Editor
+   ---------------------------------------- */
+
+.system-prompt-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ng-space-2, 0.5rem);
+}
+
+.system-prompt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.system-prompt-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--ng-space-1, 0.25rem);
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.system-prompt-toggle:hover {
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.system-prompt-badge {
+  margin-left: 6px;
+  padding: 2px 8px;
+  background: rgba(129, 140, 248, 0.15);
+  border-radius: var(--ng-radius-full, 9999px);
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--ng-accent-ai, #818cf8);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.system-prompt-actions {
+  display: flex;
+  gap: var(--ng-space-1, 0.25rem);
+}
+
+.system-prompt-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: transparent;
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: var(--ng-radius-md, 8px);
+  font-size: 0.7rem;
+  color: var(--ng-text-secondary, #9ca3af);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.system-prompt-btn:hover {
+  background: var(--ng-glass-hover, rgba(255, 255, 255, 0.05));
+  color: var(--ng-text-primary, #f9fafb);
+}
+
+.system-prompt-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.system-prompt-save {
+  border-color: rgba(52, 211, 153, 0.3);
+  color: var(--ng-accent-link, #34d399);
+}
+
+.system-prompt-save:hover {
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.system-prompt-reset {
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+}
+
+.system-prompt-reset:hover {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+.system-prompt-textarea {
+  width: 100%;
+  padding: var(--ng-space-2, 0.5rem);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--ng-accent-ai, rgba(129, 140, 248, 0.3));
+  border-radius: var(--ng-radius-md, 8px);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  color: var(--ng-text-primary, #f9fafb);
+  resize: vertical;
+  min-height: 120px;
+  max-height: 300px;
+}
+
+.system-prompt-textarea:focus {
+  outline: none;
+  border-color: var(--ng-accent-ai, #818cf8);
+  box-shadow: 0 0 0 3px var(--ng-accent-ai-glow, rgba(129, 140, 248, 0.2));
+}
+
+.system-prompt-preview {
+  padding: var(--ng-space-2, 0.5rem);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--ng-glass-border, rgba(255, 255, 255, 0.05));
+  border-radius: var(--ng-radius-md, 8px);
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.65rem;
+  line-height: 1.5;
+  color: var(--ng-text-tertiary, #6b7280);
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 /* ============================================
    Light Mode Overrides
    ============================================ */
@@ -712,4 +841,22 @@
 
 [data-theme="light"] .config-slider {
   background: var(--ng-slate-300, #cbd5e1);
+}
+
+[data-theme="light"] .system-prompt-textarea {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .system-prompt-preview {
+  background: var(--ng-slate-100, #f1f5f9);
+}
+
+[data-theme="light"] .system-prompt-btn {
+  border-color: var(--ng-charcoal-200, #e5e7eb);
+  color: var(--ng-charcoal-500, #6b7280);
+}
+
+[data-theme="light"] .system-prompt-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--ng-charcoal-700, #374151);
 }

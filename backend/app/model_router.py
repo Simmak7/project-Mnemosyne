@@ -61,6 +61,7 @@ class ModelRouter:
         new_model_rollout_percent: Optional[int] = None,
         prompt_rollout_percent: Optional[int] = None,
         vision_model: Optional[str] = None,
+        system_prompt_override: Optional[str] = None,
     ):
         """
         Initialize Model Router.
@@ -86,6 +87,9 @@ class ModelRouter:
 
         # User-selected vision model override (bypasses feature flags)
         self.vision_model_override = vision_model
+
+        # User's custom system prompt (replaces base prompt when set)
+        self.system_prompt_override = system_prompt_override
 
         # Initialize adapters
         self.llama_adapter = LlamaVisionAdapter(
@@ -184,6 +188,10 @@ class ModelRouter:
         Returns:
             Tuple of (prompt_text, PromptSelection enum)
         """
+        # If user has a custom system prompt override, use it
+        if self.system_prompt_override:
+            return self.system_prompt_override, PromptSelection.ADAPTIVE
+
         # Check if we should use the configured prompt (based on rollout percentage)
         use_configured = self._should_use_prompt(using_new_model)
 

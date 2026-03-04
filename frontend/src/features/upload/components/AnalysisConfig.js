@@ -22,8 +22,10 @@ import {
   FolderPlus,
   FileEdit,
   Languages,
-  Eye
+  Eye,
+  Terminal
 } from 'lucide-react';
+import SystemPromptEditor from './SystemPromptEditor';
 import { UPLOAD_FLAGS } from '../utils/featureFlags';
 import { PRESETS } from '../utils/promptComposer';
 
@@ -85,7 +87,11 @@ function AnalysisConfig({
   onReset,
   isModified,
   configSummary,
-  albumPicker
+  albumPicker,
+  systemPromptData,
+  onSaveSystemPrompt,
+  onResetSystemPrompt,
+  isSavingPrompt,
 }) {
   const pdfOnly = hasPdfs && !hasImages;
   const mixedQueue = hasPdfs && hasImages;
@@ -316,6 +322,24 @@ function AnalysisConfig({
                     </label>
                   </div>
                 </div>
+
+                {/* System Prompt */}
+                {systemPromptData && systemPromptData.defaultPrompt && (
+                  <div className="config-advanced-section">
+                    <h4 className="config-advanced-label">
+                      <Terminal size={14} />
+                      System Prompt
+                    </h4>
+                    <SystemPromptEditor
+                      defaultPrompt={systemPromptData.defaultPrompt}
+                      customPrompt={systemPromptData.customPrompt}
+                      isCustom={systemPromptData.isCustom}
+                      onSave={onSaveSystemPrompt}
+                      onReset={onResetSystemPrompt}
+                      isSaving={isSavingPrompt}
+                    />
+                  </div>
+                )}
 
                 {/* Language - Coming Soon */}
                 <div className="config-advanced-section config-coming-soon">

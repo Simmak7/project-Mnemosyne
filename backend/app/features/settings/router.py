@@ -73,6 +73,7 @@ async def update_preferences(
         brain_model=data.brain_model,
         nexus_model=data.nexus_model,
         vision_model=data.vision_model,
+        custom_vision_prompt=data.custom_vision_prompt,
         cloud_ai_enabled=data.cloud_ai_enabled,
         cloud_ai_provider=data.cloud_ai_provider,
         cloud_rag_model=data.cloud_rag_model,
@@ -122,6 +123,28 @@ async def get_accent_colors():
         List of accent colors with hex values
     """
     return schemas.AccentColorsResponse()
+
+
+@router.get("/analysis-prompt")
+async def get_analysis_prompt(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get the default and custom analysis prompt for image analysis.
+
+    Returns the system default prompt and the user's custom override (if any).
+    """
+    from prompts.adaptive_vision_prompt import ADAPTIVE_VISION_PROMPT_V1
+
+    prefs = service.get_user_preferences(db, current_user)
+    custom = getattr(prefs, "custom_vision_prompt", None)
+
+    return {
+        "default_prompt": ADAPTIVE_VISION_PROMPT_V1,
+        "custom_prompt": custom,
+        "is_custom": custom is not None,
+    }
 
 
 # ============================================
